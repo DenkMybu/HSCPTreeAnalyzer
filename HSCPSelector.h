@@ -18,7 +18,8 @@
 
 // Headers needed by this particular selector
 #include <vector>
-
+#include <iostream>
+using namespace std;
 #include "inc/RegionMassPlot.h"
 
 class HSCPSelector : public TSelector {

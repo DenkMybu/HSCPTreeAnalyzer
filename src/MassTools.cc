@@ -2,16 +2,20 @@
 #include "inc/PlotTools.h"
 
 #include <string>
+#include <sstream>
 
-float K(2.30), C(3.17); //Data
-float K_data2018(2.27), C_data2018(3.16); //Data 2018
-float K_data2017(2.30), C_data2017(3.17);
 
 
 // Function
 TH2F* BetheBlochForMass(float mass)
 {
-    std::string strmass = std::to_string(mass);
+float K(2.30), C(3.17); //Data
+float K_data2018(2.27), C_data2018(3.16); //Data 2018
+float K_data2017(2.30), C_data2017(3.17);
+    std::stringstream ss;
+    ss<<mass;
+    //std::string strmass = std::to_string(mass);
+    std::string strmass = ss.str();
     TH2F* tmp = new TH2F(strmass.c_str(),";p [GeV];I_{h} [MeV/cm]",200,0,2000,100,0,10);
     for(int i=1;i<tmp->GetNbinsX();i++)
     {
@@ -47,7 +51,7 @@ double GetMassErr (double P, double PErr, double dEdx, double dEdxErr, double M,
 // It corresponds to the Bethe-Bloch parametrisation used in the Hscp analysis
 float GetMass(float p, float ih, float k, float c)
 {
-    return (ih-C)<0?-1:sqrt((ih-c)/k)*p;
+    return (ih-c)<0?-1:sqrt((ih-c)/k)*p;
 }
 
 

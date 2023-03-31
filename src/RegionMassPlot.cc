@@ -1,5 +1,9 @@
 #include "inc/RegionMassPlot.h"
 
+float K(2.30), C(3.17); //Data
+float K_data2018(2.27), C_data2018(3.16); //Data 2018
+float K_data2017(2.30), C_data2017(3.17);
+
 RegionMassPlot::RegionMassPlot(){}
 
 RegionMassPlot::RegionMassPlot(std::string suffix,int etabins,int ihbins,int pbins,int massbins)
@@ -245,5 +249,41 @@ void RegionMassPlot::write()
     ias_pt->ProfileX()->Write();
     momentumDistribM1000->Write();
     dedxDistribM1000->Write();
+}
+
+void RegionMassPlot::addToList(TList* list){
+    list->Add(hTOF);
+    list->Add(ih_pt);
+    list->Add(ias_pt);
+    list->Add(ih_ias);
+    list->Add(ih_nhits);
+    list->Add(ias_nhits);
+    list->Add(eta_pt);
+    list->Add(eta_p);
+    list->Add(nhits_pt);
+    list->Add(eta_nhits);
+    list->Add(ih_eta);
+    list->Add(ih_p);
+    list->Add(cross1Dtemplates);
+    list->Add(ias_p);
+    list->Add(pt_pterroverpt);
+    list->Add(ias_eta);
+    list->Add(mass_eta);
+    list->Add(eta_npv);
+    list->Add(p_npv);
+    list->Add(ih_npv);
+    list->Add(is_ias);
+    list->Add(is_ih);
+    list->Add(mass);
+    list->Add(massFrom1DTemplatesEtaBinning);
+    list->Add(errMass);
+    list->Add(Mass_errMass);
+    list->Add(ih_pt->ProjectionY());
+    list->Add(ih_p->ProfileX());
+    list->Add(ias_p->ProfileX());
+    list->Add(ih_pt->ProfileX());
+    list->Add(ias_pt->ProfileX());
+    list->Add(momentumDistribM1000);
+    list->Add(dedxDistribM1000);
 }
 

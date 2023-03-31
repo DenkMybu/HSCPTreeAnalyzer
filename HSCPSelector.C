@@ -24,6 +24,9 @@
 // root> T->Process("HSCPSelector.C+")
 //
 
+float K(2.30), C(3.17); //Data
+float K_data2018(2.27), C_data2018(3.16); //Data 2018
+float K_data2017(2.30), C_data2017(3.17);
 
 #include "HSCPSelector.h"
 #include <TH2.h>
@@ -37,6 +40,7 @@ void HSCPSelector::Begin(TTree * /*tree*/)
    mrp = new RegionMassPlot("toto",50,50,50,50);
    fout = new TFile("out.root","RECREATE");
    TString option = GetOption();
+   cout<<"here"<<endl;
 }
 
 void HSCPSelector::SlaveBegin(TTree * /*tree*/)
@@ -46,7 +50,8 @@ void HSCPSelector::SlaveBegin(TTree * /*tree*/)
    // The tree argument is deprecated (on PROOF 0 is passed).
 
    TString option = GetOption();
-
+   cout<<"slave"<<endl;
+   mrp->addToList(fOutput);
 }
 
 Bool_t HSCPSelector::Process(Long64_t entry)
@@ -66,11 +71,12 @@ Bool_t HSCPSelector::Process(Long64_t entry)
    // Use fStatus to set the return value of TTree::Process().
    //
    // The return value is currently not used.
-
+   cout<<"Process"<<endl;
    fReader.SetLocalEntry(entry);
 
    //test loop over candidates
    for(unsigned int i=0;i<Pt.GetSize();i++){
+      cout<<eta[i]<<endl;
       mrp->fill(eta[i],NOM[i],1./(Pt[i]*cosh(eta[i])),Pt[i],PtErr[i],Ih_noL1[i],Ias_StripOnly[i],-1,GetMass(Pt[i]*cosh(eta[i]),Ih_noL1[i],K,C),TOF[i],*nofVtx.Get(),1); 
         
    }
@@ -83,8 +89,6 @@ void HSCPSelector::SlaveTerminate()
    // The SlaveTerminate() function is called after all entries or objects
    // have been processed. When running with PROOF SlaveTerminate() is called
    // on each slave server.
-   fout->cd();
-   mrp->write();
 
 }
 
@@ -93,6 +97,12 @@ void HSCPSelector::Terminate()
    // The Terminate() function is the last function to be called during
    // a query. It always runs on the client, it can be used to present
    // the results graphically or save the results to file.
+   fout->cd();
+   fOutput->Print();
+   TH1F* h = dynamic_cast<TH1F *>(fOutput->FindObject("massFromTreetoto"));
+   h->Write();
+   //fOutput->Write();
+
    fout->Write();
    fout->Close();
 }

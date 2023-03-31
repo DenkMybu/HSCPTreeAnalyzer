@@ -11,7 +11,7 @@
 #include <TCanvas.h>
 #include <TMath.h>
 #include <iostream>
-#include <fstream>
+//#include <fstream>
 
 #include "PlotTools.h"
 #include "MassTools.h"
@@ -48,7 +48,7 @@ class RegionMassPlot{
         void plotMass();
         void cross1D();
         void write();
-	
+        void addToList(TList* list);	
 	//Data members
 
 	std::string suffix_;

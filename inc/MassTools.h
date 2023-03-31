@@ -12,7 +12,7 @@
 #include <TProfile.h>
 #include <TCanvas.h>
 
-#include <fstream>
+//#include <fstream>
 
 
 
@@ -21,7 +21,7 @@
   - values of K & C are hard-coded --> should go in config file
  **/
 
-extern float K,C,K_data2018,C_data2018,K_data2017,C_data2017;
+//extern float K,C,K_data2018,C_data2018,K_data2017,C_data2017;
 
 
 // Function
