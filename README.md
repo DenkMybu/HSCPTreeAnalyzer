@@ -18,11 +18,24 @@ This library needs to be loaded in root macros.
 ## Usage
 > root -l -b -q macro.cc
 
+## To-do for Eric:
+ - remove useless TTreeReader Value/Array
+ - add patterns to add variables
+ - add HSCP selection
+ - add patterns to change the selection
+ - add a selection of a single HSCP candidate per event (most ionizing)
+ - write the associated python scripts
+ - fix the storage of TCanvas (duplicate name)
+ - compile.sh changed into a Makefile
+ - fix issue with K & C global variable
+ - create a macros directory and move code
 
-## To do :
- - change the way histos are save in RegionMassControl and in the TSelector
- - change usage of references
- - test with TProof to produce few plots on Raph's root file
- - add python scripts
+## To-do for Raphael:
+ - Extend MassRegionPlots for all quantiles
+ - Port all required pieces of code from Dylan's code
+ - Check the code compatibility by running background prediction macros
+ - clean the code to avoid hard-coded values and becoming configurable
+ - check the usage of references in classes/functions
+
 
 More documentation about TProof can be found here https://root.cern/download/proof.pdf
