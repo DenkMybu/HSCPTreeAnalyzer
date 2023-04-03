@@ -5,12 +5,16 @@
 // found on file: /opt/sbg/cms/ui3_data1/rhaeberl/HSCP_prod/prodJan2023_CMSSW_10_6_30/HSCP_framework/UL2017/UL2017_RunF/Histos_2017F_merged.root
 //////////////////////////////////////////////////////////
 
+//more documentation can be foud here:
+//https://root.cern/download/proof.pdf
+
 #ifndef HSCPSelector_h
 #define HSCPSelector_h
 
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
+#include <TProof.h>
 #include <TSelector.h>
 #include <TTreeReader.h>
 #include <TTreeReaderValue.h>
