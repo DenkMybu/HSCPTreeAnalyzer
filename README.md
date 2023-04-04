@@ -1,5 +1,9 @@
 # HSCPTreeAnalyzer
 
+## Setup
+ - ROOT vesion >= 6.14
+ - python3
+
 ## Goals of the package:
  - running over the TTree produced by Analyzer.cc in [SUSYBSMAnalysis-HSCP](https://github.com/CMS-HSCP/SUSYBSMAnalysis-HSCP)
  - parallelize the processing through the use of TProof-lite
@@ -38,4 +42,5 @@ This library needs to be loaded in root macros.
  - check the usage of references in classes/functions
 
 
-More documentation about TProof can be found here https://root.cern/download/proof.pdf
+More documentation about TProof can be found [here](https://root.cern/download/proof.pdf).
+Ideas about other usage of parallelization with root can be found [here](https://iopscience.iop.org/article/10.1088/1742-6596/898/7/072022/pdf)
