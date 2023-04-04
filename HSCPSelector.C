@@ -32,12 +32,29 @@ float K_data2017(2.30), C_data2017(3.17);
 #include <TH2.h>
 #include <TStyle.h>
 
+//ADD_SELECTION_METHODS
+bool HSCPSelector::PassPreselection(int hscpIndex){
+  if (hscpIndex<0 || hscpIndex>(int)Pt.GetSize()) return false;
+  return passPreselection->at(hscpIndex);
+}
+bool HSCPSelector::PassPreselectionSept8(int hscpIndex){
+  if (hscpIndex<0 || hscpIndex>(int)Pt.GetSize()) return false;
+  return passPreselectionSept8->at(hscpIndex);
+}
+
 void HSCPSelector::Begin(TTree * /*tree*/)
 {
    // The Begin() function is called at the start of the query.
    // When running with PROOF Begin() is only called on the client.
    // The tree argument is deprecated (on PROOF 0 is passed).
    TString option = GetOption();
+   //Add selections into a vector - to be updated
+   //FILL_SELECTION_VECTOR
+   selections_.push_back(&HSCPSelector::PassPreselection);
+   selections_.push_back(&HSCPSelector::PassPreselectionSept8);
+   //FILL_SELECTION_LABEL_VECTOR
+   selLabels_.push_back("PassPreselection");
+   selLabels_.push_back("PassPreselectionSept8");
 }
 
 void HSCPSelector::SlaveBegin(TTree * /*tree*/)
@@ -48,7 +65,26 @@ void HSCPSelector::SlaveBegin(TTree * /*tree*/)
 
    TString option = GetOption();
    //create all objects that will be used by the methods Process
+   
+   //Add selections into a vector - to be updated
+   //FILL_SELECTION_VECTOR
+   selections_.push_back(&HSCPSelector::PassPreselection);
+   selections_.push_back(&HSCPSelector::PassPreselectionSept8);
+   //FILL_SELECTION_LABEL_VECTOR
+   selLabels_.push_back("PassPreselection");
+   selLabels_.push_back("PassPreselectionSept8");
+   //create RegionMassPlot for all selection
+   cout<<"HERE "<<selLabels_.size()<<" "<<selections_.size()<<endl;
    mrp = new RegionMassPlot("toto",50,50,50,50);
+   for(unsigned int i=0;i<selLabels_.size();i++){
+      cout<<"create"<<endl;
+      RegionMassPlot reg(selLabels_[i],50,50,50,50);
+      cout<<"done"<<endl;
+      vmrp.push_back(std::move(reg));
+      cout<<"loop"<<endl;
+   }
+   
+   cout<<"THERE"<<endl;
    //fOutput->Add(fout);
    //mrp->addToList(fOutput);
 }
@@ -74,11 +110,33 @@ Bool_t HSCPSelector::Process(Long64_t entry)
 
    //Loop over all HSCP candidates
    //Use the size of any array such as Pt
+   //int iCand = -1; // index on the selected candidate per event
+   cout<<"TOTO"<<endl;
+   vector<int> iCand(selLabels_.size(),-1);
    for(unsigned int i=0;i<Pt.GetSize();i++){
-      mrp->fill(eta[i],NOM[i],1./(Pt[i]*cosh(eta[i])),Pt[i],PtErr[i],Ih_noL1[i],Ias_StripOnly[i],-1,GetMass(Pt[i]*cosh(eta[i]),Ih_noL1[i],K,C),TOF[i],*nofVtx.Get(),1); 
-        
+      cout<<"pt = "<<Pt[i]<<endl;
+      //Add HSCP selection
+      
+      //if(PassPreselection(i))
+      //if(passPreselection->at(i))
+      //loop over all selection
+      cout<<"sel: "<<selections_.size()<<endl;
+      for(int s=0;s<selections_.size();s++){
+         //if(selections_[s](i)){
+         bool (HSCPSelector::*ptr)(int);
+	 ptr = selections_[s];
+	 //if(selections_[s](i)){
+	 if((this->*ptr)(i)){
+	   vmrp[s].fill(eta[i],NOM[i],1./(Pt[i]*cosh(eta[i])),Pt[i],PtErr[i],Ih_noL1[i],Ias_StripOnly[i],-1,GetMass(Pt[i]*cosh(eta[i]),Ih_noL1[i],K,C),TOF[i],*nofVtx.Get(),1); 
+         }
+      }    
    }
    //End of loop over all HSCP candidates
+
+   // Plots for the candidate per event
+   //if(iCand>=0){
+     
+   //}
 
    return kTRUE;
 }
@@ -89,7 +147,9 @@ void HSCPSelector::SlaveTerminate()
    // have been processed. When running with PROOF SlaveTerminate() is called
    // on each slave server.
    // All plots should be added to the list fOutput to be later on merged
-   mrp->addToList(fOutput);
+   //mrp->addToList(fOutput);
+   //Add plots for all MassRegionPlots
+   for(auto obj: vmrp) obj.addToList(fOutput);
 }
 
 void HSCPSelector::Terminate()

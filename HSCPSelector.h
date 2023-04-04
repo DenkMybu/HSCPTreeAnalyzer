@@ -31,9 +31,16 @@ public :
    TTreeReader     fReader;  //!the tree reader
    TTree          *fChain = 0;   //!pointer to the analyzed TTree or TChain
 
+   //selection methods
+   bool PassPreselection(int hscpIndex);
+   bool PassPreselectionSept8(int hscpIndex);
+   std::vector<bool (HSCPSelector::*)(int)> selections_;
+   std::vector<string> selLabels_;
+
    //Test
    TFile* fout;
    RegionMassPlot* mrp;
+   std::vector<RegionMassPlot> vmrp;
   
 
    // Readers to access the data (delete the ones you do not need).
