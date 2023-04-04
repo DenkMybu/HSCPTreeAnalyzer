@@ -20,7 +20,13 @@ Classes are defined in inc/ src/ directory and compiled into a library libTools.
 This library needs to be loaded in root macros.
 
 ## Usage
-> root -l -b -q macro.cc
+ - Write down HSCP preselections in cfg/HSCPpreSelections.csv
+ - In python directory, run
+ > python3 CreateSelector.py
+ It will create file HSCPSelector (.h and .C) in macros
+ - In macros directory, run 
+ > time root -l -b -q macro.cc
+ You can change the input files and the number of workers in macro.cc
 
 ## To-do for Eric:
  - [x] remove useless TTreeReader Value/Array (tests seems that it does not improve the execution time)
@@ -32,7 +38,7 @@ This library needs to be loaded in root macros.
  - fix the storage of TCanvas (duplicate name)
  - compile.sh changed into a Makefile
  - fix issue with K & C global variable
- - create a macros directory and move code
+ - [x] create a macros directory and move code
 
 ## To-do for Raphael:
  - Extend MassRegionPlots for all quantiles
