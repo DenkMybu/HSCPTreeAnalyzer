@@ -23,12 +23,12 @@ This library needs to be loaded in root macros.
 > root -l -b -q macro.cc
 
 ## To-do for Eric:
- - remove useless TTreeReader Value/Array
+ - [x] remove useless TTreeReader Value/Array (tests seems that it does not improve the execution time)
  - add patterns to add variables
- - add HSCP selection
- - add patterns to change the selection
- - add a selection of a single HSCP candidate per event (most ionizing)
- - write the associated python scripts
+ - [x] add HSCP selection
+ - [x] add patterns to change the selection
+ - [x] add a selection of a single HSCP candidate per event (most ionizing)
+ - [x] write the associated python scripts
  - fix the storage of TCanvas (duplicate name)
  - compile.sh changed into a Makefile
  - fix issue with K & C global variable
