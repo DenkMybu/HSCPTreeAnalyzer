@@ -12,8 +12,8 @@ import pandas as pd
 df_HSCPsel = pd.read_csv("../cfg/HSCPpreSelections.csv",skipinitialspace=True)
 
 # header files: template and new one
-h_temp = open("../HSCPSelector.h",'r')
-h_out = open("../HSCPDemo.h",'w')
+h_temp = open("../macros/HSCPTemplate.h",'r')
+h_out = open("../macros/HSCPSelector.h",'w')
 
 for line in h_temp:
     #copy the line of the code
@@ -27,8 +27,8 @@ h_out.close()
 h_temp.close()
 
 #  C files: template and new one
-c_temp = open("../HSCPSelector.C",'r')
-c_out = open("../HSCPDemo.C",'w')
+c_temp = open("../macros/HSCPTemplate.C",'r')
+c_out = open("../macros/HSCPSelector.C",'w')
 
 for line in c_temp:
     #copy the line of the code
