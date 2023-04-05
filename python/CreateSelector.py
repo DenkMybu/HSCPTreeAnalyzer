@@ -10,6 +10,7 @@ import pandas as pd
 #######################################
 
 df_HSCPsel = pd.read_csv("../cfg/HSCPpreSelections.csv",skipinitialspace=True)
+df_plots = pd.read_csv("../cfg/Variables.csv",skipinitialspace=True)
 
 # header files: template and new one
 h_temp = open("../macros/HSCPTemplate.h",'r')
@@ -40,6 +41,14 @@ for line in c_temp:
     #add code to add labels & members for HSCP preselection into vectors
     if line.find("FILL-SELECTION-VECTOR")>0:
         content = Code_HSCPSelectorAddLabelsAndPointers2Vector(df_HSCPsel)
+        c_out.write(content)
+    #add code to add a plot
+    if line.find("ADD-CPLOTS")>0:
+        content = Code_AddPlot(df_plots)
+        c_out.write(content)
+    #add code to fill a plot
+    if line.find("FILL-CPLOTS")>0:
+        content = Code_FillPlot(df_plots)
         c_out.write(content)
 
 c_out.close()

@@ -29,6 +29,24 @@ def HSCPSelectorAddLabelsAndPointers2Vector(label):
    content+= "selLabels_.push_back(\""+label+"\");\n" 
    return content
 
+
+def Code_AddPlot(df):
+    code = ""
+    for index, row in df.iterrows():
+        if IsCommented(row[0]): 
+            continue
+        code+="plots.AddHisto1D(selLabels_[i]+\""+row['label']+"\","+str(row['nbins'])+","+str(row['min'])+","+str(row['max'])+");\n"
+    return code
+
+def Code_FillPlot(df):
+    code = ""
+    for index, row in df.iterrows():
+        if IsCommented(row[0]): 
+            continue
+        code+="vcp[s].FillHisto1D(selLabels_[s]+\""+row['label']+"\","+row['variable']+"[i]);\n"
+    return code
+
+
 # The 3 functions below generate the codes for all preselection found in a pandas dataframe called pd
 
 def Code_HSCPSelectorProto(df):
