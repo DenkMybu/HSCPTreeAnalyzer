@@ -44,16 +44,21 @@ This library needs to be loaded in root macros.
  - [x] add a selection of a single HSCP candidate per event (most ionizing)
  - [x] write the associated python scripts
  - [x] create a macros directory and move code
- - fix the storage of TCanvas (duplicate name)
- - compile.sh changed into a Makefile
- - fix issue with K & C global variable
+ - [] compile.sh changed into a Makefile
 
 ## To-do for Raphael:
- - Extend MassRegionPlots for all quantiles
- - Port all required pieces of code from Dylan's code
- - Check the code compatibility by running background prediction macros
- - clean the code to avoid hard-coded values and becoming configurable
- - check the usage of references in classes/functions
+ - [] Change binning of MassRegionPlots
+ - [] Add MassRegionPlots for all quantiles
+ - [] Port all required pieces of code from Dylan's code
+ - [] Check the code compatibility by running background prediction macros
+ - [] Clean the code to avoid hard- []coded values and becoming configurable (binning, quantiles, ...)
+ - [] Check #nodes optimization
+ - [] Update CPlots class to hadd 2D and eventually TProfile
+ - [] Add configuration for 2D plots & TProfile
+ - [] If needed: add plots at other level than preselection or for other quantities (event based or cluster based)
+ - [] fix the storage of TCanvas (duplicate name)
+ - [] fix issue with K & C global variable
+ - [] check the usage of references in classes/functions
 
 
 More documentation about TProof can be found [here](https://root.cern/download/proof.pdf).
