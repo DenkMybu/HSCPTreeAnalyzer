@@ -65,26 +65,33 @@ void HSCPSelector::SlaveBegin(TTree * /*tree*/)
    TString option = GetOption();
    //create all objects that will be used by the methods Process
    
+   //-------------------------------------
    //Add selections into a vector - to be updated
    //FILL-SELECTION-VECTOR
+   //-------------------------------------
    selections_.push_back(&HSCPSelector::PassPreselection);
    selections_.push_back(&HSCPSelector::PassPreselectionSept8);
    selLabels_.push_back("PassPreselection");
    selLabels_.push_back("PassPreselectionSept8");
+   
+   
+   //-------------------------------------
    //create RegionMassPlot for all selection
-   cout<<"HERE "<<selLabels_.size()<<" "<<selections_.size()<<endl;
-   mrp = new RegionMassPlot("toto",50,50,50,50);
+   //-------------------------------------
    for(unsigned int i=0;i<selLabels_.size();i++){
-      cout<<"create"<<endl;
+      //The binning has to be changed and to become configurable
+      //Regions as function of Ias quantiles have to be added
       RegionMassPlot reg(selLabels_[i],50,50,50,50);
-      cout<<"done"<<endl;
       vmrp.push_back(std::move(reg));
-      cout<<"loop"<<endl;
+      
+      CPlots plots;
+      //Need to add plots here
+      //ADD-CPLOTS-HERE
+      plots.AddHisto1D(selLabels_[i]+"_hpt",10,0,200);
+      vcp.push_back(std::move(plots));
    }
    
-   cout<<"THERE"<<endl;
    //fOutput->Add(fout);
-   //mrp->addToList(fOutput);
 }
 
 Bool_t HSCPSelector::Process(Long64_t entry)
@@ -105,43 +112,53 @@ Bool_t HSCPSelector::Process(Long64_t entry)
    //
    // The return value is currently not used.
    fReader.SetLocalEntry(entry);
-
+   
+   //----------------------------------
    //Loop over all HSCP candidates
+   //----------------------------------
+   
    //Use the size of any array such as Pt
+   
+   //Store the index (in iCand) of the most ionizing candidate (maxIh) 
+   //passing the preselection
    //int iCand = -1; // index on the selected candidate per event
-   //cout<<"TOTO"<<endl;
+   
    vector<int> iCand(selLabels_.size(),-1);
-   vector<int> maxIh(selLabels_.size(),-1);
+   vector<float> maxIh(selLabels_.size(),-1);
+   
+   
    for(unsigned int i=0;i<Pt.GetSize();i++){
-      //cout<<"pt = "<<Pt[i]<<endl;
-      //Add HSCP selection
-      
-      //if(PassPreselection(i))
-      //if(passPreselection->at(i))
-      //loop over all selection
-      //cout<<"sel: "<<selections_.size()<<endl;
+      //Run over all possible  HSCP preselection
       for(int s=0;s<selections_.size();s++){
-         //if(selections_[s](i)){
+         //Use a pointer on methods 
          bool (HSCPSelector::*ptr)(int);
 	 ptr = selections_[s];
-	 //if(selections_[s](i)){
 	 if((this->*ptr)(i)){
-	   vmrp[s].fill(eta[i],NOM[i],1./(Pt[i]*cosh(eta[i])),Pt[i],PtErr[i],Ih_noL1[i],Ias_StripOnly[i],-1,GetMass(Pt[i]*cosh(eta[i]),Ih_noL1[i],K,C),TOF[i],*nofVtx.Get(),1); 
-            ///*
+	   
+	   //Fill the histos at preselection level for all HSCP candidates
+           //FILL-CPLOTS-HERE
+	   vcp[s].FillHisto1D(selLabels_[s]+"_hpt",Pt[i]);
+	   
+	   //vmrp[s].fill(eta[i],NOM[i],1./(Pt[i]*cosh(eta[i])),Pt[i],PtErr[i],Ih_noL1[i],Ias_StripOnly[i],-1,GetMass(Pt[i]*cosh(eta[i]),Ih_noL1[i],K,C),TOF[i],*nofVtx.Get(),1); 
+	    
+	    //search the most ionizing candidate
 	    if(Ih_noL1[i]>maxIh[s]){
                 maxIh[s]=Ih_noL1[i];
                 iCand[s]=i;
             }
-	    //*/
          }
       }    
    }
    //End of loop over all HSCP candidates
 
-   // Plots for the candidate per event
-   //if(iCand>=0){
-     
-   //}
+   // Plots for the most ionizing candidate per event passing the preselection
+   ///*
+   for(int s=0;s<selections_.size();s++){
+        int i=iCand[s];
+	if(i<0) continue;
+	vmrp[s].fill(eta[i],NOM[i],1./(Pt[i]*cosh(eta[i])),Pt[i],PtErr[i],Ih_noL1[i],Ias_StripOnly[i],-1,GetMass(Pt[i]*cosh(eta[i]),Ih_noL1[i],K,C),TOF[i],*nofVtx.Get(),1); 
+   }
+   //*/
 
    return kTRUE;
 }
@@ -152,9 +169,9 @@ void HSCPSelector::SlaveTerminate()
    // have been processed. When running with PROOF SlaveTerminate() is called
    // on each slave server.
    // All plots should be added to the list fOutput to be later on merged
-   //mrp->addToList(fOutput);
    //Add plots for all MassRegionPlots
    for(auto obj: vmrp) obj.addToList(fOutput);
+   for(auto obj: vcp) obj.AddToList(fOutput);
 }
 
 void HSCPSelector::Terminate()

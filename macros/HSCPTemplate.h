@@ -25,6 +25,7 @@
 #include <iostream>
 using namespace std;
 #include "../inc/RegionMassPlot.h"
+#include "../inc/CPlots.h"
 
 class HSCPSelector : public TSelector {
 public :
@@ -41,9 +42,10 @@ public :
 
    //Test
    TFile* fout;
-   RegionMassPlot* mrp;
+   //Will be used to proced mass plots at given selections (see selLabels)
    std::vector<RegionMassPlot> vmrp;
-  
+   //Will be used to produce many plots at given selections (see selLabels)
+   std::vector<CPlots> vcp; 
 
    // Readers to access the data (delete the ones you do not need).
    TTreeReaderValue<UInt_t> Trig = {fReader, "Trig"};
