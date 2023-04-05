@@ -3,6 +3,7 @@
 
 #include <TH1F.h>
 #include <TH2F.h>
+#include <TList.h>
 #include <TFile.h>
 #include <TProfile.h>
 #include <map>
@@ -33,6 +34,7 @@ class CPlots: public TObject{
         TH1F* GetHisto1D(std::string name);
         bool FillHisto1D(std::string name, float value, float weight = 1);
         bool Write(TFile* ofile);
+        bool AddToList(TList* list);	
 
     private:
         std::string selection_;
