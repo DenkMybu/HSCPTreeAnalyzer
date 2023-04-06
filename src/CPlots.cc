@@ -1,4 +1,4 @@
-#include "../inc/CPlots.h"
+#include "CPlots.h"
 #include <iostream>
 
 void CPlots::SetLabels(std::string selection, std::string region, std::string IasQuantile, std::string moreinfo){

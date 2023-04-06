@@ -1,5 +1,5 @@
-#include "inc/MassTools.h"
-#include "inc/PlotTools.h"
+#include "MassTools.h"
+#include "PlotTools.h"
 
 #include <string>
 #include <sstream>

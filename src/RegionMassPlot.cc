@@ -1,4 +1,4 @@
-#include "inc/RegionMassPlot.h"
+#include "RegionMassPlot.h"
 
 float K(2.30), C(3.17); //Data
 float K_data2018(2.27), C_data2018(3.16); //Data 2018
