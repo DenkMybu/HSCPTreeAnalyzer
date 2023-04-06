@@ -61,7 +61,8 @@ This library needs to be loaded in root macros.
  -  check the usage of references in classes/functions
 
 
-More documentation about TProof can be found [here](https://root.cern/download/proof.pdf).
+![Exectution time observed running over 33 M evts of 2017 - 93 Go - ~15 Go read](img/Perf.png)
 
-
-Ideas about other usage of parallelization with root can be found [here](https://iopscience.iop.org/article/10.1088/1742-6596/898/7/072022/pdf)
+Documentation about parallalization:
+ - More documentation about TProof can be found [here](https://root.cern/download/proof.pdf).
+ - Ideas about other usage of parallelization with root can be found [here](https://iopscience.iop.org/article/10.1088/1742-6596/898/7/072022/pdf)
