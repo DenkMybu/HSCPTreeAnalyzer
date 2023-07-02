@@ -3,6 +3,7 @@
 
 #include <TH1F.h>
 #include <TH2F.h>
+#include <TH3F.h>
 #include <TList.h>
 #include <TFile.h>
 #include <TProfile.h>
@@ -28,10 +29,13 @@
 class CPlots: public TObject{
     public:
         CPlots(){}
-
+       
+        //CPlots(const CPlots &c);
+        ~CPlots();
         void SetLabels(std::string selection, std::string region="", std::string IasQuantile="", std::string moreinfo="");
         void AddHisto1D(std::string name, int nbins, float xmin, float xmax, std::string title = "");
         TH1F* GetHisto1D(std::string name);
+        //TH1F GetHisto1D(std::string name);
         bool FillHisto1D(std::string name, float value, float weight = 1);
         bool Write(TFile* ofile);
         bool AddToList(TList* list);	
@@ -41,7 +45,8 @@ class CPlots: public TObject{
         std::string region_;
         std::string IasQuantile_;
         std::string moreinfo_;
-        std::map<std::string,TH1F*> mh1D_;
+        std::map<std::string,TH1F> mh1D_;
+        //std::map<std::string,TH1F*> mh1D_;
 
 };
 

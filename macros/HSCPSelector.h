@@ -25,6 +25,7 @@
 #include <iostream>
 using namespace std;
 #include "../inc/RegionMassPlot.h"
+#include "../inc/CPlots.h"
 
 class HSCPSelector : public TSelector {
 public :
@@ -34,20 +35,323 @@ public :
    //ADD-HSCP-SELECTION
 bool PassHSCPpresel_preselectionSept8(int hscpIndex);
 
-bool PassHSCPpresel_test(int hscpIndex);
+bool PassHSCPpresel_testIhPt(int hscpIndex);
 
    bool PassPreselection(int hscpIndex);
    bool PassPreselectionSept8(int hscpIndex);
-   
-   
+
+
+   bool Usefpixel;
+   bool BothMethods;
+
+   int etabins_;
+   int ihbins_;
+   int pbins_;
+   int massbins_;
+   int masscut_;
+   double ptcut_;
+
+   std::string dataset_;
+   std::string oFile_;
+
+   int befPreSel=0;
+   int preselTestIh = 0;
+   int sizeP;
+   const int NBINSP = 319;
+   float edgesP[320];
+
+   int sizeIH;
+   const int NBINSIH = 400;
+   float edgesIH[401];
+
+   int sizeEta;
+   const int NBINSETA = 40;
+   float edgesEta[41];
+
+   int sizeEtaRebin;
+   const int NBINSETAREBIN = 20;
+   float edgesEtaRebin[21];
+
+   //vector< float > edges;
+   int sizePraw;
+   const int NBINSPRAW = 1000;
+   float edgesPraw[1001];
+
+   float pMax;
+   float ihMax;
+   bool flagP;
+   bool flagIH;
+
+   int reweightChoice;
+
+   double mwGlu800[2] = {607.199793949,1077.24940923};
+   double mwGlu1000[2] = {757.670608492,1358.89396958};
+   double mwGlu1400[2] = {1024.99735697,1985.80106367};
+   double mwGlu1600[2] = {1162.10069235,2298.34282775};
+   double mwGlu1800[2] = {1271.92236432,2640.58487303};
+   double mwGlu2000[2] = {1407.11296357,2893.80572114};
+   double mwGlu2200[2] = {1537.98972818,3156.46026568};
+   double mwGlu2400[2] = {1656.75618975,3411.80886352};
+   double mwGlu2600[2] = {1757.77524037,3539.47520337};
+
+   double mwStau308[2] = {240.083474288,360.01427282};
+   double mwStau432[2] = {354.608382698,520.473884815};
+   double mwStau557[2] = {451.685511417,664.384791755};
+   double mwStau651[2] = {522.955876537,786.980652156};
+   double mwStau745[2] = {596.583650463,899.670465345};
+   double mwStau871[2] = {691.781893213,1088.46539719};
+   double mwStau1029[2] = {812.801875736,1318.71800314};
+
+   int nbSig[16] = {0};
+
+
+ 
+   string namesSig[16] = {"Glu800","Glu1000","Glu1400","Glu1600","Glu1800","Glu2000","Glu2200","Glu2400","Glu2600","Stau308","Stau432","Stau557","Stau651","Stau745","Stau871","Stau1029"};
+
+   vector< vector <float> > ratioPandEta;
+
+   vector<float> ratioPmuPele;
+   vector<float> ratioIHmuIHele;
+   vector<float> ratioEtaMuEtaEle;
+   //float what_weight; 
+ 
+ 
+
+ 
+   float quan50= 0.017987774;
+   float quan60= 0.022399569;
+   float quan70= 0.028518069;
+   float quan80= 0.038047370;
+   float quan90= 0.056746799;
+   float quan99= 0.13331622;
+   float quan999= 0.22018057;
+
+
+
+   float fpix0 = 0.0;
+   float fpix3 = 0.3;
+   float fpix4 = 0.4;
+   float fpix5 = 0.5;
+   float fpix6 = 0.6;
+   float fpix7 = 0.7;
+   float fpix8 = 0.8;
+   float fpix9 = 0.9;
+   float fpix99 = 0.99;
+   float fpix999 = 0.999;
+  
+   float fpix10 = 1.0;
+
+   std::string regFpixAll = "_regionAll";
+
+   std::string regFpixA_3f6 = "_regionA_3fp6";
+   std::string regFpixA_6f9 = "_regionA_6fp9";
+   std::string regFpixA_3f8 = "_regionA_3fp8";
+   std::string regFpixA_3f9 = "_regionA_3fp9";
+
+   std::string regFpixA_3f4 = "_regionA_3fp4";
+   std::string regFpixA_4f5 = "_regionA_4fp5";
+   std::string regFpixA_5f6 = "_regionA_5fp6";
+   std::string regFpixA_6f7 = "_regionA_6fp7";
+   std::string regFpixA_7f8 = "_regionA_7fp8";
+   std::string regFpixA_8f9 = "_regionA_8fp9";
+   std::string regFpixA_9f10 = "_regionA_9fp10";
+   std::string regFpixA_99f10 = "_regionA_99fp10";
+   std::string regFpixA_999f10 = "_regionA_999fp10";
+
+
+   std::string regFpixC_3f6 = "_regionC_3fp6";
+   std::string regFpixC_6f9 = "_regionC_6fp9";
+   std::string regFpixC_3f8 = "_regionC_3fp8";
+   std::string regFpixC_3f9 = "_regionC_3fp9";
+
+   std::string regFpixC_3f4 = "_regionC_3fp4";
+   std::string regFpixC_4f5 = "_regionC_4fp5";
+   std::string regFpixC_5f6 = "_regionC_5fp6";
+   std::string regFpixC_6f7 = "_regionC_6fp7";
+   std::string regFpixC_7f8 = "_regionC_7fp8";
+   std::string regFpixC_8f9 = "_regionC_8fp9";
+
+
+   std::string regFpixD_6f9 = "_regionD_6fp9";
+
+   std::string regFpixD_3f4 = "_regionD_3fp4";
+   std::string regFpixD_4f5 = "_regionD_4fp5";
+   std::string regFpixD_5f6 = "_regionD_5fp6";
+   std::string regFpixD_6f7 = "_regionD_6fp7";
+   std::string regFpixD_7f8 = "_regionD_7fp8";
+   std::string regFpixD_8f9 = "_regionD_8fp9";
+
+   std::string regFpixD_9f10 = "_regionD_9fp10";
+   std::string regFpixD_99f10 = "_regionD_99fp10";
+   std::string regFpixD_999f10 = "_regionD_999fp10";
+
+
+   std::string regFpixB_3f6 = "_regionB_3fp6";
+   std::string regFpixB_6f9 = "_regionB_6fp9";
+   std::string regFpixB_3f8 = "_regionB_3fp8";
+   std::string regFpixB_3f9 = "_regionB_3fp9";
+
+   std::string regFpixB_3f4 = "_regionB_3fp4";
+   std::string regFpixB_4f5 = "_regionB_4fp5";
+   std::string regFpixB_5f6 = "_regionB_5fp6";
+   std::string regFpixB_6f7 = "_regionB_6fp7";
+   std::string regFpixB_7f8 = "_regionB_7fp8";
+   std::string regFpixB_8f9 = "_regionB_8fp9";
+   std::string regFpixB_9f10 = "_regionB_9fp10";
+   std::string regFpixB_99f10 = "_regionB_99fp10";
+   std::string regFpixB_999f10 = "_regionB_999fp10";
+
+
+   std::string rAll = "_regionAll";
+
+
+   std::string rA_med = "_regionA_ias50";    
+   std::string rA_80 = "_regionA_ias80";    
+   std::string rA_90 = "_regionA_ias90";    
+
+   std::string rC_med = "_regionC_ias50";    
+   std::string rC_80 = "_regionC_ias80";    
+   std::string rC_90 = "_regionC_ias90";    
+
+
+   std::string rB_50 = "_regionB_50ias60";    
+   std::string rB_60 = "_regionB_60ias70";    
+   std::string rB_70 = "_regionB_70ias80";    
+   std::string rB_80 = "_regionB_80ias90";    
+
+   std::string rB_50_90 = "_regionB_50ias90";    
+   std::string rB_50_100 = "_regionB_50ias100";    
+   std::string rB_50_99 = "_regionB_50ias99";    
+   std::string rB_50_999 = "_regionB_50ias999";    
+
+   std::string rB_90_100 = "_regionB_90ias100";
+   std::string rB_99_100 = "_regionB_99ias100";
+   std::string rB_999_100 = "_regionB_999ias100";
+ 
+   std::string rD_50 = "_regionD_50ias60";    
+   std::string rD_60 = "_regionD_60ias70";    
+   std::string rD_70 = "_regionD_70ias80";    
+   std::string rD_80 = "_regionD_80ias90";    
+
+   std::string rD_50_90 = "_regionD_50ias90";    
+   std::string rD_50_99 = "_regionD_50ias99";    
+   std::string rD_50_999 = "_regionD_50ias999";    
+
+   std::string rD_90_100 = "_regionD_90ias100";    
+   std::string rD_99_100 = "_regionD_99ias100";    
+   std::string rD_999_100 = "_regionD_999ias100";    
+
    std::vector<bool (HSCPSelector::*)(int)> selections_;
    std::vector<string> selLabels_;
 
    //Test
    TFile* fout;
-   RegionMassPlot* mrp;
-   std::vector<RegionMassPlot> vmrp;
+   //Will be used to proced mass plots at given selections (see selLabels)
+
+   std::vector<RegionMassPlot> vmrp_regionFpix_all;
+
+   std::vector<RegionMassPlot> vmrp_regionA_3f6;
+   std::vector<RegionMassPlot> vmrp_regionA_6f9;
+   std::vector<RegionMassPlot> vmrp_regionA_3f8;
+   std::vector<RegionMassPlot> vmrp_regionA_3f9;
+
+   std::vector<RegionMassPlot> vmrp_regionA_3f4;
+   std::vector<RegionMassPlot> vmrp_regionA_4f5;
+   std::vector<RegionMassPlot> vmrp_regionA_5f6;
+   std::vector<RegionMassPlot> vmrp_regionA_6f7;
+   std::vector<RegionMassPlot> vmrp_regionA_7f8;
+   std::vector<RegionMassPlot> vmrp_regionA_8f9;
+   std::vector<RegionMassPlot> vmrp_regionA_9f10;
+   std::vector<RegionMassPlot> vmrp_regionA_99f10;
+   std::vector<RegionMassPlot> vmrp_regionA_999f10;
+
+
+   std::vector<RegionMassPlot> vmrp_regionC_3f6;
+   std::vector<RegionMassPlot> vmrp_regionC_6f9;
+   std::vector<RegionMassPlot> vmrp_regionC_3f8;
+   std::vector<RegionMassPlot> vmrp_regionC_3f9;
+
+   std::vector<RegionMassPlot> vmrp_regionC_3f4;
+   std::vector<RegionMassPlot> vmrp_regionC_4f5;
+   std::vector<RegionMassPlot> vmrp_regionC_5f6;
+   std::vector<RegionMassPlot> vmrp_regionC_6f7;
+   std::vector<RegionMassPlot> vmrp_regionC_7f8;
+   std::vector<RegionMassPlot> vmrp_regionC_8f9;
+
+
+   std::vector<RegionMassPlot> vmrp_regionD_6f9;
+
+   std::vector<RegionMassPlot> vmrp_regionD_3f4;
+   std::vector<RegionMassPlot> vmrp_regionD_4f5;
+   std::vector<RegionMassPlot> vmrp_regionD_5f6;
+   std::vector<RegionMassPlot> vmrp_regionD_6f7;
+   std::vector<RegionMassPlot> vmrp_regionD_7f8;
+   std::vector<RegionMassPlot> vmrp_regionD_8f9;
+
+   std::vector<RegionMassPlot> vmrp_regionD_9f10;
+   std::vector<RegionMassPlot> vmrp_regionD_99f10;
+   std::vector<RegionMassPlot> vmrp_regionD_999f10;
+
+
+   std::vector<RegionMassPlot> vmrp_regionB_3f6;
+   std::vector<RegionMassPlot> vmrp_regionB_6f9;
+   std::vector<RegionMassPlot> vmrp_regionB_3f8;
+   std::vector<RegionMassPlot> vmrp_regionB_3f9;
+
+   std::vector<RegionMassPlot> vmrp_regionB_3f4;
+   std::vector<RegionMassPlot> vmrp_regionB_4f5;
+   std::vector<RegionMassPlot> vmrp_regionB_5f6;
+   std::vector<RegionMassPlot> vmrp_regionB_6f7;
+   std::vector<RegionMassPlot> vmrp_regionB_7f8;
+   std::vector<RegionMassPlot> vmrp_regionB_8f9;
+   std::vector<RegionMassPlot> vmrp_regionB_9f10;
+   std::vector<RegionMassPlot> vmrp_regionB_99f10;
+   std::vector<RegionMassPlot> vmrp_regionB_999f10;
+
+
+
+   std::vector<RegionMassPlot> vmrp_region_all;
   
+   
+   std::vector<RegionMassPlot> vmrp_regionD_50ias60;
+   std::vector<RegionMassPlot> vmrp_regionD_60ias70;
+   std::vector<RegionMassPlot> vmrp_regionD_70ias80;
+   std::vector<RegionMassPlot> vmrp_regionD_80ias90;
+   //std::vector<RegionMassPlot> vmrp_regionD_90ias100;
+   std::vector<RegionMassPlot> vmrp_regionD_50ias90;
+   std::vector<RegionMassPlot> vmrp_regionD_50ias99;
+   std::vector<RegionMassPlot> vmrp_regionD_50ias999;
+
+   std::vector<RegionMassPlot> vmrp_regionD_90ias100;
+   std::vector<RegionMassPlot> vmrp_regionD_99ias100;
+   std::vector<RegionMassPlot> vmrp_regionD_999ias100;
+
+   std::vector<RegionMassPlot> vmrp_regionA_ias50;
+   std::vector<RegionMassPlot> vmrp_regionA_ias80;
+   std::vector<RegionMassPlot> vmrp_regionA_ias90;
+
+   std::vector<RegionMassPlot> vmrp_regionC_ias50;
+   std::vector<RegionMassPlot> vmrp_regionC_ias80;
+   std::vector<RegionMassPlot> vmrp_regionC_ias90;
+
+   std::vector<RegionMassPlot> vmrp_regionB_50ias60;
+   std::vector<RegionMassPlot> vmrp_regionB_60ias70;
+   std::vector<RegionMassPlot> vmrp_regionB_70ias80;
+   std::vector<RegionMassPlot> vmrp_regionB_80ias90;
+   //std::vector<RegionMassPlot> vmrp_regionB_90ias100;
+   std::vector<RegionMassPlot> vmrp_regionB_50ias90;
+   std::vector<RegionMassPlot> vmrp_regionB_50ias100;
+   std::vector<RegionMassPlot> vmrp_regionB_50ias99; 
+   std::vector<RegionMassPlot> vmrp_regionB_50ias999;
+
+
+   std::vector<RegionMassPlot> vmrp_regionB_90ias100;   
+   std::vector<RegionMassPlot> vmrp_regionB_99ias100;
+   std::vector<RegionMassPlot> vmrp_regionB_999ias100;
+   
+
+   //Will be used to produce many plots at given selections (see selLabels)
+   //std::vector<CPlots> vcp; 
 
    // Readers to access the data (delete the ones you do not need).
    TTreeReaderValue<UInt_t> Trig = {fReader, "Trig"};
@@ -68,8 +372,7 @@ bool PassHSCPpresel_test(int hscpIndex);
    TTreeReaderArray<int> pvNdof = {fReader, "pvNdof"};
    TTreeReaderArray<float> pvChi2 = {fReader, "pvChi2"};
    TTreeReaderArray<float> pvSumPt2 = {fReader, "pvSumPt2"};
-   TTreeReaderValue<UInt_t> Hscp = {fReader, "Hscp"};
-   TTreeReaderValue<UInt_t> nMuons = {fReader, "nMuons"};
+
    TTreeReaderValue<UInt_t> njets = {fReader, "njets"};
    TTreeReaderValue<Float_t> Weight = {fReader, "Weight"};
    TTreeReaderValue<Float_t> GeneratorWeight = {fReader, "GeneratorWeight"};
@@ -80,7 +383,8 @@ bool PassHSCPpresel_test(int hscpIndex);
    TTreeReaderArray<vector<float>> triggerObjectPt = {fReader, "triggerObjectPt"};
    TTreeReaderArray<vector<float>> triggerObjectEta = {fReader, "triggerObjectEta"};
    TTreeReaderArray<vector<float>> triggerObjectPhi = {fReader, "triggerObjectPhi"};
-   TTreeReaderValue<Bool_t> HLT_Mu50 = {fReader, "HLT_Mu50"};
+   */
+   /*
    TTreeReaderValue<Bool_t> HLT_PFMET120_PFMHT120_IDTight = {fReader, "HLT_PFMET120_PFMHT120_IDTight"};
    TTreeReaderValue<Bool_t> HLT_PFHT500_PFMET100_PFMHT100_IDTight = {fReader, "HLT_PFHT500_PFMET100_PFMHT100_IDTight"};
    TTreeReaderValue<Bool_t> HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60 = {fReader, "HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60"};
@@ -107,7 +411,11 @@ bool PassHSCPpresel_test(int hscpIndex);
    TTreeReaderValue<Float_t> HLTPFMHT = {fReader, "HLTPFMHT"};
    TTreeReaderValue<Float_t> HLTPFMHT_phi = {fReader, "HLTPFMHT_phi"};
    TTreeReaderValue<Float_t> HLTPFMHT_sigf = {fReader, "HLTPFMHT_sigf"};
+   */ 
+   TTreeReaderValue<Bool_t> HLT_Mu50 = {fReader, "HLT_Mu50"};
    TTreeReaderValue<Bool_t> matchedMuonWasFound = {fReader, "matchedMuonWasFound"};
+   
+   /*
    TTreeReaderArray<int> gParticleId = {fReader, "gParticleId"};
    TTreeReaderArray<int> gParticleStatus = {fReader, "gParticleStatus"};
    TTreeReaderArray<float> gParticleE = {fReader, "gParticleE"};
@@ -122,6 +430,8 @@ bool PassHSCPpresel_test(int hscpIndex);
    TTreeReaderArray<float> gParticleProdVertexZ = {fReader, "gParticleProdVertexZ"};
    TTreeReaderArray<int> gParticleMotherId = {fReader, "gParticleMotherId"};
    TTreeReaderArray<int> gParticleMotherIndex = {fReader, "gParticleMotherIndex"};
+   
+   
    TTreeReaderArray<float> eleE = {fReader, "eleE"};
    TTreeReaderArray<float> elePt = {fReader, "elePt"};
    TTreeReaderArray<float> eleEta = {fReader, "eleEta"};
@@ -156,6 +466,7 @@ bool PassHSCPpresel_test(int hscpIndex);
    TTreeReaderValue<vector<bool>> ele_passMVANoIsoIDWPLoose = {fReader, "ele_passMVANoIsoIDWPLoose"};
    TTreeReaderValue<vector<bool>> ele_PassConvVeto = {fReader, "ele_PassConvVeto"};
    TTreeReaderArray<float> ele_OneOverEminusOneOverP = {fReader, "ele_OneOverEminusOneOverP"};
+   
    TTreeReaderArray<float> muonE = {fReader, "muonE"};
    TTreeReaderArray<float> muonPt = {fReader, "muonPt"};
    TTreeReaderArray<float> muonEta = {fReader, "muonEta"};
@@ -235,6 +546,13 @@ bool PassHSCPpresel_test(int hscpIndex);
    TTreeReaderArray<float> EoverP = {fReader, "EoverP"};
    TTreeReaderValue<vector<bool>> isMuon = {fReader, "isMuon"};
    TTreeReaderValue<vector<bool>> isElectron = {fReader, "isElectron"};
+
+   /*
+   TTreeReaderArray<float> gsfFbremElectron = {fReader, "gsfFbremElectron"};
+   TTreeReaderArray<float> gsfMomentumElectron  = {fReader, "gsfMomentumElectron"};
+   TTreeReaderArray<float> PFMomentumElectron = {fReader, "PFMomentumElectron"};
+   */
+
    TTreeReaderArray<float> TOF = {fReader, "TOF"};
    /*
    TTreeReaderValue<vector<bool>> isPhoton = {fReader, "isPhoton"};
@@ -273,6 +591,7 @@ bool PassHSCPpresel_test(int hscpIndex);
    TTreeReaderArray<float> iso_ECAL = {fReader, "iso_ECAL"};
    TTreeReaderArray<float> iso_HCAL = {fReader, "iso_HCAL"};
    TTreeReaderArray<float> track_genTrackMiniIsoSumPt = {fReader, "track_genTrackMiniIsoSumPt"};
+   TTreeReaderArray<float> track_genTrackAbsIsoSumPtFix = {fReader, "track_genTrackAbsIsoSumPtFix"};
    /*
    TTreeReaderArray<float> HSCP_tuneP_Pt = {fReader, "HSCP_tuneP_Pt"};
    TTreeReaderArray<float> HSCP_tuneP_PtErr = {fReader, "HSCP_tuneP_PtErr"};
@@ -281,7 +600,11 @@ bool PassHSCPpresel_test(int hscpIndex);
    TTreeReaderArray<int> HSCP_tuneP_MuonBestTrackType = {fReader, "HSCP_tuneP_MuonBestTrackType"};
    TTreeReaderArray<int> HSCP_ErrorHisto_bin = {fReader, "HSCP_ErrorHisto_bin"};
    TTreeReaderArray<int> HSCP_type = {fReader, "HSCP_type"};
+   */
+
    TTreeReaderArray<float> PFMiniIso_relative = {fReader, "PFMiniIso_relative"};
+   /*
+ 
    TTreeReaderArray<float> PFMiniIso_wMuon_relative = {fReader, "PFMiniIso_wMuon_relative"};
    TTreeReaderArray<float> TrackPFIsolationR005_sumChargedHadronPt = {fReader, "TrackPFIsolationR005_sumChargedHadronPt"};
    TTreeReaderArray<float> TrackPFIsolationR005_sumNeutralHadronPt = {fReader, "TrackPFIsolationR005_sumNeutralHadronPt"};
@@ -326,9 +649,18 @@ bool PassHSCPpresel_test(int hscpIndex);
    TTreeReaderArray<float> GenEta = {fReader, "GenEta"};
    TTreeReaderArray<float> GenPhi = {fReader, "GenPhi"};
    */
+   //HSCPSelector(TTree * /*tree*/ =0){}
+   HSCPSelector()
+   {
+  
+       fout = 0;
+   }
 
-   HSCPSelector(TTree * /*tree*/ =0) { }
-   virtual ~HSCPSelector() { }
+   virtual ~HSCPSelector() 
+   {
+       if(!fout) delete fout;
+    
+   }
    virtual Int_t   Version() const { return 2; }
    virtual void    Begin(TTree *tree);
    virtual void    SlaveBegin(TTree *tree);
@@ -339,7 +671,7 @@ bool PassHSCPpresel_test(int hscpIndex);
    virtual void    SetOption(const char *option) { fOption = option; }
    virtual void    SetObject(TObject *obj) { fObject = obj; }
    virtual void    SetInputList(TList *input) { fInput = input; }
-   virtual TList  *GetOutputList() const { return fOutput; }
+   virtual TList   *GetOutputList() const { return fOutput; }
    virtual void    SlaveTerminate();
    virtual void    Terminate();
 
@@ -349,7 +681,10 @@ bool PassHSCPpresel_test(int hscpIndex);
 
 #endif
 
+
 #ifdef HSCPSelector_cxx
+
+
 void HSCPSelector::Init(TTree *tree)
 {
    // The Init() function is called when the selector needs to initialize

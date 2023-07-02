@@ -7,6 +7,7 @@
 #include <TFile.h>
 #include <TH1F.h>
 #include <TH2F.h>
+#include <TH3F.h>
 #include <TProfile.h>
 #include <TCanvas.h>
 #include <TMath.h>
@@ -35,15 +36,16 @@ class RegionMassPlot{
 
     public:
         //Constructors & destructor
-        RegionMassPlot();
+        //RegionMassPlot();
         RegionMassPlot(std::string suffix,int etabins,int ihbins,int pbins,int massbins);
-        RegionMassPlot(std::string suffix,int nbins, float* xbins, std::vector<double> v_pbins, std::vector<float> vect);
+        //RegionMassPlot(std::string suffix,int nbins, float* xbins, std::vector<double> v_pbins, std::vector<float> vect);
         ~RegionMassPlot();
        
         //Methods
 	void initHisto();
         void initHisto(int& etabins,int& ihbins,int& pbins,int& massbins);
-        void fill(float eta, float nhits, float p, float pt, float pterr, float ih, float ias, float is, float m, float tof, float npv, float w);
+        void fill(float eta, float nhits, float p, float pt, float pterr, float ih, float ias, float is, float m, float tof, float npv, float w, float reW);
+        void OneOverPreweighting(TH2F* ih_p_1, TH1F* p2);
         void fillMassFrom1DTemplatesEtaBinning(float weight_);
         void plotMass();
         void cross1D();
@@ -52,7 +54,9 @@ class RegionMassPlot{
 	//Data members
 
 	std::string suffix_;
-        
+       
+
+
 	//Plots binning
 	//
 	int nbins;
@@ -92,6 +96,7 @@ class RegionMassPlot{
         TH2F* eta_nhits;
         TH2F* ih_eta;
         TH2F* ih_p;
+        //TH3F* ih_p_eta;
         TH2F* ias_p;
         TH2F* pt_pterroverpt;
         TH2F* ias_eta;
@@ -101,6 +106,8 @@ class RegionMassPlot{
         TH2F* ih_npv;
         TH2F* is_ias;
         TH2F* is_ih;
+        TH2F* mass_p;
+        TH2F* mass_ih;
         
 	TH1F* mass;
         TH1F* massFrom1DTemplates;

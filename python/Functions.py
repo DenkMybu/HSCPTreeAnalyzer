@@ -18,8 +18,18 @@ def HSCPSelectorImpl(label, instruction):
     #content for C file
     content = "bool HSCPSelector::PassHSCPpresel_"+label+"(int i){\n"
     content+= "   if (i<0 || i>(int)Pt.GetSize()) return false;\n"
+
+    #ADDED HERE
+    #content +="   bool tmp = " + instruction+";\n"
+
+    #####
+
     #content+= "   "+.replace('[i]','->at(hscpIndex)')
+
+    #OLD HERE  
     content+= "   return "+instruction+";\n"
+    #content+='   std::cout << "bool for presel = " << tmp << endl;\n'
+    #content+= "   return tmp;\n"
     content+= "}\n"
     return content
 

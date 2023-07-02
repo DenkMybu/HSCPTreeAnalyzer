@@ -1,3 +1,3 @@
 preselection, passPreselection[i]
 preselectionSept8, passPreselectionSept8[i]
-test, Pt[i]>50 && abs(eta[i])<2.1
+testIhPt, ( (passPreselectionSept8[i]) && (PtErr[i]/Pt[i])<1 && (Ih_StripOnly[i]>3.14) && ((*HLT_Mu50.Get())==true) && ((*matchedMuonWasFound.Get())==true) && (track_genTrackAbsIsoSumPtFix[i]<15.0) && (ProbQ_noL1[i]<0.7)&& (EoverP[i] < 0.3) && (PFMiniIso_relative[i] < 0.02) && (PtErr[i]/(Pt[i]*Pt[i]))<0.0008)

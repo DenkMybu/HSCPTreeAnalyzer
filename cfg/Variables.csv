@@ -1,2 +1,2 @@
 label,variable,nbins,min,max
-pt,Pt,1000,0,1000
+#pt,Pt,1000,0,1000
