@@ -91,6 +91,9 @@ void HSCPSelector::Begin(TTree * /*tree*/)
    //https://root-forum.cern.ch/t/proof-session-tselector-how-to-pass-object-to-slaves/25502
    std::cout << "Properly terminated function Begin " <<std::endl;
    std::cout << " Sel Label size : " << selLabels_.size() <<std::endl;
+   
+
+
 }
 
 
@@ -232,6 +235,8 @@ void HSCPSelector::SlaveBegin(TTree * /*tree*/)
           std::string label_FpixD_7f8 = regFpixD_7f8 + "_" + selLabels_[i]; 
           std::string label_FpixD_8f9 = regFpixD_8f9 + "_" + selLabels_[i]; 
 
+          std::string label_FpixD_8f10 = regFpixD_8f10 + "_" + selLabels_[i];
+
           std::string label_FpixD_9f10 = regFpixD_9f10 + "_" + selLabels_[i]; 
           std::string label_FpixD_99f10 = regFpixD_99f10 + "_" + selLabels_[i]; 
           std::string label_FpixD_999f10 = regFpixD_999f10 + "_" + selLabels_[i]; 
@@ -247,6 +252,8 @@ void HSCPSelector::SlaveBegin(TTree * /*tree*/)
           std::string label_FpixB_6f7 = regFpixB_6f7 + "_" + selLabels_[i]; 
           std::string label_FpixB_7f8 = regFpixB_7f8 + "_" + selLabels_[i]; 
           std::string label_FpixB_8f9 = regFpixB_8f9 + "_" + selLabels_[i]; 
+
+          std::string label_FpixB_8f10 = regFpixB_8f10 + "_" + selLabels_[i];
           std::string label_FpixB_9f10 = regFpixB_9f10 + "_" + selLabels_[i];
           std::string label_FpixB_99f10 = regFpixB_99f10 + "_" + selLabels_[i];
           std::string label_FpixB_999f10 = regFpixB_999f10 + "_" + selLabels_[i];
@@ -293,6 +300,7 @@ void HSCPSelector::SlaveBegin(TTree * /*tree*/)
           RegionMassPlot regD_7f8(label_FpixD_7f8.c_str(),etabins_,ihbins_,pbins_,massbins_);     
           RegionMassPlot regD_8f9(label_FpixD_8f9.c_str(),etabins_,ihbins_,pbins_,massbins_); 
 
+          RegionMassPlot regD_8f10(label_FpixD_8f10.c_str(),etabins_,ihbins_,pbins_,massbins_); 
           RegionMassPlot regD_9f10(label_FpixD_9f10.c_str(),etabins_,ihbins_,pbins_,massbins_); 
           RegionMassPlot regD_99f10(label_FpixD_99f10.c_str(),etabins_,ihbins_,pbins_,massbins_); 
           RegionMassPlot regD_999f10(label_FpixD_999f10.c_str(),etabins_,ihbins_,pbins_,massbins_); 
@@ -307,6 +315,8 @@ void HSCPSelector::SlaveBegin(TTree * /*tree*/)
           RegionMassPlot regB_6f7(label_FpixB_6f7.c_str(),etabins_,ihbins_,pbins_,massbins_); 
           RegionMassPlot regB_7f8(label_FpixB_7f8.c_str(),etabins_,ihbins_,pbins_,massbins_);     
           RegionMassPlot regB_8f9(label_FpixB_8f9.c_str(),etabins_,ihbins_,pbins_,massbins_); 
+
+          RegionMassPlot regB_8f10(label_FpixB_8f10.c_str(),etabins_,ihbins_,pbins_,massbins_); 
           RegionMassPlot regB_9f10(label_FpixB_9f10.c_str(),etabins_,ihbins_,pbins_,massbins_); 
           RegionMassPlot regB_99f10(label_FpixB_99f10.c_str(),etabins_,ihbins_,pbins_,massbins_); 
           RegionMassPlot regB_999f10(label_FpixB_999f10.c_str(),etabins_,ihbins_,pbins_,massbins_); 
@@ -341,6 +351,8 @@ void HSCPSelector::SlaveBegin(TTree * /*tree*/)
           vmrp_regionB_6f7.push_back(std::move(regB_6f7));
           vmrp_regionB_7f8.push_back(std::move(regB_7f8));
           vmrp_regionB_8f9.push_back(std::move(regB_8f9));
+
+          vmrp_regionB_8f10.push_back(std::move(regB_8f10));
           vmrp_regionB_9f10.push_back(std::move(regB_9f10));
           vmrp_regionB_99f10.push_back(std::move(regB_99f10));
           vmrp_regionB_999f10.push_back(std::move(regB_999f10));
@@ -356,6 +368,7 @@ void HSCPSelector::SlaveBegin(TTree * /*tree*/)
           vmrp_regionD_7f8.push_back(std::move(regD_7f8));
           vmrp_regionD_8f9.push_back(std::move(regD_8f9));
 
+          vmrp_regionD_8f10.push_back(std::move(regD_8f10));
           vmrp_regionD_9f10.push_back(std::move(regD_9f10));
           vmrp_regionD_99f10.push_back(std::move(regD_99f10));
           vmrp_regionD_999f10.push_back(std::move(regD_999f10));
@@ -588,7 +601,7 @@ Bool_t HSCPSelector::Process(Long64_t entry)
    //std::cout << "After defining moost ionizing HSCP" << std::endl; 
    //End of loop over all HSCP candidates
 
-   // Plots for the most ionizing candidate per event passing the preselectio
+   // Plots for the most ionizing candidate per event passing the preselection
    for(int s=0;s<selections_.size();s++){
         int i=iCand[s];
         double Ias = Ias_StripOnly[i];
@@ -597,6 +610,7 @@ Bool_t HSCPSelector::Process(Long64_t entry)
 	
         float P = 10000./(Pt[i]*cosh(eta[i]));
 
+        //float beta = gParticleBeta[i];
 
         float Ih = Ih_StripOnly[i];
 
@@ -615,12 +629,17 @@ Bool_t HSCPSelector::Process(Long64_t entry)
         bool HLTmu = *HLT_Mu50.Get();
         bool matchedmu = *matchedMuonWasFound.Get();
         */
-
+        /*
+        bool HLTmu = *HLT_Mu50.Get();
+        bool L1_mu22 = *L1_SingleMu22.Get();
+        bool L1_mu22or25 = *L1_SingleMu22or25.Get();
+        bool L1_lastmu = *L1_LastMuFilter.Get();
+        */
 
         newWeight = 1.0;
-
+        
         if(Usefpixel){           
-            //vmrp_regionFpix_all[s].fill(eta[i],NOM[i],P,Pt[i],PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,GetMass(Pt[i]*cosh(eta[i]),Ih_StripOnly[i],K,C),TOF[i],*nofVtx.Get(),newWeight,1);
+            vmrp_regionFpix_all[s].fill(eta[i],NOM[i],P,Pt[i],PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,GetMass(Pt[i]*cosh(eta[i]),Ih_StripOnly[i],K,C),TOF[i],*nofVtx.Get(),newWeight,1);
 
            if(Pt[i] <= ptcut_){
                
@@ -653,6 +672,8 @@ Bool_t HSCPSelector::Process(Long64_t entry)
                if( (Fpix > fpix6) && (Fpix <= fpix7) ) vmrp_regionB_6f7[s].fill(eta[i],NOM[i],P,Pt[i],PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,GetMass(Pt[i]*cosh(eta[i]),Ih_StripOnly[i],K,C),TOF[i],*nofVtx.Get(),newWeight,1);
                if( (Fpix > fpix7) && (Fpix <= fpix8) ) vmrp_regionB_7f8[s].fill(eta[i],NOM[i],P,Pt[i],PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,GetMass(Pt[i]*cosh(eta[i]),Ih_StripOnly[i],K,C),TOF[i],*nofVtx.Get(),newWeight,1);
                if( (Fpix > fpix8) && (Fpix <= fpix9) ) vmrp_regionB_8f9[s].fill(eta[i],NOM[i],P,Pt[i],PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,GetMass(Pt[i]*cosh(eta[i]),Ih_StripOnly[i],K,C),TOF[i],*nofVtx.Get(),newWeight,1);
+
+               if( (Fpix > fpix8) && (Fpix <= fpix10) ) vmrp_regionB_8f10[s].fill(eta[i],NOM[i],P,Pt[i],PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,GetMass(Pt[i]*cosh(eta[i]),Ih_StripOnly[i],K,C),TOF[i],*nofVtx.Get(),newWeight,1);
                if( (Fpix > fpix9) && (Fpix <= fpix10) ) vmrp_regionB_9f10[s].fill(eta[i],NOM[i],P,Pt[i],PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,GetMass(Pt[i]*cosh(eta[i]),Ih_StripOnly[i],K,C),TOF[i],*nofVtx.Get(),newWeight,1);
                if( (Fpix > fpix99) && (Fpix <= fpix10) ) vmrp_regionB_99f10[s].fill(eta[i],NOM[i],P,Pt[i],PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,GetMass(Pt[i]*cosh(eta[i]),Ih_StripOnly[i],K,C),TOF[i],*nofVtx.Get(),newWeight,1);
                if( (Fpix > fpix999) && (Fpix <= fpix10) ) vmrp_regionB_999f10[s].fill(eta[i],NOM[i],P,Pt[i],PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,GetMass(Pt[i]*cosh(eta[i]),Ih_StripOnly[i],K,C),TOF[i],*nofVtx.Get(),newWeight,1);
@@ -671,6 +692,7 @@ Bool_t HSCPSelector::Process(Long64_t entry)
                if( (Fpix > fpix8) && (Fpix <= fpix9) ) vmrp_regionD_8f9[s].fill(eta[i],NOM[i],P,Pt[i],PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,GetMass(Pt[i]*cosh(eta[i]),Ih_StripOnly[i],K,C),TOF[i],*nofVtx.Get(),newWeight,1);
 
 
+               if( (Fpix > fpix8) && (Fpix <= fpix10) ) vmrp_regionD_8f10[s].fill(eta[i],NOM[i],P,Pt[i],PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,GetMass(Pt[i]*cosh(eta[i]),Ih_StripOnly[i],K,C),TOF[i],*nofVtx.Get(),newWeight,1);
                if( (Fpix > fpix9) && (Fpix <= fpix10) ) vmrp_regionD_9f10[s].fill(eta[i],NOM[i],P,Pt[i],PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,GetMass(Pt[i]*cosh(eta[i]),Ih_StripOnly[i],K,C),TOF[i],*nofVtx.Get(),newWeight,1);
                if( (Fpix > fpix99) && (Fpix <= fpix10) ) vmrp_regionD_99f10[s].fill(eta[i],NOM[i],P,Pt[i],PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,GetMass(Pt[i]*cosh(eta[i]),Ih_StripOnly[i],K,C),TOF[i],*nofVtx.Get(),newWeight,1);
                if( (Fpix > fpix999) && (Fpix <= fpix10) ) vmrp_regionD_999f10[s].fill(eta[i],NOM[i],P,Pt[i],PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,GetMass(Pt[i]*cosh(eta[i]),Ih_StripOnly[i],K,C),TOF[i],*nofVtx.Get(),newWeight,1);
@@ -847,6 +869,9 @@ void HSCPSelector::SlaveTerminate()
        for(auto obj: vmrp_regionB_6f7) obj.addToList(fOutput);
        for(auto obj: vmrp_regionB_7f8) obj.addToList(fOutput);
        for(auto obj: vmrp_regionB_8f9) obj.addToList(fOutput);
+
+
+       for(auto obj: vmrp_regionB_8f10) obj.addToList(fOutput);
        for(auto obj: vmrp_regionB_9f10) obj.addToList(fOutput);
        for(auto obj: vmrp_regionB_99f10) obj.addToList(fOutput);
        for(auto obj: vmrp_regionB_999f10) obj.addToList(fOutput);
@@ -874,6 +899,7 @@ void HSCPSelector::SlaveTerminate()
        for(auto obj: vmrp_regionD_7f8) obj.addToList(fOutput);
        for(auto obj: vmrp_regionD_8f9) obj.addToList(fOutput);
 
+       for(auto obj: vmrp_regionD_8f10) obj.addToList(fOutput);
        for(auto obj: vmrp_regionD_9f10) obj.addToList(fOutput);
        for(auto obj: vmrp_regionD_99f10) obj.addToList(fOutput);
        for(auto obj: vmrp_regionD_999f10) obj.addToList(fOutput);

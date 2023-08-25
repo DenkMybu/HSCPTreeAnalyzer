@@ -236,6 +236,8 @@ void RegionMassPlot::initHisto(int& etabins,int& ihbins,int& pbins,int& massbins
 
     hTOF    = new TH1F(("hTOF_"+suffix).c_str(),";TOF",200,-10,10); hTOF->Sumw2();
 
+    //mass = new TH1F(("mass"+suffix).c_str(),";Mass [GeV]",nmass,masslow,massup); mass->Sumw2();
+
 
 }
 

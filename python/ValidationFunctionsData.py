@@ -21,6 +21,16 @@ iPos = 0
 if( iPos==0 ): CMS_lumi.relPosX = 0.12
 iPeriod = 4
 
+def SaveMassPredScaledRootFile(file_name,predMass,outdir):
+    root_file = ROOT.TFile.Open(file_name, "RECREATE")
+    if not root_file or root_file.IsZombie():
+        print("Error: Could not create the ROOT file.")
+        return
+
+    root_file.cd()
+    predMass.Write()
+    root_file.Close()
+
 
 def SignalRegion(h1,h2,name,maxDisplay,outdir,blind,maxBlind,stau308,stau432,stau557,stau651):
 
@@ -117,7 +127,7 @@ def SignalRegion(h1,h2,name,maxDisplay,outdir,blind,maxBlind,stau308,stau432,sta
     '''
 
     cv = TCanvas(name, name, 800, 800)
-
+    print("After canvas")
     padhc1 = TPad("pad1", "Histograms", 0, 0.5, 1, 0.95)
     padhc1.SetLogy(1)
     padhc1.Draw()
@@ -145,6 +155,7 @@ def SignalRegion(h1,h2,name,maxDisplay,outdir,blind,maxBlind,stau308,stau432,sta
     lej.AddEntry(stau308, "pair. #tilde{#tau} (M=308 GeV)","PE1")
 
     lej.Draw("same")
+    print("After legend")
 
     lej2 = TLegend(0.8,0.9,0.6,0.7)
     lej2.SetFillStyle(0)
@@ -158,13 +169,14 @@ def SignalRegion(h1,h2,name,maxDisplay,outdir,blind,maxBlind,stau308,stau432,sta
     lej2.Draw("same")
 
     LineLastBin=TLine(maxBlind,min_entries,maxBlind,max_entries)
-    SetLineStyle(LineLastBin,1,3)
+    LineLastBin.SetLineColor(1)
+    LineLastBin.SetLineStyle(1)
     LineLastBin.Draw("same")
+    print("After legend 2")
 
-   
     cv.cd() 
 
-    paditg = TPad("paditg", "RatioIntegral", 0, 0.34, 1, 0.46)
+    paditg = TPad("padintegral", "RatioIntegral", 0, 0.34, 1, 0.46)
     paditg.Draw()
     paditg.cd()
 
@@ -173,25 +185,33 @@ def SignalRegion(h1,h2,name,maxDisplay,outdir,blind,maxBlind,stau308,stau432,sta
     frameR3.GetXaxis().SetRangeUser(0,maxDisplay)
     frameR3.Draw("SAME AXIS")
 
+    print("After frame R3")
+
     ratio_itg.SetMarkerStyle(20)
     ratio_itg.Draw("SAME EP")
 
     lineitg1 = ROOT.TLine(0, 1,maxDisplay, 1)
-    SetLineStyle(lineitg1,2,4)
+    lineitg1.SetLineColor(2)
+    lineitg1.SetLineStyle(4)
+
     lineitg1.Draw("SAME")
 
     lineitg2 = ROOT.TLine(0, 0.8, maxDisplay, 0.8)
-    SetLineStyle(lineitg2,1,4)
+    lineitg2.SetLineColor(1)
+    lineitg2.SetLineStyle(4)
     lineitg2.Draw("SAME")
 
     lineitg3 = ROOT.TLine(0, 1.2, maxDisplay, 1.2)
-    SetLineStyle(lineitg3,1,4)
+    lineitg3.SetLineColor(1)
+    lineitg3.SetLineStyle(4)
     lineitg3.Draw("SAME")
    
     LineLastBinitg=TLine(maxBlind,0,maxBlind,2.5)
-    SetLineStyle(LineLastBinitg,1,3)
+    LineLastBinitg.SetLineColor(1)
+    LineLastBinitg.SetLineStyle(4)
     LineLastBinitg.Draw("same")
 
+    print("After paditg")
     cv.cd()
     padhc2 = TPad("pad2", "Ratio", 0, 0.2, 1, 0.32)
     padhc2.Draw()
@@ -220,6 +240,7 @@ def SignalRegion(h1,h2,name,maxDisplay,outdir,blind,maxBlind,stau308,stau432,sta
     LineLastBinRatio=TLine(maxBlind,0,maxBlind,2.5)
     SetLineStyle(LineLastBinRatio,1,3)
     LineLastBinRatio.Draw("same")
+    print("After pad ratio")
 
     cv.cd()
 
@@ -257,8 +278,10 @@ def SignalRegion(h1,h2,name,maxDisplay,outdir,blind,maxBlind,stau308,stau432,sta
     linehp3.Draw("SAME")
     linehp3b.Draw("SAME")
     LineLastBinPull=TLine(maxBlind,-3.5,maxBlind,3.5)
-    SetLineStyle(LineLastBinPull,1,3)
+    LineLastBinPull.SetLineColor(1)
+    LineLastBinPull.SetLineStyle(3)
     LineLastBinPull.Draw("same")
+    print("After last line, before CMS Canv")
     cv.cd()
     CMS_lumi.CMS_lumi(cv, iPeriod, iPos)
     #CMS_lumi.CMS_lumi(cv, iPeriod, iPos)
@@ -437,15 +460,21 @@ def CompareRegions(h1,h2,allSigContam,name,maxDisplay,outdir,blind,addContaminat
     ratio_itg.Draw("SAME EP")
 
     lineitg1 = ROOT.TLine(0, 1,maxDisplay, 1)
-    SetLineStyle(lineitg1,2,4)
+
+    lineitg1.SetLineColor(2)
+    lineitg1.SetLineStyle(4)
+
     lineitg1.Draw("SAME")
 
     lineitg2 = ROOT.TLine(0, 0.8, maxDisplay, 0.8)
-    SetLineStyle(lineitg2,1,4)
+    lineitg2.SetLineColor(2)
+    lineitg2.SetLineStyle(4)
     lineitg2.Draw("SAME")
 
     lineitg3 = ROOT.TLine(0, 1.2, maxDisplay, 1.2)
-    SetLineStyle(lineitg3,1,4)
+
+    lineitg3.SetLineColor(1)
+    lineitg3.SetLineStyle(4)
     lineitg3.Draw("SAME")
 
 
@@ -465,15 +494,18 @@ def CompareRegions(h1,h2,allSigContam,name,maxDisplay,outdir,blind,addContaminat
     ratio_graph.SetMarkerStyle(20)
     ratio_graph.Draw("SAME AP")
     linehc1 = ROOT.TLine(0, 1,maxDisplay, 1)
-    SetLineStyle(linehc1,2,4)
+    linehc1.SetLineColor(2)
+    linehc1.SetLineStyle(4)
     linehc1.Draw("SAME")
 
     linehc2 = ROOT.TLine(0, 0.8, maxDisplay, 0.8)
-    SetLineStyle(linehc2,1,4)
+    linehc2.SetLineColor(1)
+    linehc2.SetLineStyle(4)
     linehc2.Draw("SAME")
 
     linehc3 = ROOT.TLine(0, 1.2, maxDisplay, 1.2)
-    SetLineStyle(linehc3,1,4)
+    linehc3.SetLineColor(1)
+    linehc3.SetLineStyle(4)
     linehc3.Draw("SAME")
 
     cv.cd()
@@ -495,19 +527,28 @@ def CompareRegions(h1,h2,allSigContam,name,maxDisplay,outdir,blind,addContaminat
     pull_graph.Draw("SAME HIST")
 
     linehp1 = ROOT.TLine(0, 0,maxDisplay, 0)
+    linehp1.SetLineColor(2)
+    linehp1.SetLineStyle(4)
     SetLineStyle(linehp1,2,4)
 
     linehp2 = ROOT.TLine(0, 1, maxDisplay, 1)
-    SetLineStyle(linehp2,1,4)
+    linehp2.SetLineColor(1)
+    linehp2.SetLineStyle(4)
+
 
     linehp2b = ROOT.TLine(0, -1, maxDisplay, -1)
-    SetLineStyle(linehp2b,1,4)
+    linehp2b.SetLineColor(1)
+    linehp2b.SetLineStyle(4)
+
 
     linehp3 = ROOT.TLine(0, 2, maxDisplay, 2)
-    SetLineStyle(linehp3,1,4)
+    linehp3.SetLineColor(1)
+    linehp3.SetLineStyle(4)
+
 
     linehp3b = ROOT.TLine(0, -2, maxDisplay, -2)
-    SetLineStyle(linehp3b,1,4)
+    linehp3b.SetLineColor(1)
+    linehp3b.SetLineStyle(4)
 
     linehp1.Draw("SAME")
     linehp2.Draw("SAME")
@@ -626,10 +667,10 @@ def scale_histogram_with_poissonian_errors(histogram, scale_factor):
         # Scale the bin error while preserving Poissonian nature
         bin_error = histogram.GetBinError(i)
         scaled_error = bin_error * scale_factor
-
+        ''' 
         if bin_error > 0.0:
             scaled_error = scaled_error / bin_error  # Preserve the relative error
-
+        '''
         histogram.SetBinError(i, scaled_error)
 
 

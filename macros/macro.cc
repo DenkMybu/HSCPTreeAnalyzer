@@ -148,7 +148,8 @@
        chain->AddFile("/opt/sbg/cms/ui2_data1/rhaeberl/CMSSW_10_6_30/src/crab_projects/crab_Analysis_2018_HSCPpairStau_M-651_CodeV6dylan_v1/results/pStau651_CodeV7fn.root");
    }
    if(dataset == "pStau745"){
-       chain->AddFile("/opt/sbg/cms/ui2_data1/rhaeberl/CMSSW_10_6_30/src/crab_projects/crab_Analysis_2018_HSCPpairStau_M-745_CodeV7fn_v1/results/pStau745_CodeV7fn.root");
+       //chain->AddFile("/opt/sbg/cms/ui2_data1/rhaeberl/CMSSW_10_6_30/src/crab_projects/crab_Analysis_2018_HSCPpairStau_M-745_CodeV7fn_v1/results/pStau745_CodeV7fn.root");
+       chain->AddFile("/opt/sbg/cms/ui2_data1/rhaeberl/CMSSW_10_6_30/src/crab_projects/crab_Analysis_2018_HSCPpairStau_M-745_CodeV1p0_v1/results/pStau745_CodeV1p0.root");
    }
    if(dataset == "pStau871"){
        chain->AddFile("/opt/sbg/cms/ui2_data1/rhaeberl/CMSSW_10_6_30/src/crab_projects/crab_Analysis_2018_HSCPpairStau_M-871_CodeV7fn_v1/results/pStau871_CodeV7fn.root");

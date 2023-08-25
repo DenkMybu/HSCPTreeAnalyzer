@@ -18,6 +18,7 @@ parser.add_argument('ref', metavar='ref-rootfile', help='Ref ROOT file with full
 parser.add_argument('output', metavar='output-dir', help='output directory')
 parser.add_argument('display', metavar='display-option', help='display option : itg to see integral values')
 parser.add_argument('maxBorn', metavar='max-born-hists', help='display option : set the max value for histograms, pulls, ratios etc...')
+parser.add_argument('ptcut', metavar='pt-cut-regions', help='display option : set the value for pt cut when defining signal/control regions (Fpix cuts are fixed)')
 
 
 args = parser.parse_args()
@@ -46,6 +47,7 @@ if __name__ == "__main__":
     ref = args.ref           # PedestalEqualizationReference.root'
     display = args.display
     maxDisplay = int(args.maxBorn)
+    pTcut = int(args.ptcut)
     outdir = args.output
 
     try:
@@ -96,6 +98,13 @@ if __name__ == "__main__":
     nameSR1 = 'mass_regionD_9fp10' + extension
     nameSR2 = 'mass_regionD_99fp10' + extension
     nameSR3 = 'mass_regionD_999fp10' + extension
+ 
+
+    nameRootSR = [year+"_SR1_predMass.root",year+"_SR2_predMass.root",year+"_SR3_predMass.root"]
+    namePredSR = [year+"_SR1_predMass",year+"_SR2_predMass",year+"_SR3_predMass"]
+
+    scalePredMass = [ROOT.TFile.Open(outdir + "/" + name, "RECREATE") for name in nameRootSR]
+
 
     weightsSIG = RescaleSignals(len(signalsFiles),year,"search region",nameSR1)
 
@@ -135,7 +144,7 @@ if __name__ == "__main__":
     for i in range (len(regionsD)):
         regionsD[i] = regionsD[i].Rebin(sizeRebinning,lejSlices[i],rebinning)
 
-    nameAllReg = "allCR_sameCanvas"
+    nameAllReg = year+"_allCR_sameCanvas_"
     DisplayAllRegions(regionsC,nameAllReg,maxDisplay,outdir)
 
     scaleFactors = []
@@ -146,9 +155,10 @@ if __name__ == "__main__":
        pred = regionsB[i].GetEntries()*regionsC[i-1].GetEntries()/regionsA[i-1].GetEntries()
        sf = regionsC[i-1].GetEntries()/pred
        print("Scale factor = {}".format(sf))
-       nameSF.append("SF_"+namesD[i]+"_vs_"+namesC[i-1])
+       nameSF.append(year+"_SF_"+namesD[i]+"_vs_"+namesC[i-1])
        scaleFactors.append(sf)
 
+    
 
     for i in range(len(scaleFactors)):
         scale_histogram_with_poissonian_errors(regionsC[i], 1./scaleFactors[i])
@@ -239,7 +249,6 @@ if __name__ == "__main__":
     sfVR = regC3fp8.GetEntries()/predVR
     print("Scale factor from ABCD method between control region C 0.3 - 0.8 and validation region D 0.8 - 0.9 ={}".format(sfVR))
     scale_histogram_with_poissonian_errors(regC3fp8_scaleVR, 1./sfVR)
-    
 
     predD_sr1 = regB_SRs[0].GetEntries()*regC3fp8.GetEntries()/regA3fp8.GetEntries()
     ScaleFac = regC3fp8.GetEntries() / predD_sr1
@@ -250,7 +259,14 @@ if __name__ == "__main__":
     predD_sr3 = regB_SRs[2].GetEntries()*regC3fp8.GetEntries()/regA3fp8.GetEntries()
     ScaleFacSR3 = regC3fp8.GetEntries() / predD_sr3
 
-    sf_SRs = [ScaleFac,ScaleFacSR2,ScaleFacSR3]
+    sf_SRs = [ScaleFac,ScaleFacSR3,ScaleFacSR3]
+
+    nameSFtxt =outdir + '/' + year + "_SF_CR_SRs_stau.txt"
+    with open(nameSFtxt, "w") as file:
+        for p in range(len(namesSR)):
+            line = namesSR[p] + '_' + year + '_ScaleFactor_CR_SR_stau : ' + str(sf_SRs[p]) + '\n' 
+            file.write(line)
+
     for i in range(len(namesSR)):
         print("Scale factor from ABCD method between regions C 0.3 - 0.8 and {} ={}".format(namesSR[i],sf_SRs[i]))
 
@@ -263,13 +279,13 @@ if __name__ == "__main__":
 
         
     years = ['2017','2018']
-    extPt = "_pt200" 
+    extPt = "_pt" + str(pTcut)
        
  
     for i in years:
         for idx,u in enumerate(namesSR):
-            infile_path = "/opt/sbg/cms/ui4_data1/rhaeberl/CMSSW_10_6_30/src/HSCPTreeAnalyzer/macros/Data_good/data_validation_pt200/BCKG_3f8_masswinwo_" + i + extPt + ".txt"
-            outfile_path = "/opt/sbg/cms/ui4_data1/rhaeberl/CMSSW_10_6_30/src/HSCPTreeAnalyzer/macros/Data_good/data_validation_pt200/scaled_bckg_" + i +"_"+ u + extPt + ".txt"
+            infile_path = "/opt/sbg/cms/ui4_data1/rhaeberl/CMSSW_10_6_30/src/HSCPTreeAnalyzer/macros/Data_good/final_data_validation"+extPt+"/BCKG_3f8_masswinwo_" + i + extPt + ".txt"
+            outfile_path = "/opt/sbg/cms/ui4_data1/rhaeberl/CMSSW_10_6_30/src/HSCPTreeAnalyzer/macros/Data_good/final_data_validation"+extPt+"/scaled_bckg_" + i +"_"+ u + extPt + ".txt"
             makeOutputForDataCards(infile_path,outfile_path,sf_SRs[idx])
     
 
@@ -277,8 +293,8 @@ if __name__ == "__main__":
     scaledBkg3f8_2018_path = [ [] for i in range(len(namesSR))]
 
     for i in range(len(namesSR)):    
-        scaledBkg3f8_2017_path[i] = "/opt/sbg/cms/ui4_data1/rhaeberl/CMSSW_10_6_30/src/HSCPTreeAnalyzer/macros/Data_good/data_validation"+extPt+"/scaled_bckg_2017_" +namesSR[i] +extPt+".txt" 
-        scaledBkg3f8_2018_path[i] = "/opt/sbg/cms/ui4_data1/rhaeberl/CMSSW_10_6_30/src/HSCPTreeAnalyzer/macros/Data_good/data_validation"+extPt+"/scaled_bckg_2018_" + namesSR[i]+extPt + ".txt"
+        scaledBkg3f8_2017_path[i] = "/opt/sbg/cms/ui4_data1/rhaeberl/CMSSW_10_6_30/src/HSCPTreeAnalyzer/macros/Data_good/final_data_validation"+extPt+"/scaled_bckg_2017_" +namesSR[i] +extPt+".txt" 
+        scaledBkg3f8_2018_path[i] = "/opt/sbg/cms/ui4_data1/rhaeberl/CMSSW_10_6_30/src/HSCPTreeAnalyzer/macros/Data_good/final_data_validation"+extPt+"/scaled_bckg_2018_" + namesSR[i]+extPt + ".txt"
 
     bckg3f8_2017 = [[] for i in range(len(namesSR))] 
     bckg3f8_2018 = [[] for i in range(len(namesSR))] 
@@ -302,8 +318,6 @@ if __name__ == "__main__":
     print("2018 background predicted in region C 0.3 - 0.8 , scaled to signal region D by {}".format(ScaleFac))
     print(bckg3f8_2018)
     '''
-
-    for u in range(3):
 
     crlow = "3"
     crup = "8"
@@ -340,7 +354,7 @@ if __name__ == "__main__":
 
 
 
-    name = "CR"+crlow+"to"+crup+"_vs_VR"+vrlow+"to"+vrup
+    name =year + "_CR"+crlow+"to"+crup+"_vs_VR"+vrlow+"to"+vrup
     
     CompareRegions(regC3fp8_scaleVR,regD8fp9,None,name,maxDisplay,outdir,False,False)
     
@@ -363,7 +377,7 @@ if __name__ == "__main__":
             if not os.path.isdir(datacardDirMerged[i]):
                 raise
 
-    
+    for u in range(len(datacardDir)):
         print("Search Region : {}\n".format(namesSR[u]))
         for signal in range(len(meanSignals[u])):
         
@@ -430,10 +444,19 @@ if __name__ == "__main__":
 
     blind = True
     maxBlind = 0
-    
-    SignalRegion(regC3f8_SRs[0],regD_SRs[0],nameSR[0],maxDisplay,outdir,blind,maxBlind,selSigSR1[9],selSigSR1[10],selSigSR1[11],selSigSR1[12])
    
-    SignalRegion(regC3f8_SRs[1],regD_SRs[1],nameSR[1],maxDisplay,outdir,blind,maxBlind,selSigSR2[9],selSigSR2[10],selSigSR2[11],selSigSR2[12])
+
+    for k in range(3):
+        scalePredMass[k].cd()
+        regC3f8_SRs[k].Write(str(namePredSR[k]))
+        scalePredMass[k].Close()
+
+
+ 
+    #TO DEBUG
+    #SignalRegion(regC3f8_SRs[0],regD_SRs[0],nameSR[0],maxDisplay,outdir,blind,maxBlind,selSigSR1[9],selSigSR1[10],selSigSR1[11],selSigSR1[12])
+   
+    #SignalRegion(regC3f8_SRs[1],regD_SRs[1],nameSR[1],maxDisplay,outdir,blind,maxBlind,selSigSR2[9],selSigSR2[10],selSigSR2[11],selSigSR2[12])
 
     #SignalRegion(regC3f8_SRs[2],regD_SRs[2],nameSR[2],maxDisplay,outdir,blind,maxBlind,selSigSR3[9],selSigSR3[10],selSigSR3[11],selSigSR3[12])
 

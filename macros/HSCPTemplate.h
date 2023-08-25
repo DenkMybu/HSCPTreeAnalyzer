@@ -19,6 +19,7 @@
 #include <TTreeReader.h>
 #include <TTreeReaderValue.h>
 #include <TTreeReaderArray.h>
+#include <TEfficiency.h>
 
 // Headers needed by this particular selector
 #include <vector>
@@ -108,8 +109,6 @@ public :
    vector<float> ratioIHmuIHele;
    vector<float> ratioEtaMuEtaEle;
    //float what_weight; 
- 
- 
 
  
    float quan50= 0.017987774;
@@ -175,6 +174,7 @@ public :
    std::string regFpixD_7f8 = "_regionD_7fp8";
    std::string regFpixD_8f9 = "_regionD_8fp9";
 
+   std::string regFpixD_8f10 = "_regionD_8fp10";
    std::string regFpixD_9f10 = "_regionD_9fp10";
    std::string regFpixD_99f10 = "_regionD_99fp10";
    std::string regFpixD_999f10 = "_regionD_999fp10";
@@ -191,6 +191,8 @@ public :
    std::string regFpixB_6f7 = "_regionB_6fp7";
    std::string regFpixB_7f8 = "_regionB_7fp8";
    std::string regFpixB_8f9 = "_regionB_8fp9";
+
+   std::string regFpixB_8f10 = "_regionB_8fp10";
    std::string regFpixB_9f10 = "_regionB_9fp10";
    std::string regFpixB_99f10 = "_regionB_99fp10";
    std::string regFpixB_999f10 = "_regionB_999fp10";
@@ -282,6 +284,7 @@ public :
    std::vector<RegionMassPlot> vmrp_regionD_7f8;
    std::vector<RegionMassPlot> vmrp_regionD_8f9;
 
+   std::vector<RegionMassPlot> vmrp_regionD_8f10;
    std::vector<RegionMassPlot> vmrp_regionD_9f10;
    std::vector<RegionMassPlot> vmrp_regionD_99f10;
    std::vector<RegionMassPlot> vmrp_regionD_999f10;
@@ -298,6 +301,8 @@ public :
    std::vector<RegionMassPlot> vmrp_regionB_6f7;
    std::vector<RegionMassPlot> vmrp_regionB_7f8;
    std::vector<RegionMassPlot> vmrp_regionB_8f9;
+
+   std::vector<RegionMassPlot> vmrp_regionB_8f10;
    std::vector<RegionMassPlot> vmrp_regionB_9f10;
    std::vector<RegionMassPlot> vmrp_regionB_99f10;
    std::vector<RegionMassPlot> vmrp_regionB_999f10;
@@ -407,6 +412,11 @@ public :
    TTreeReaderValue<Float_t> HLTPFMHT_sigf = {fReader, "HLTPFMHT_sigf"};
    */ 
    TTreeReaderValue<Bool_t> HLT_Mu50 = {fReader, "HLT_Mu50"};
+   /*
+   TTreeReaderValue<Bool_t> L1_SingleMu22 = {fReader, "L1_SingleMu22"};
+   TTreeReaderValue<Bool_t> L1_SingleMu22or25 = {fReader, "L1_SingleMu22or25"};
+   TTreeReaderValue<Bool_t> L1_LastMuFilter = {fReader, "L1_LastMuFilter"};
+   */
    TTreeReaderValue<Bool_t> matchedMuonWasFound = {fReader, "matchedMuonWasFound"};
    
    /*
@@ -417,7 +427,9 @@ public :
    TTreeReaderArray<float> gParticlePz = {fReader, "gParticlePz"};
    TTreeReaderArray<float> gParticleEta = {fReader, "gParticleEta"};
    TTreeReaderArray<float> gParticlePhi = {fReader, "gParticlePhi"};
-   TTreeReaderArray<float> gParticleBeta = {fReader, "gParticleBeta"};
+   */
+   //TTreeReaderArray<float> gParticleBeta = {fReader, "gParticleBeta"};
+   /*
    TTreeReaderArray<int> gParticleCharge = {fReader, "gParticleCharge"};
    TTreeReaderArray<float> gParticleProdVertexX = {fReader, "gParticleProdVertexX"};
    TTreeReaderArray<float> gParticleProdVertexY = {fReader, "gParticleProdVertexY"};
@@ -465,6 +477,9 @@ public :
    TTreeReaderArray<float> muonPt = {fReader, "muonPt"};
    TTreeReaderArray<float> muonEta = {fReader, "muonEta"};
    TTreeReaderArray<float> muonPhi = {fReader, "muonPhi"};
+   */
+   //TTreeReaderArray<float> muonBeta = {fReader, "muonBeta"};
+   /*
    TTreeReaderArray<int> muonCharge = {fReader, "muonCharge"};
    TTreeReaderValue<vector<bool>> muonIsLoose = {fReader, "muonIsLoose"};
    TTreeReaderValue<vector<bool>> muonIsMedium = {fReader, "muonIsMedium"};
