@@ -53,7 +53,7 @@ bool HSCPSelector::PassHSCPpresel_preselectionSept8(int i){
 
 bool HSCPSelector::PassHSCPpresel_testIhPt(int i){
    if (i<0 || i>(int)Pt.GetSize()) return false;
-   return ( (passPreselectionSept8[i]) && (PtErr[i]/Pt[i])<1 && (Ih_StripOnly[i]>3.14) && ((*HLT_Mu50.Get())==true) && ((*matchedMuonWasFound.Get())==true) && (track_genTrackAbsIsoSumPtFix[i]<15.0) && (ProbQ_noL1[i]<0.7)&& (EoverP[i] < 0.3) && (PFMiniIso_relative[i] < 0.02) && (PtErr[i]/(Pt[i]*Pt[i]))<0.0008);
+   return ((passPreselectionSept8[i]) && (PFMiniIso_relative[i] < 0.02) && (track_genTrackAbsIsoSumPtFix[i] < 15.0) && (EoverP[i] < 0.3) &&  ((*HLT_Mu50.Get())==true) && ( (PtErr[i]/(Pt[i]*Pt[i])) < 0.0008) && ((PtErr[i]/Pt[i])<1) && (ProbQ_noL1[i] < 0.7));
 }
 
 bool HSCPSelector::PassPreselection(int hscpIndex){
@@ -84,13 +84,18 @@ void HSCPSelector::Begin(TTree * /*tree*/)
    std::string ptname( ((TObjString *)(tx->At(0)))->String().Data());
    int ptInt = std::stoi(ptname);
 
-   oFile_ = ((TObjString *)(tx->At(6)))->String().Data();
+   
+   oFile_ = ((TObjString *)(tx->At(7)))->String().Data();
    oFile_ += "_massCut_";
    oFile_ += ((TObjString *)(tx->At(5)))->String().Data();
    oFile_ += "_pT";
    oFile_ += to_string(ptInt);
+   oFile_ += "_";
+   oFile_ += ((TObjString *)(tx->At(8)))->String().Data();
    oFile_ += ext;
    
+
+   //oFile_ = "SingleMu2017B_highmass_preselDylan.root";
    //Add selections into a vector - to be updated
    //FILL-SELECTION-VECTOR
 selections_.push_back(&HSCPSelector::PassHSCPpresel_preselectionSept8);
@@ -135,7 +140,6 @@ void HSCPSelector::SlaveBegin(TTree * /*tree*/)
    //								                     3
    //								                     17
 
-
    //Printing the content of option
 
    //Here we read every TString and transform them into strings
@@ -145,7 +149,10 @@ void HSCPSelector::SlaveBegin(TTree * /*tree*/)
    std::string pTmp( ((TObjString *)(tx->At(3)))->String().Data());
    std::string massTmp( ((TObjString *)(tx->At(4)))->String().Data());
    std::string massCutTmp( ((TObjString *)(tx->At(5)))->String().Data());
-   std::string dataset( ((TObjString *)(tx->At(6)))->String().Data());
+
+   std::string tofCutTmp( ((TObjString *)(tx->At(6)))->String().Data());
+   std::string dataset( ((TObjString *)(tx->At(7)))->String().Data());
+   std::string version( ((TObjString *)(tx->At(8)))->String().Data());
 
 
 
@@ -159,11 +166,18 @@ void HSCPSelector::SlaveBegin(TTree * /*tree*/)
    pbins_ = std::stoi(pTmp);
    massbins_ = std::stoi(massTmp);
    masscut_ = std::stoi(massCutTmp);
+   tofbins_ = std::stoi(tofCutTmp);
    dataset_ = dataset;
- 
+   version_ = version; 
    //create all objects that will be used by the methods Process
     
    std::string firstThreeChars = dataset_.substr(0, 3);
+
+   if(dataset_ == "highmass2017B"){
+       K = K_data2017;
+       C = C_data2017;
+   }
+
    if(dataset_ == "Mu2017" || dataset_ == "Ele2017"){ 
        K = K_data2017;
        C = C_data2017;
@@ -182,7 +196,7 @@ void HSCPSelector::SlaveBegin(TTree * /*tree*/)
    }
 
    std::cout << "Dataset is : " << dataset_ << " , C = "<< C << " and K = " << K << std::endl;
-   std::cout << " Starting SLAVE ---------PT  cut for regions = " << ptcut_ << " , Eta #bin : "<< etabins_ << ", Ih #bins" << ihbins_ << " , P #bins " << pbins_ << " , mass #bins " << massbins_ << " , mass cut : " << masscut_ << " , sel labels size : " << selLabels_.size() << std::endl;
+   std::cout << " Starting SLAVE ---------PT  cut for regions = " << ptcut_ << " , Eta #bin : "<< etabins_ << ", Ih #bins" << ihbins_ << " , P #bins " << pbins_ << " , mass #bins " << massbins_ << " TOF #bins " << tofbins_ << ", mass cut : " << masscut_ << " , sel labels size : " << selLabels_.size() << std::endl;
 
    
    flagP = true;
@@ -281,67 +295,67 @@ selLabels_.push_back("testIhPt");
           std::string label_FpixB_999f10 = regFpixB_999f10 + "_" + selLabels_[i];
     
     
-          RegionMassPlot regAll(label_FpixAll.c_str(),etabins_,ihbins_,pbins_,massbins_); 
+          RegionMassPlot regAll(label_FpixAll.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
 
-          RegionMassPlot regA_3f6(label_FpixA_3f6.c_str(),etabins_,ihbins_,pbins_,massbins_); 
-          RegionMassPlot regA_6f9(label_FpixA_6f9.c_str(),etabins_,ihbins_,pbins_,massbins_); 
-          RegionMassPlot regA_3f8(label_FpixA_3f8.c_str(),etabins_,ihbins_,pbins_,massbins_); 
-          RegionMassPlot regA_3f9(label_FpixA_3f9.c_str(),etabins_,ihbins_,pbins_,massbins_); 
+          RegionMassPlot regA_3f6(label_FpixA_3f6.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
+          RegionMassPlot regA_6f9(label_FpixA_6f9.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_);
+          RegionMassPlot regA_3f8(label_FpixA_3f8.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
+          RegionMassPlot regA_3f9(label_FpixA_3f9.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
 
 
-          RegionMassPlot regA_3f4(label_FpixA_3f4.c_str(),etabins_,ihbins_,pbins_,massbins_); 
-          RegionMassPlot regA_4f5(label_FpixA_4f5.c_str(),etabins_,ihbins_,pbins_,massbins_); 
-          RegionMassPlot regA_5f6(label_FpixA_5f6.c_str(),etabins_,ihbins_,pbins_,massbins_); 
-          RegionMassPlot regA_6f7(label_FpixA_6f7.c_str(),etabins_,ihbins_,pbins_,massbins_); 
-          RegionMassPlot regA_7f8(label_FpixA_7f8.c_str(),etabins_,ihbins_,pbins_,massbins_);
-          RegionMassPlot regA_8f9(label_FpixA_8f9.c_str(),etabins_,ihbins_,pbins_,massbins_); 
-          RegionMassPlot regA_9f10(label_FpixA_9f10.c_str(),etabins_,ihbins_,pbins_,massbins_); 
-          RegionMassPlot regA_99f10(label_FpixA_99f10.c_str(),etabins_,ihbins_,pbins_,massbins_); 
-          RegionMassPlot regA_999f10(label_FpixA_999f10.c_str(),etabins_,ihbins_,pbins_,massbins_); 
+          RegionMassPlot regA_3f4(label_FpixA_3f4.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
+          RegionMassPlot regA_4f5(label_FpixA_4f5.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
+          RegionMassPlot regA_5f6(label_FpixA_5f6.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
+          RegionMassPlot regA_6f7(label_FpixA_6f7.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
+          RegionMassPlot regA_7f8(label_FpixA_7f8.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_);
+          RegionMassPlot regA_8f9(label_FpixA_8f9.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
+          RegionMassPlot regA_9f10(label_FpixA_9f10.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
+          RegionMassPlot regA_99f10(label_FpixA_99f10.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
+          RegionMassPlot regA_999f10(label_FpixA_999f10.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
 
     
-          RegionMassPlot regC_3f8(label_FpixC_3f8.c_str(),etabins_,ihbins_,pbins_,massbins_); 
-          RegionMassPlot regC_3f9(label_FpixC_3f9.c_str(),etabins_,ihbins_,pbins_,massbins_); 
+          RegionMassPlot regC_3f8(label_FpixC_3f8.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
+          RegionMassPlot regC_3f9(label_FpixC_3f9.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
     
-          RegionMassPlot regC_3f4(label_FpixC_3f4.c_str(),etabins_,ihbins_,pbins_,massbins_); 
-          RegionMassPlot regC_4f5(label_FpixC_4f5.c_str(),etabins_,ihbins_,pbins_,massbins_); 
-          RegionMassPlot regC_5f6(label_FpixC_5f6.c_str(),etabins_,ihbins_,pbins_,massbins_); 
-          RegionMassPlot regC_6f7(label_FpixC_6f7.c_str(),etabins_,ihbins_,pbins_,massbins_); 
-          RegionMassPlot regC_7f8(label_FpixC_7f8.c_str(),etabins_,ihbins_,pbins_,massbins_); 
-          RegionMassPlot regC_8f9(label_FpixC_8f9.c_str(),etabins_,ihbins_,pbins_,massbins_); 
+          RegionMassPlot regC_3f4(label_FpixC_3f4.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
+          RegionMassPlot regC_4f5(label_FpixC_4f5.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
+          RegionMassPlot regC_5f6(label_FpixC_5f6.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
+          RegionMassPlot regC_6f7(label_FpixC_6f7.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
+          RegionMassPlot regC_7f8(label_FpixC_7f8.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
+          RegionMassPlot regC_8f9(label_FpixC_8f9.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
 
-          RegionMassPlot regC_3f6(label_FpixC_3f6.c_str(),etabins_,ihbins_,pbins_,massbins_); 
-          RegionMassPlot regC_6f9(label_FpixC_6f9.c_str(),etabins_,ihbins_,pbins_,massbins_); 
+          RegionMassPlot regC_3f6(label_FpixC_3f6.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
+          RegionMassPlot regC_6f9(label_FpixC_6f9.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
     
-          RegionMassPlot regD_6f9(label_FpixD_6f9.c_str(),etabins_,ihbins_,pbins_,massbins_); 
+          RegionMassPlot regD_6f9(label_FpixD_6f9.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
 
-          RegionMassPlot regD_3f4(label_FpixD_3f4.c_str(),etabins_,ihbins_,pbins_,massbins_); 
-          RegionMassPlot regD_4f5(label_FpixD_4f5.c_str(),etabins_,ihbins_,pbins_,massbins_); 
-          RegionMassPlot regD_5f6(label_FpixD_5f6.c_str(),etabins_,ihbins_,pbins_,massbins_); 
-          RegionMassPlot regD_6f7(label_FpixD_6f7.c_str(),etabins_,ihbins_,pbins_,massbins_); 
-          RegionMassPlot regD_7f8(label_FpixD_7f8.c_str(),etabins_,ihbins_,pbins_,massbins_);     
-          RegionMassPlot regD_8f9(label_FpixD_8f9.c_str(),etabins_,ihbins_,pbins_,massbins_); 
+          RegionMassPlot regD_3f4(label_FpixD_3f4.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
+          RegionMassPlot regD_4f5(label_FpixD_4f5.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
+          RegionMassPlot regD_5f6(label_FpixD_5f6.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
+          RegionMassPlot regD_6f7(label_FpixD_6f7.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
+          RegionMassPlot regD_7f8(label_FpixD_7f8.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_);     
+          RegionMassPlot regD_8f9(label_FpixD_8f9.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
 
-          RegionMassPlot regD_8f10(label_FpixD_8f10.c_str(),etabins_,ihbins_,pbins_,massbins_); 
-          RegionMassPlot regD_9f10(label_FpixD_9f10.c_str(),etabins_,ihbins_,pbins_,massbins_); 
-          RegionMassPlot regD_99f10(label_FpixD_99f10.c_str(),etabins_,ihbins_,pbins_,massbins_); 
-          RegionMassPlot regD_999f10(label_FpixD_999f10.c_str(),etabins_,ihbins_,pbins_,massbins_); 
+          RegionMassPlot regD_8f10(label_FpixD_8f10.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
+          RegionMassPlot regD_9f10(label_FpixD_9f10.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
+          RegionMassPlot regD_99f10(label_FpixD_99f10.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
+          RegionMassPlot regD_999f10(label_FpixD_999f10.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
     
-          RegionMassPlot regB_3f6(label_FpixB_3f6.c_str(),etabins_,ihbins_,pbins_,massbins_); 
-          RegionMassPlot regB_6f9(label_FpixB_6f9.c_str(),etabins_,ihbins_,pbins_,massbins_); 
-          RegionMassPlot regB_3f8(label_FpixB_3f8.c_str(),etabins_,ihbins_,pbins_,massbins_); 
-          RegionMassPlot regB_3f9(label_FpixB_3f9.c_str(),etabins_,ihbins_,pbins_,massbins_); 
-          RegionMassPlot regB_3f4(label_FpixB_3f4.c_str(),etabins_,ihbins_,pbins_,massbins_); 
-          RegionMassPlot regB_4f5(label_FpixB_4f5.c_str(),etabins_,ihbins_,pbins_,massbins_); 
-          RegionMassPlot regB_5f6(label_FpixB_5f6.c_str(),etabins_,ihbins_,pbins_,massbins_); 
-          RegionMassPlot regB_6f7(label_FpixB_6f7.c_str(),etabins_,ihbins_,pbins_,massbins_); 
-          RegionMassPlot regB_7f8(label_FpixB_7f8.c_str(),etabins_,ihbins_,pbins_,massbins_);     
-          RegionMassPlot regB_8f9(label_FpixB_8f9.c_str(),etabins_,ihbins_,pbins_,massbins_); 
+          RegionMassPlot regB_3f6(label_FpixB_3f6.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
+          RegionMassPlot regB_6f9(label_FpixB_6f9.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
+          RegionMassPlot regB_3f8(label_FpixB_3f8.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
+          RegionMassPlot regB_3f9(label_FpixB_3f9.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
+          RegionMassPlot regB_3f4(label_FpixB_3f4.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
+          RegionMassPlot regB_4f5(label_FpixB_4f5.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
+          RegionMassPlot regB_5f6(label_FpixB_5f6.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
+          RegionMassPlot regB_6f7(label_FpixB_6f7.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
+          RegionMassPlot regB_7f8(label_FpixB_7f8.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_);     
+          RegionMassPlot regB_8f9(label_FpixB_8f9.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
 
-          RegionMassPlot regB_8f10(label_FpixB_8f10.c_str(),etabins_,ihbins_,pbins_,massbins_); 
-          RegionMassPlot regB_9f10(label_FpixB_9f10.c_str(),etabins_,ihbins_,pbins_,massbins_); 
-          RegionMassPlot regB_99f10(label_FpixB_99f10.c_str(),etabins_,ihbins_,pbins_,massbins_); 
-          RegionMassPlot regB_999f10(label_FpixB_999f10.c_str(),etabins_,ihbins_,pbins_,massbins_); 
+          RegionMassPlot regB_8f10(label_FpixB_8f10.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
+          RegionMassPlot regB_9f10(label_FpixB_9f10.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
+          RegionMassPlot regB_99f10(label_FpixB_99f10.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
+          RegionMassPlot regB_999f10(label_FpixB_999f10.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_); 
     
           vmrp_regionFpix_all.push_back(std::move(regAll));
 
@@ -419,86 +433,86 @@ selLabels_.push_back("testIhPt");
       //
       if(BothMethods){
           std::string labelD_50ias60 = rD_50 + "_" + selLabels_[i];
-          RegionMassPlot regD_50ias60(labelD_50ias60.c_str(),etabins_,ihbins_,pbins_,massbins_);
+          RegionMassPlot regD_50ias60(labelD_50ias60.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_);
     
           std::string labelD_60ias70 = rD_60 + "_" + selLabels_[i];
-          RegionMassPlot regD_60ias70(labelD_60ias70.c_str(),etabins_,ihbins_,pbins_,massbins_);
+          RegionMassPlot regD_60ias70(labelD_60ias70.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_);
     
           std::string labelD_70ias80 = rD_70 + "_" + selLabels_[i];
-          RegionMassPlot regD_70ias80(labelD_70ias80.c_str(),etabins_,ihbins_,pbins_,massbins_);
+          RegionMassPlot regD_70ias80(labelD_70ias80.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_);
     
           std::string labelD_80ias90 = rD_80 + "_" + selLabels_[i];
-          RegionMassPlot regD_80ias90(labelD_80ias90.c_str(),etabins_,ihbins_,pbins_,massbins_);
+          RegionMassPlot regD_80ias90(labelD_80ias90.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_);
     
           std::string labelD_50ias90 = rD_50_90 + "_" + selLabels_[i];
-          RegionMassPlot regD_50ias90(labelD_50ias90.c_str(),etabins_,ihbins_,pbins_,massbins_);
+          RegionMassPlot regD_50ias90(labelD_50ias90.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_);
     
           std::string labelD_50ias99 = rD_50_99 + "_" + selLabels_[i];
-          RegionMassPlot regD_50ias99(labelD_50ias99.c_str(),etabins_,ihbins_,pbins_,massbins_);
+          RegionMassPlot regD_50ias99(labelD_50ias99.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_);
     
           std::string labelD_50ias999 = rD_50_999 + "_" + selLabels_[i];
-          RegionMassPlot regD_50ias999(labelD_50ias999.c_str(),etabins_,ihbins_,pbins_,massbins_);
+          RegionMassPlot regD_50ias999(labelD_50ias999.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_);
     
           std::string labelD_90ias100 = rD_90_100 + "_" + selLabels_[i];
-          RegionMassPlot regD_90ias100(labelD_90ias100.c_str(),etabins_,ihbins_,pbins_,massbins_);
+          RegionMassPlot regD_90ias100(labelD_90ias100.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_);
     
           std::string labelD_99ias100 = rD_99_100 + "_" + selLabels_[i];
-          RegionMassPlot regD_99ias100(labelD_99ias100.c_str(),etabins_,ihbins_,pbins_,massbins_);
+          RegionMassPlot regD_99ias100(labelD_99ias100.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_);
     
           std::string labelD_999ias100 = rD_999_100 + "_" + selLabels_[i];
-          RegionMassPlot regD_999ias100(labelD_999ias100.c_str(),etabins_,ihbins_,pbins_,massbins_);
+          RegionMassPlot regD_999ias100(labelD_999ias100.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_);
     
           //Definition of regions A with all quantiles and different names
           std::string labelA_50ias = rA_med + "_" + selLabels_[i];
-          RegionMassPlot regA_ias50(labelA_50ias.c_str(),etabins_,ihbins_,pbins_,massbins_);
+          RegionMassPlot regA_ias50(labelA_50ias.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_);
           std::string labelA_80ias = rA_80 + "_" + selLabels_[i];
-          RegionMassPlot regA_ias80(labelA_80ias.c_str(),etabins_,ihbins_,pbins_,massbins_);
+          RegionMassPlot regA_ias80(labelA_80ias.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_);
           std::string labelA_90ias = rA_90 + "_" + selLabels_[i];
-          RegionMassPlot regA_ias90(labelA_90ias.c_str(),etabins_,ihbins_,pbins_,massbins_);
+          RegionMassPlot regA_ias90(labelA_90ias.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_);
     
     
           //Definition of regions C with all quantiles and different names
           std::string labelC_50ias = rC_med + "_" + selLabels_[i];
-          RegionMassPlot regC_ias50(labelC_50ias.c_str(),etabins_,ihbins_,pbins_,massbins_);
+          RegionMassPlot regC_ias50(labelC_50ias.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_);
           std::string labelC_80ias = rC_80 + "_" + selLabels_[i];
-          RegionMassPlot regC_ias80(labelC_80ias.c_str(),etabins_,ihbins_,pbins_,massbins_);
+          RegionMassPlot regC_ias80(labelC_80ias.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_);
           std::string labelC_90ias = rC_90 + "_" + selLabels_[i];
-          RegionMassPlot regC_ias90(labelC_90ias.c_str(),etabins_,ihbins_,pbins_,massbins_);
+          RegionMassPlot regC_ias90(labelC_90ias.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_);
     
     
           //Definition of regions B with all quantiles and different names
           std::string labelB_50ias60 = rB_50 + "_" + selLabels_[i];
-          RegionMassPlot regB_50ias60(labelB_50ias60.c_str(),etabins_,ihbins_,pbins_,massbins_);
+          RegionMassPlot regB_50ias60(labelB_50ias60.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_);
     
           std::string labelB_60ias70 = rB_60 + "_" + selLabels_[i];
-          RegionMassPlot regB_60ias70(labelB_60ias70.c_str(),etabins_,ihbins_,pbins_,massbins_);
+          RegionMassPlot regB_60ias70(labelB_60ias70.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_);
     
           std::string labelB_70ias80 = rB_70 + "_" + selLabels_[i];
-          RegionMassPlot regB_70ias80(labelB_70ias80.c_str(),etabins_,ihbins_,pbins_,massbins_);
+          RegionMassPlot regB_70ias80(labelB_70ias80.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_);
     
           std::string labelB_80ias90 = rB_80 + "_" + selLabels_[i];
-          RegionMassPlot regB_80ias90(labelB_80ias90.c_str(),etabins_,ihbins_,pbins_,massbins_);
+          RegionMassPlot regB_80ias90(labelB_80ias90.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_);
     
           std::string labelB_50ias90 = rB_50_90 + "_" + selLabels_[i];
-          RegionMassPlot regB_50ias90(labelB_50ias90.c_str(),etabins_,ihbins_,pbins_,massbins_);
+          RegionMassPlot regB_50ias90(labelB_50ias90.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_);
     
           std::string labelB_50ias100 = rB_50_100 + "_" + selLabels_[i];
-          RegionMassPlot regB_50ias100(labelB_50ias100.c_str(),etabins_,ihbins_,pbins_,massbins_);
+          RegionMassPlot regB_50ias100(labelB_50ias100.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_);
     
           std::string labelB_50ias99 = rB_50_99 + "_" + selLabels_[i];
-          RegionMassPlot regB_50ias99(labelB_50ias99.c_str(),etabins_,ihbins_,pbins_,massbins_);
+          RegionMassPlot regB_50ias99(labelB_50ias99.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_);
     
           std::string labelB_50ias999 = rB_50_999 + "_" + selLabels_[i];
-          RegionMassPlot regB_50ias999(labelB_50ias999.c_str(),etabins_,ihbins_,pbins_,massbins_);
+          RegionMassPlot regB_50ias999(labelB_50ias999.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_);
     
           std::string labelB_90ias100 = rB_90_100 + "_" + selLabels_[i];
-          RegionMassPlot regB_90ias100(labelB_90ias100.c_str(),etabins_,ihbins_,pbins_,massbins_);
+          RegionMassPlot regB_90ias100(labelB_90ias100.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_);
     
           std::string labelB_99ias100 = rB_99_100 + "_" + selLabels_[i];
-          RegionMassPlot regB_99ias100(labelB_99ias100.c_str(),etabins_,ihbins_,pbins_,massbins_);
+          RegionMassPlot regB_99ias100(labelB_99ias100.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_);
           
           std::string labelB_999ias100 = rB_999_100 + "_" + selLabels_[i];
-          RegionMassPlot regB_999ias100(labelB_999ias100.c_str(),etabins_,ihbins_,pbins_,massbins_);
+          RegionMassPlot regB_999ias100(labelB_999ias100.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_);
 
 
           vmrp_regionD_50ias60.push_back(std::move(regD_50ias60));
@@ -647,17 +661,54 @@ Bool_t HSCPSelector::Process(Long64_t entry)
         float weight2D = 1.0;
         bool stopLoop = false;
 
-        /*
-        bool HLTmu = *HLT_Mu50.Get();
-        bool matchedmu = *matchedMuonWasFound.Get();
-        */
-        /*
-        bool HLTmu = *HLT_Mu50.Get();
-        bool L1_mu22 = *L1_SingleMu22.Get();
-        bool L1_mu22or25 = *L1_SingleMu22or25.Get();
-        bool L1_lastmu = *L1_LastMuFilter.Get();
-        */
+        float mom = p[i];
+        float Ihnol1 = Ih_noL1[i];
+        float IhStrip = Ih_StripOnly[i];
+        float pt = Pt[i];
+        float ptErr = PtErr[i];
+        float sigptopt = ptErr*1.0/pt;
+        float sigptopt2 = ptErr*1.0/(pt*pt);
+        float eop = EoverP[i];
 
+        float relTKiso = track_genTrackMiniIsoSumPt[i];
+        float miniIso = PFMiniIso_relative[i];
+        float mass = GetMass(Pt[i]*cosh(eta[i]),Ih_StripOnly[i],K,C);
+        float massIhnoL1 = GetMass(Pt[i]*cosh(eta[i]),Ih_noL1[i],K,C);
+        bool matchedmu = *matchedMuonWasFound.Get();
+        bool HLTmu = *HLT_Mu50.Get();
+
+        unsigned long long EVENT = *Event;
+        unsigned int RUN = *Run;
+        unsigned int PU = *PileUp;
+        unsigned int LUMI = *Lumi;
+
+
+
+
+        /*
+        if (massIhnoL1 > 4000 && selLabels_[s] == "testIhPt"){
+           
+           cout << "Event with mass(Ih_noL1) = " << massIhnoL1 << " , mass(Ih_StripOnly)  : " << mass << " found with sel label : " << selLabels_[s] << endl;
+           cout << "It was found in Event : " << EVENT << " from run #" << RUN << " , in LS : " << LUMI <<" with associated PU : " << PU << endl;
+           cout << "Matched muon : " << matchedmu << endl;
+           cout << "HLT_Mu50 : " << HLTmu << endl;
+           cout << "Pt = " << pt <<endl;
+           cout << "P = " << mom << endl;
+           cout << "Eta = " << Eta << endl; 
+           cout << "sigpt/pt = " << sigptopt << endl;
+           cout << "Ih strip only = " << Ih << endl;
+           cout << "Ih no L1 = " << Ihnol1 << endl;
+       
+           //cout << "Fixed Iso Tk : "<< fixIso << endl;
+           cout << "Var code size Iso Tk : "<< relTKiso << endl;
+           cout << "MiniRelIsoPF : "<< miniIso << endl;
+           cout << "Fpix : "<< Fpix << endl;
+           cout << "E/P : "<< eop << endl;
+           cout << "sigpt/pt^2 : "<< sigptopt2 << endl;
+           cout << "Ias strip only : " << Ias << endl;
+        }
+        */
+        
         newWeight = 1.0;
         
         if(Usefpixel){           
@@ -789,6 +840,8 @@ Bool_t HSCPSelector::Process(Long64_t entry)
                
            }
         }
+
+
         if(BothMethods){
 
             if(Pt[i] <= ptcut_){               

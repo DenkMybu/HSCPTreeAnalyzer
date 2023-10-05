@@ -5,7 +5,7 @@ float K(2.54), C(3.14); //Data
 float K_data2018(2.55), C_data2018(3.14); //Data 2018
 float K_data2017(2.54), C_data2017(3.14);
 
-RegionMassPlot::RegionMassPlot(std::string suffix,int etabins,int ihbins,int pbins,int massbins)
+RegionMassPlot::RegionMassPlot(std::string suffix,int etabins,int ihbins,int pbins,int massbins,int tofbins)
 {
 
     xbins=0;
@@ -49,9 +49,9 @@ RegionMassPlot::RegionMassPlot(std::string suffix,int etabins,int ihbins,int pbi
     hTOF=0;
 
     suffix_ = suffix;
-    std::cout << "init"+suffix << " with eta bins : " << etabins << " , ih bins : " << ihbins << " , p bins : " << pbins << " , and mass bins : " << massbins << std::endl;
+    std::cout << "init"+suffix << " with eta bins : " << etabins << " , ih bins : " << ihbins << " , p bins : " << pbins << " , and mass bins : " << massbins << " aand TOF bins : " << tofbins << std::endl;
 
-    initHisto(etabins,ihbins,pbins,massbins);
+    initHisto(etabins,ihbins,pbins,massbins,tofbins);
 
 } 
 /*
@@ -137,7 +137,7 @@ RegionMassPlot::~RegionMassPlot(){
 }
 
 // Function which intializes the histograms with given binnings 
-void RegionMassPlot::initHisto(int& etabins,int& ihbins,int& pbins,int& massbins)
+void RegionMassPlot::initHisto(int& etabins,int& ihbins,int& pbins,int& massbins,int& tofbins)
 {
 
     np = pbins;
@@ -168,6 +168,10 @@ void RegionMassPlot::initHisto(int& etabins,int& ihbins,int& pbins,int& massbins
     masslow = 0;
     massup = 4000;
 
+
+    ntof = tofbins;
+    toflow = 0;
+    tofup = 5;
     std::string suffix = suffix_;
     
     //c = new TCanvas(suffix.c_str(),"");
@@ -234,7 +238,7 @@ void RegionMassPlot::initHisto(int& etabins,int& ihbins,int& pbins,int& massbins
     momentumDistribM1000    = new TH1F(("momentumDistribM1000_"+suffix).c_str(),";p [GeV]",np,plow,pup); momentumDistribM1000->Sumw2();
     dedxDistribM1000    = new TH1F(("dedxDistribM1000_"+suffix).c_str(),";I_{h} [MeV/cm]",nih,ihlow,ihup); dedxDistribM1000->Sumw2();
 
-    hTOF    = new TH1F(("hTOF_"+suffix).c_str(),";TOF",200,-10,10); hTOF->Sumw2();
+    hTOF    = new TH1F(("hTOF_"+suffix).c_str(),";TOF",ntof,toflow,tofup); hTOF->Sumw2();
 
     //mass = new TH1F(("mass"+suffix).c_str(),";Mass [GeV]",nmass,masslow,massup); mass->Sumw2();
 

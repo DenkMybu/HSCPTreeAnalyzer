@@ -37,13 +37,13 @@ class RegionMassPlot{
     public:
         //Constructors & destructor
         //RegionMassPlot();
-        RegionMassPlot(std::string suffix,int etabins,int ihbins,int pbins,int massbins);
+        RegionMassPlot(std::string suffix,int etabins,int ihbins,int pbins,int massbins,int tofbins);
         //RegionMassPlot(std::string suffix,int nbins, float* xbins, std::vector<double> v_pbins, std::vector<float> vect);
         ~RegionMassPlot();
        
         //Methods
 	void initHisto();
-        void initHisto(int& etabins,int& ihbins,int& pbins,int& massbins);
+        void initHisto(int& etabins,int& ihbins,int& pbins,int& massbins,int& tofbins);
         void fill(float eta, float nhits, float p, float pt, float pterr, float ih, float ias, float is, float m, float tof, float npv, float w, float reW);
         void OneOverPreweighting(TH2F* ih_p_1, TH1F* p2);
         void fillMassFrom1DTemplatesEtaBinning(float weight_);
@@ -80,6 +80,9 @@ class RegionMassPlot{
         int nmass;
         float masslow;
         float massup;
+        int ntof;
+        float toflow;
+        float tofup;
         //std::vector<float> vect;
         std::vector<double> VectOfBins_P_;
         

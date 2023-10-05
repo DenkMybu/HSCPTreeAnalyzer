@@ -46,10 +46,12 @@ public :
    int pbins_;
    int massbins_;
    int masscut_;
+   int tofbins_;
    double ptcut_;
-
+   
    std::string dataset_;
    std::string oFile_;
+   std::string version_;
 
    int befPreSel=0;
    int preselTestIh = 0;

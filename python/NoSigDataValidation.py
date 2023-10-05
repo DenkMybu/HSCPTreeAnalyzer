@@ -88,11 +88,6 @@ if __name__ == "__main__":
     
     namesDtemp = [(prefixD+regionsValidation[i]) for i in range(len(regionsValidation))]
     
-    regionsA = [getHistogram(fref, namesA[i], '') for i in range(len(regionsValidation))]
-    regionsB = [getHistogram(fref, namesB[i], '') for i in range(len(regionsValidation))]
-    regionsC = [getHistogram(fref, namesC[i], '') for i in range(len(regionsValidation))]
-    regionsD = [getHistogram(fref, namesD[i], '') for i in range(len(regionsValidation))]
-
 
 
     nameSR0 = 'mass_regionD_8fp10' + extension
@@ -106,29 +101,6 @@ if __name__ == "__main__":
 
     scalePredMass = [ROOT.TFile.Open(outdir + "/" + name, "RECREATE") for name in nameRootSR]
     
-    arraySlices = ["0.3","0.4","0.5","0.6","0.7","0.8","0.9"]
-    lejSlices = []
-    
-    for i in range(len(arraySlices)-1):
-        lejSlices.append("Data VR F^{pix} ["+arraySlices[i] + " - " + arraySlices[i+1] + "]")
-    
-
-    for i in range (len(regionsA)):
-        #regionsA[i] = regionsA[i].Rebin(sizeRebinning,namesA[i],rebinning)
-        regionsA[i] = regionsA[i].Rebin(sizeRebinning,lejSlices[i],rebinning)
-    for i in range (len(regionsB)):
-        regionsB[i] = regionsB[i].Rebin(sizeRebinning,lejSlices[i],rebinning)
-    for i in range (len(regionsC)):
-        regionsC[i] = regionsC[i].Rebin(sizeRebinning,lejSlices[i],rebinning)
-    for i in range (len(regionsD)):
-        regionsD[i] = regionsD[i].Rebin(sizeRebinning,lejSlices[i],rebinning)
-
-    #nameAllReg = year+"_allCR_sameCanvas_"
-    #DisplayAllRegions(regionsC,nameAllReg,maxDisplay,outdir)
-
-    scaleFactors = []
-    nameSF = []         
-
     namesSR= ["SR0","SR1","SR2","SR3"]
 
   
@@ -185,7 +157,7 @@ if __name__ == "__main__":
     predD_sr3 = regB_SRs[3].GetEntries()*regC3fp8.GetEntries()/regA3fp8.GetEntries()
     ScaleFacSR3 = regC3fp8.GetEntries() / predD_sr3
 
-    sf_SRs = [ScaleFacSR0,ScaleFacSR1,ScaleFacSR3,ScaleFacSR3]
+    sf_SRs = [ScaleFacSR0,ScaleFacSR1,ScaleFacSR2,ScaleFacSR3]
 
     nameSFtxt =outdir + '/' + year + "_SF_CR_SRs_stau.txt"
     with open(nameSFtxt, "w") as file:
@@ -198,12 +170,6 @@ if __name__ == "__main__":
 
     scale_histogram_with_poissonian_errors(regC3fp8, 1./ScaleFacSR1)
 
-
-    '''
-    regC3f8_SRs[0].Scale(1./ScaleFacSR1)
-    regC3f8_SRs[1].Scale(1./ScaleFacSR2)
-    regC3f8_SRs[2].Scale(1./ScaleFacSR3)
-    '''
     
     scale_histogram_with_poissonian_errors(regC3f8_SRs[0], 1./ScaleFacSR0)
     scale_histogram_with_poissonian_errors(regC3f8_SRs[1], 1./ScaleFacSR1)
@@ -230,12 +196,6 @@ if __name__ == "__main__":
     regA3fp8 = regA3fp8.Rebin(sizeRebinning,'regA3fp8',rebinning)
     regC3fp8 = regC3fp8.Rebin(sizeRebinning,lejDataCR,rebinning)
 
-    regC3fp8_scaleVR = regC3fp8_scaleVR.Rebin(sizeRebinning,lejDataCR,rebinning)
-
-    '''
-    for i in range(len(regC3f8_SRs)):
-        regC3f8_SRs[i] = regC3f8_SRs[i].Rebin(sizeRebinning,lejDataCR,rebinning)
-    '''
 
     regB8fp9 = regB8fp9.Rebin(sizeRebinning,'regB8fp9',rebinning)
     regD8fp9 = regD8fp9.Rebin(sizeRebinning,lejDataVR,rebinning)
@@ -256,7 +216,7 @@ if __name__ == "__main__":
    
     for k in range(len(regC3f8_SRs)):
         scalePredMass[k].cd()
-        print("SR{} has mass prediction number of events = {}".format(k+1,regC3f8_SRs[k].Integral()))
+        print("SR{} has mass prediction number of events = {}".format(k,regC3f8_SRs[k].Integral()))
         regC3f8_SRs[k].Write(str(namePredSR[k]))
         scalePredMass[k].Close()
 
