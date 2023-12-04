@@ -115,12 +115,6 @@ pathSigHSCPgluinoOnlyNeutral + "HSCPgluinoOnlyNeutral_M-2000_merged.root",
 pathSigHSCPgluinoOnlyNeutral + "HSCPgluinoOnlyNeutral_M_2200_merged.root",
 pathSigHSCPgluinoOnlyNeutral + "HSCPgluinoOnlyNeutral_M-2400_merged.root",
 pathSigHSCPgluinoOnlyNeutral + "HSCPgluinoOnlyNeutral_M-2600_merged.root",
-'''
-pathSig + "HSCPtauPrimeCharge1e_M-800_merged.root",
-pathSig + "HSCPtauPrimeCharge1e_M-1800_merged.root",
-pathSig + "HSCPtauPrimeCharge2e_M-500_merged.root",
-pathSig + "HSCPtauPrimeCharge2e_M-1800_merged.root",
-'''
 ]
 #intLumi = 4598.37 #10.0 #
 intLumi = 101000.0 #101/fb
@@ -231,8 +225,9 @@ with open("stau_weights.txt", "w") as file:
       if not (fileIn.Get("HSCParticleAnalyzer/BaseName/NumEvents")):
         print("NumEvents not found, exit for "+str(fileIn))
         continue
-      
+      print("Running on {}\n".format(fileIn)) 
       nEvetsPreTrig = fileIn.Get("HSCParticleAnalyzer/BaseName/NumEvents").GetBinContent(1)
+      print("Number of events pre trigger = {}\n".format(nEvetsPreTrig))
       nEvetsPostTrig = fileIn.Get("HSCParticleAnalyzer/BaseName/NumEvents").GetBinContent(2)
       if (nEvetsPreTrig == 0):
         print("nEvetsPreTrig is zero, exiting")

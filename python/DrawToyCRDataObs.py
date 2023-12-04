@@ -15,11 +15,12 @@ def poissonHisto(h, RNG):
 
 
 # Define the input and output directories
-input_base_path = USED_DATE  + "pt"
+input_base_path = "V"+VERSION+ '/' +USED_DATE  + "pt"
 output_base_path = "V"+VERSION+"/dataV"+VERSION + "_pt"
 
 # List of pT values
-pt_values = ["70", "100", "200", "300"]
+#pt_values = ["70", "100", "200", "300"]
+pt_values = ["100"]
 
 # List of years and SR values
 years = ["2017", "2018"]
@@ -51,9 +52,18 @@ for pt in pt_values:
 
             # Read input histogram
             input_file = ROOT.TFile(input_file_path, "READ")
-            input_hist_name = os.path.splitext(input_file_name)[0]
+
+             
+            input_hist_name = os.path.splitext(input_file_name)[0]+'_raw'
+            print("Retrieving histo {} from file  {}".format(input_hist_name,input_file_path))
 
             input_hist = input_file.Get(input_hist_name)
+            if not isinstance(input_hist, ROOT.TH1F): 
+                continue
+            #if isinstance(input_hist, ROOT.TObject):
+                #continue
+
+            print("Input hist ={}".format(input_hist))        
             input_hist = input_hist.Rebin(sizeRebinning,"",rebinning)      
 
             # Write the output histogram to the output file

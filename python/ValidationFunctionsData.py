@@ -32,6 +32,171 @@ def SaveMassPredScaledRootFile(file_name,predMass,outdir):
     root_file.Close()
 
 
+def get_pull_plot(hist1,hist2,minVal,maxVal):
+    pull_plot = hist1.Clone("pull")
+    pull_plot.Reset()
+
+    if hist1.GetNbinsX() != hist2.GetNbinsX():
+        print("Not the same number of bins in both histograms, exiting program..")
+        exit()
+
+    for i in range(hist1.FindBin(minVal),hist1.FindBin(maxVal)+1):        
+        content1 = hist1.GetBinContent(i)
+        content2 = hist2.GetBinContent(i)
+        error1 = hist1.GetBinError(i)
+        error2 = hist2.GetBinError(i)
+        
+        pull = 0
+        if(error1 != 0 or error2 != 0):
+            pull = (content1 - content2) / ROOT.TMath.Sqrt(error1**2 + error2**2)
+        if(error1 == 0 and error2 == 0):
+            pull = 0
+        if content1 == 0 or content2 ==0:
+            pull = 0
+
+        pull_plot.SetBinContent(i,pull)
+        #print("Filling pull plot at bin {} with {}".format(i,pull))
+
+    return pull_plot
+
+def get_ratio_plot(hist1,hist2,minVal,maxVal):
+    ratio_plot = hist1.Clone("ratio")
+    ratio_plot.Reset()
+
+    if hist1.GetNbinsX() != hist2.GetNbinsX():
+        print("Not the same number of bins in both histograms, exiting program..")
+        exit()
+
+    for i in range(hist1.FindBin(minVal),hist1.FindBin(maxVal)+1):        
+        content1 = hist1.GetBinContent(i)
+        content2 = hist2.GetBinContent(i)
+        error1 = hist1.GetBinError(i)
+        error2 = hist2.GetBinError(i)
+        
+        ratio_val = 0
+        ratio_error = 0
+        
+        if(content2 != 0 and content1 !=0):
+            ratio_val = content1/content2
+            ratio_error = ratio_val * ROOT.TMath.Sqrt( (error1/content1)**2 + (error2/content2)**2)
+
+        ratio_plot.SetBinContent(i,ratio_val)
+        ratio_plot.SetBinError(i,ratio_error)
+
+    ratio_plot.SetMarkerStyle(20)
+    return ratio_plot
+
+
+def MakeCanvas(h1,h2,namecanv,namereg1,namereg2,xmin,xmax,outdir):
+    frameR = h1.Clone("FRAME_RATIO")
+    frameR.Reset()
+    frameP = h1.Clone("FRAME_PULL")
+    frameP.Reset()
+
+    canvas = ROOT.TCanvas(namecanv, namecanv, 900, 1200)
+    pad1 = ROOT.TPad("pad1", "Histograms", 0, 0.42, 1, 0.92)
+    pad1.SetLogy(1)
+    pad1.Draw()
+    pad1.cd()
+    h1.SetStats(False)
+    h1.GetYaxis().SetRangeUser(0.001,1000000)
+    h1.GetXaxis().SetRangeUser(xmin,xmax)
+    h2.GetYaxis().SetRangeUser(0.001,1000000)
+    h2.GetXaxis().SetRangeUser(xmin,xmax)
+    h1.SetMarkerStyle(20)
+    h1.SetMarkerSize(0.7)
+    h1.SetMarkerColor(2)
+    h2.SetStats(False)
+    h2.SetMarkerStyle(20)
+    h2.SetMarkerSize(0.7)
+    h2.SetMarkerColor(1)
+
+    h1.Draw("SAME P")
+    h2.Draw("SAME P")
+
+
+    lej = ROOT.TLegend(0.6,0.6,0.8,0.9)
+    lej.SetFillStyle(0)
+    lej.SetBorderSize(0)
+    lej.SetTextFont(43)
+    lej.SetTextSize(13)
+    lej.AddEntry(h1, namereg1,"PE1")
+    lej.AddEntry(h2, namereg2,"PE1")
+    lej.Draw("SAME")
+
+    canvas.cd() 
+    pad2 = ROOT.TPad("pad2", "Ratio", 0, 0.26, 1, 0.41)
+    pad2.Draw()
+    pad2.cd()
+    frameR = SetFrameColor(frameR,510,510,510,0,"","","#frac{scaled CR}{CR}",0,2.5,43,12,43,14,43,10,43,20,3.5,1.75)
+    frameR.Draw("SAME AXIS")
+    ratioPlot = get_ratio_plot(h1,h2,xmin,xmax)
+    ratioPlot.SetStats(False)
+    ratioPlot.SetMarkerStyle(20)
+    ratioPlot.SetMarkerSize(0.7)
+    ratioPlot.SetMarkerColor(1)
+    ratioPlot.Draw("SAME EP")
+    lineOne = ROOT.TLine(0, 1, xmax, 1)
+    lineOne.SetLineColor(2)
+    lineOne.SetLineStyle(2)
+    lineOne.Draw("SAME")
+    lineAb = ROOT.TLine(0,0.8, xmax,0.8)
+    lineAb.SetLineColor(40)
+    lineAb.SetLineStyle(2)
+    lineAb.Draw("SAME")
+    lineAb2 = ROOT.TLine(0,1.2, xmax,1.2)
+    lineAb2.SetLineColor(40)
+    lineAb2.SetLineStyle(2)
+    lineAb2.Draw("SAME")
+
+    canvas.cd() 
+    pad3 = ROOT.TPad("pad3", "Pulls", 0, 0.10, 1, 0.25)
+    pad3.Draw()
+    pad3.cd()
+    frameP = SetFrameColor(frameP,510,510,510,0,"","","#frac{scaled CR}{CR}",-3.5,3.5,43,12,43,14,43,10,43,20,3.5,1.75)
+    frameP.Draw("SAME AXIS")
+    pullPlot = get_pull_plot(h1,h2,xmin,xmax)
+    pullPlot.GetYaxis().SetRangeUser(-3.5,3.5)
+    pullPlot.SetStats(False)
+    pullPlot.SetMarkerStyle(20)
+    pullPlot.SetMarkerSize(0.7)
+    pullPlot.SetFillColor(38)
+    pullPlot.Draw("SAME HIST")
+    lineP0 = ROOT.TLine(0, 0, xmax, 0)
+    lineP0.SetLineColor(2)
+    lineP0.SetLineStyle(2)
+    lineP0.Draw("SAME")
+    lineP1 = ROOT.TLine(0, 1, xmax, 1)
+    lineP1.SetLineColor(40)
+    lineP1.SetLineStyle(2)
+    lineP1.Draw("SAME")
+    lineP2 = ROOT.TLine(0,2, xmax,2)
+    lineP2.SetLineColor(40)
+    lineP2.SetLineStyle(2)
+    lineP2.Draw("SAME")
+    lineP3 = ROOT.TLine(0,3, xmax,3)
+    lineP3.SetLineColor(40)
+    lineP3.SetLineStyle(2)
+    lineP3.Draw("SAME")
+    lineP4 = ROOT.TLine(0,-1, xmax,-1)
+    lineP4.SetLineColor(40)
+    lineP4.SetLineStyle(2)
+    lineP4.Draw("SAME")
+    lineP5 = ROOT.TLine(0,-2, xmax,-2)
+    lineP5.SetLineColor(40)
+    lineP5.SetLineStyle(2)
+    lineP5.Draw("SAME")
+    lineP6 = ROOT.TLine(0,-3, xmax,-3)
+    lineP6.SetLineColor(40)
+    lineP6.SetLineStyle(2)
+    lineP6.Draw("SAME")
+
+    CMS_lumi.CMS_lumi(canvas, iPeriod, iPos)
+    namePng = namecanv+".png"
+    nameRoot = namecanv+".root"
+    canvas.SaveAs(namePng)
+    canvas.SaveAs(nameRoot)
+
 def SignalRegion(h1,h2,name,maxDisplay,outdir,blind,maxBlind,stau308,stau432,stau557,stau651):
 
     hist1 = h1.Clone(h1.GetName())

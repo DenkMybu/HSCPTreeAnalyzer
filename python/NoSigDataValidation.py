@@ -76,20 +76,6 @@ if __name__ == "__main__":
     prefixC = "mass_regionC_"
     prefixD = "mass_regionD_"
 
-    namesValidation = ["3fp4","4fp5","5fp6","6fp7","7fp8","8fp9"]
-     
-    regionsValidation = ["3fp4"+extension,"4fp5"+extension,"5fp6"+extension,"6fp7"+extension,"7fp8"+extension,"8fp9"+extension]
-
-    
-    namesA = [(prefixA+regionsValidation[i]) for i in range(len(regionsValidation))]
-    namesB = [(prefixB+regionsValidation[i]) for i in range(len(regionsValidation))]
-    namesC = [(prefixC+regionsValidation[i]) for i in range(len(regionsValidation))]
-    namesD = [(prefixC+regionsValidation[i]) for i in range(len(regionsValidation))]
-    
-    namesDtemp = [(prefixD+regionsValidation[i]) for i in range(len(regionsValidation))]
-    
-
-
     nameSR0 = 'mass_regionD_8fp10' + extension
     nameSR1 = 'mass_regionD_9fp10' + extension
     nameSR2 = 'mass_regionD_99fp10' + extension
@@ -98,9 +84,11 @@ if __name__ == "__main__":
 
     nameRootSR = [year+"_SR0_predMass.root",year+"_SR1_predMass.root",year+"_SR2_predMass.root",year+"_SR3_predMass.root"]
     namePredSR = [year+"_SR0_predMass",year+"_SR1_predMass",year+"_SR2_predMass",year+"_SR3_predMass"]
+    namePredRaw = [year+"_SR0_predMass_raw",year+"_SR1_predMass_raw",year+"_SR2_predMass_raw",year+"_SR3_predMass_raw"]
+
 
     scalePredMass = [ROOT.TFile.Open(outdir + "/" + name, "RECREATE") for name in nameRootSR]
-    
+    CRMass = ROOT.TFile.Open(outdir + "/CR_Mass_"+year+".root", "RECREATE")
     namesSR= ["SR0","SR1","SR2","SR3"]
 
   
@@ -130,6 +118,7 @@ if __name__ == "__main__":
 
     regC3f8_SRs = [regC3fp8.Clone("CR_scaled_SR0"),regC3fp8.Clone("CR_scaled_SR1"),regC3fp8.Clone("CR_scaled_SR2"),regC3fp8.Clone("CR_scaled_SR3")]
 
+    regC3f8_RAW = [regC3fp8.Clone("CR_raw_SR0"),regC3fp8.Clone("CR_raw_SR1"),regC3fp8.Clone("CR_raw_SR2"),regC3fp8.Clone("CR_raw_SR3")]
 
     regB8fp9 = getHistogram(fref, histoNamesB_vr[0], 'regB8fp9')
     regD8fp9 = getHistogram(fref, histoNamesD_vr[0], 'regD8fp9')
@@ -162,13 +151,13 @@ if __name__ == "__main__":
     nameSFtxt =outdir + '/' + year + "_SF_CR_SRs_stau.txt"
     with open(nameSFtxt, "w") as file:
         for p in range(len(namesSR)):
-            line = namesSR[p] + '_' + year + '_ScaleFactor_CR_SR_stau : ' + str(sf_SRs[p]) + '\n' 
+            line = namesSR[p] + '_' + year + '_ScaleFactor_CR_SR_stau : ' + str( (1./sf_SRs[p]) ) + '\n' 
             file.write(line)
 
     for i in range(len(namesSR)):
         print("Scale factor from ABCD method between regions C 0.3 - 0.8 and {} ={}".format(namesSR[i],sf_SRs[i]))
 
-    scale_histogram_with_poissonian_errors(regC3fp8, 1./ScaleFacSR1)
+    #scale_histogram_with_poissonian_errors(regC3fp8, 1./ScaleFacSR1)
 
     
     scale_histogram_with_poissonian_errors(regC3f8_SRs[0], 1./ScaleFacSR0)
@@ -194,7 +183,7 @@ if __name__ == "__main__":
 
     
     regA3fp8 = regA3fp8.Rebin(sizeRebinning,'regA3fp8',rebinning)
-    regC3fp8 = regC3fp8.Rebin(sizeRebinning,lejDataCR,rebinning)
+    #regC3fp8 = regC3fp8.Rebin(sizeRebinning,lejDataCR,rebinning)
 
 
     regB8fp9 = regB8fp9.Rebin(sizeRebinning,'regB8fp9',rebinning)
@@ -213,10 +202,16 @@ if __name__ == "__main__":
     regB_SRs[3] = regB_SRs[3].Rebin(sizeRebinning,'regB999fp10',rebinning)
     regD_SRs[3] = regD_SRs[3].Rebin(sizeRebinning,lejDataSR3,rebinning)
 
-   
+
     for k in range(len(regC3f8_SRs)):
         scalePredMass[k].cd()
         print("SR{} has mass prediction number of events = {}".format(k,regC3f8_SRs[k].Integral()))
         regC3f8_SRs[k].Write(str(namePredSR[k]))
+        regC3f8_RAW[k].Write(str(namePredRaw[k])) 
         scalePredMass[k].Close()
 
+    CRMass.cd()
+    regC3fp8.GetXaxis().SetRangeUser(0,1400)
+    regC3fp8.GetYaxis().SetRangeUser(0.001,1000000)
+    regC3fp8.Write(str(year+"_CR_Mass_"+year))
+    CRMass.Close()

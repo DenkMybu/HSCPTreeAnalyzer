@@ -1,6 +1,7 @@
 #!/bin/bash
 
-param2_array=("70" "100" "200" "300")
+#param2_array=("70" "100" "200" "300")
+param2_array=("100")
 param1_array=("SR0" "SR1" "SR2")
 
 

@@ -8,6 +8,8 @@ from allHists import CDF
 from ValidationFunctionsData import *
 import CMS_lumi
 
+ROOT.gROOT.SetBatch(ROOT.kTRUE)
+
 CMS_lumi.lumi_13TeV = "CMS Simulation"
 CMS_lumi.writeExtraText = True
 CMS_lumi.extraText = "Private work"
@@ -29,11 +31,11 @@ def getRangeGraph(hist):
 
 def MakeCanvas(name,array,output,min_X,max_X,x_axis_title):
     canvas = ROOT.TCanvas(name, name, 1200, 1200)
-    legend = ROOT.TLegend(0.7, 0.5, 0.9, 0.9)
-    pad1 = ROOT.TPad("histograms", "Histograms", 0, 0.4, 1, 0.93)
+    legend = ROOT.TLegend(0.7, 0.4, 0.9, 0.9)
+    pad1 = ROOT.TPad("histograms", "Histograms", 0, 0.32, 1, 0.92)
     pad1.Draw()
     pad1.cd()
-    pad1.SetTopMargin(0.05)
+    pad1.SetTopMargin(0.033)
     all_CDF = []
     for i in range(len(array)):
         cdf = CDF(array[i][0],'$\\frac{1}{\\beta}',ROOT.kRed,'TOF',max_X)
@@ -50,7 +52,7 @@ def MakeCanvas(name,array,output,min_X,max_X,x_axis_title):
 
     legend.Draw("same")
     canvas.cd()
-    pad2 = ROOT.TPad("histograms", "Histograms", 0, 0.2, 1, 0.4)
+    pad2 = ROOT.TPad("histograms", "Histograms", 0, 0.1, 1, 0.3)
     pad2.Draw()
     pad2.cd()
     pad2.SetBottomMargin(0.2)
@@ -95,7 +97,9 @@ def extract_number(filename):
 
 def main():    
     directory_path = "/opt/sbg/cms/ui4_data1/rhaeberl/CMSSW_10_6_30/src/HSCPTreeAnalyzer/macros/Signal_good/pStau_V7p0"
-    
+    data_path = "/opt/sbg/cms/ui4_data1/rhaeberl/CMSSW_10_6_30/src/HSCPTreeAnalyzer/macros/Data_good/4_october_data_validation_pt100/"
+
+    outdir = "Signals_only/"    
     tofhistograms = []
     ihhistograms = []
     masshistograms = []
@@ -137,9 +141,9 @@ def main():
     range_ih = getRangeGraph(ihhistograms[0][0])
     range_mass = getRangeGraph(masshistograms[0][0])
     
-    MakeCanvas("canvas_TOF",tofhistograms,"TOF_distrib_stau",range_tof[0],range_tof[1],'$\\frac{1}{\\beta}')
-    MakeCanvas("canvas_IH",ihhistograms,"IH_distrib_stau",range_ih[0],range_ih[1],"IH [MeV/cm]")
-    MakeCanvas("canvas_MASS",masshistograms,"Mass_distrib_stau",range_mass[0],range_mass[1],"Mass [GeV]")
+    MakeCanvas("canvas_TOF",tofhistograms,outdir+"TOF_distrib_stau",range_tof[0],range_tof[1],'$\\frac{1}{\\beta}')
+    MakeCanvas("canvas_IH",ihhistograms,outdir+"IH_distrib_stau",range_ih[0],range_ih[1],"IH [MeV/cm]")
+    MakeCanvas("canvas_MASS",masshistograms,outdir+"Mass_distrib_stau",range_mass[0],range_mass[1],"Mass [GeV]")
 
 if __name__ == "__main__":
     main()
