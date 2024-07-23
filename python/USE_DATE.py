@@ -1,5 +1,6 @@
-USED_DATE = "4_october_"
-
+#USED_DATE = "4_october_"
+#USED_DATE = "12_january_"
+USED_DATE = "14_june_"
 
 
 #Ih > 4.05
@@ -20,5 +21,12 @@ USED_DATE = "4_october_"
 #Dylan signals 
 #VERSION = "80p0"
 
+
 #Dylan presel - correct + correct sys
-VERSION = "80p1"
+#VERSION = "80p1"
+
+#Z PRIME NORMAL AND ALL OTHERS GSTRIP > 0.35
+#VERSION = "80p2"
+
+#TOF FINAL VERSION
+VERSION = "80p6"

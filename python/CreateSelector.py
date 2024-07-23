@@ -10,6 +10,7 @@ import pandas as pd
 #######################################
 
 df_HSCPsel = pd.read_csv("../cfg/HSCPpreSelections.csv",skipinitialspace=True)
+print(df_HSCPsel)
 df_plots = pd.read_csv("../cfg/Variables.csv",skipinitialspace=True)
 
 # header files: template and new one

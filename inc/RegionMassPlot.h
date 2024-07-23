@@ -37,14 +37,14 @@ class RegionMassPlot{
     public:
         //Constructors & destructor
         //RegionMassPlot();
-        RegionMassPlot(std::string suffix,int etabins,int ihbins,int pbins,int massbins,int tofbins);
+        RegionMassPlot(std::string suffix,int etabins,int ihbins,int pbins,int massbins,int tofbins,int fpixbins);
         //RegionMassPlot(std::string suffix,int nbins, float* xbins, std::vector<double> v_pbins, std::vector<float> vect);
         ~RegionMassPlot();
        
         //Methods
 	void initHisto();
-        void initHisto(int& etabins,int& ihbins,int& pbins,int& massbins,int& tofbins);
-        void fill(float eta, float nhits, float p, float pt, float pterr, float ih, float ias, float is, float m, float tof, float npv, float w, float reW);
+        void initHisto(int& etabins,int& ihbins,int& pbins,int& massbins,int& tofbins,int& fpixbins);
+        void fill(float eta, float nhits, float p, float pt, float pterr, float ih, float ias, float is, float m, float tof, float npv, float fpix, float w, float reW);
         void OneOverPreweighting(TH2F* ih_p_1, TH1F* p2);
         void fillMassFrom1DTemplatesEtaBinning(float weight_);
         void plotMass();
@@ -83,6 +83,9 @@ class RegionMassPlot{
         int ntof;
         float toflow;
         float tofup;
+        int nfpix;
+        float fpixlow;
+        float fpixup;
         //std::vector<float> vect;
         std::vector<double> VectOfBins_P_;
         
@@ -91,6 +94,7 @@ class RegionMassPlot{
         TH2F* ih_pt;
         TH2F* ias_pt;
         TH2F* ih_ias;
+        TH2F* ih_fpix;
         TH2F* ih_nhits;
         TH2F* ias_nhits;
         TH2F* eta_pt;

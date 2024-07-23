@@ -165,9 +165,6 @@ if __name__ == "__main__":
     scale_histogram_with_poissonian_errors(regC3f8_SRs[2], 1./ScaleFacSR2)
     scale_histogram_with_poissonian_errors(regC3f8_SRs[3], 1./ScaleFacSR3)
     
-
-        
-
     crlow = "3"
     crup = "8"
     vrlow = "8"

@@ -97,7 +97,6 @@ def extract_number(filename):
 
 def main():    
     directory_path = "/opt/sbg/cms/ui4_data1/rhaeberl/CMSSW_10_6_30/src/HSCPTreeAnalyzer/macros/Signal_good/pStau_V7p0"
-    data_path = "/opt/sbg/cms/ui4_data1/rhaeberl/CMSSW_10_6_30/src/HSCPTreeAnalyzer/macros/Data_good/4_october_data_validation_pt100/"
 
     outdir = "Signals_only/"    
     tofhistograms = []

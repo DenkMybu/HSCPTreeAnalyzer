@@ -153,8 +153,8 @@ def NicePlot(variable_name,hist_signal,hist_background,roc_curve_1):
     legend2.AddEntry(roc_curve_1, variable_name, "l")
     legend2.Draw("SAME")
     '''
-    oName = "ROC_vs_raw_"+variable_name+".png"
-    canvas.SaveAs(".png")
+    oName = "ROC_vs_raw_"+variable_name+".pdf"
+    canvas.SaveAs(oName)
 
 
 
@@ -174,7 +174,7 @@ def main():
 
     fileSignals = [ROOT.TFile.Open(iDir+"pStau"+i+"_massCut_0_pT100_Vtest_Gstrip.root","READ") for i in signalMasspoints]
 
-    fileSignal = ROOT.TFile.Open(iDir+"pStau745_massCut_0_pT100_Vtest_Gstrip.root","READ")
+    fileSignal = ROOT.TFile.Open(iDir+"pStau432_massCut_0_pT100_Vtest_Gstrip.root","READ")
     
     
     hist_signal_1 = fileSignal.Get(presel+"h" + variable_name_1)
@@ -190,11 +190,11 @@ def main():
     roc_curve_1 = create_roc_curve(hist_signal_1, hist_background_1, variable_name_1)
     roc_curve_2 = create_roc_curve(hist_signal_2, hist_background_2, variable_name_2)
     
-    oName = "test1_roc_"+variable_name_1+"_vs_"+variable_name_2+".png"
+    oName = "test1_roc_"+variable_name_1+"_vs_"+variable_name_2+".pdf"
     compare_and_save_roc_curves(roc_curve_1, roc_curve_2, variable_name_1, variable_name_2, oName)
-    output_raw_distribution_1_filename = "raw_"+variable_name_1+"_signal_vs_background.png"
+    output_raw_distribution_1_filename = "raw_"+variable_name_1+"_signal_vs_background.pdf"
     plot_raw_distributions(hist_signal_1, hist_background_1, variable_name_1, output_raw_distribution_1_filename)
-    output_raw_distribution_2_filename = "raw_"+variable_name_2+"_signal_vs_background.png"
+    output_raw_distribution_2_filename = "raw_"+variable_name_2+"_signal_vs_background.pdf"
     plot_raw_distributions(hist_signal_2, hist_background_2, variable_name_2, output_raw_distribution_2_filename)
 
     #NicePlot(variable_name_1,hist_signal_1,hist_background_1,roc_curve_1)

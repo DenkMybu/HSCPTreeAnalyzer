@@ -5,7 +5,7 @@ float K(2.54), C(3.14); //Data
 float K_data2018(2.55), C_data2018(3.14); //Data 2018
 float K_data2017(2.54), C_data2017(3.14);
 
-RegionMassPlot::RegionMassPlot(std::string suffix,int etabins,int ihbins,int pbins,int massbins,int tofbins)
+RegionMassPlot::RegionMassPlot(std::string suffix,int etabins,int ihbins,int pbins,int massbins,int tofbins,int fpixbins)
 {
 
     xbins=0;
@@ -14,6 +14,7 @@ RegionMassPlot::RegionMassPlot(std::string suffix,int etabins,int ihbins,int pbi
     ih_pt=0;
     ias_pt=0;
     ih_ias=0;
+    ih_fpix=0;
     ih_nhits=0;
     ias_nhits=0;
     eta_pt=0;
@@ -51,7 +52,7 @@ RegionMassPlot::RegionMassPlot(std::string suffix,int etabins,int ihbins,int pbi
     suffix_ = suffix;
     std::cout << "init"+suffix << " with eta bins : " << etabins << " , ih bins : " << ihbins << " , p bins : " << pbins << " , and mass bins : " << massbins << " aand TOF bins : " << tofbins << std::endl;
 
-    initHisto(etabins,ihbins,pbins,massbins,tofbins);
+    initHisto(etabins,ihbins,pbins,massbins,tofbins,fpixbins);
 
 } 
 /*
@@ -99,6 +100,7 @@ RegionMassPlot::~RegionMassPlot(){
     if(!ih_pt) delete ih_pt;
     if(!ias_pt) delete ias_pt;
     if(!ih_ias) delete ih_ias;
+    if(!ih_fpix) delete ih_fpix;
     if(!ih_nhits) delete ih_nhits;
     if(!ias_nhits) delete ias_nhits;
     if(!eta_pt) delete eta_pt;
@@ -137,7 +139,7 @@ RegionMassPlot::~RegionMassPlot(){
 }
 
 // Function which intializes the histograms with given binnings 
-void RegionMassPlot::initHisto(int& etabins,int& ihbins,int& pbins,int& massbins,int& tofbins)
+void RegionMassPlot::initHisto(int& etabins,int& ihbins,int& pbins,int& massbins,int& tofbins,int& fpixbins)
 {
 
     np = pbins;
@@ -168,10 +170,16 @@ void RegionMassPlot::initHisto(int& etabins,int& ihbins,int& pbins,int& massbins
     masslow = 0;
     massup = 4000;
 
+    
 
     ntof = tofbins;
     toflow = 0;
     tofup = 5;
+
+    nfpix = fpixbins;
+    fpixlow = 0;
+    fpixup = 1.;
+
     std::string suffix = suffix_;
     
     //c = new TCanvas(suffix.c_str(),"");
@@ -181,6 +189,7 @@ void RegionMassPlot::initHisto(int& etabins,int& ihbins,int& pbins,int& massbins
     ias_pt = new TH2F(("ias_pt"+suffix).c_str(),";pt [GeV];I_{as}",npt,ptlow,ptup,nias,iaslow,iasup); ias_pt->Sumw2();
 
     ih_ias = new TH2F(("ias_ih"+suffix).c_str(),";I_{as};I_{h} [MeV/cm]",nias,iaslow,iasup,nih,ihlow,ihup); ih_ias->Sumw2();
+    ih_fpix = new TH2F(("fpix_ih"+suffix).c_str(),";F^{pix};I_{h} [MeV/cm]",nfpix,fpixlow,fpixup,nih,ihlow,ihup); ih_fpix->Sumw2();
 
     ih_nhits = new TH2F(("ih_nhits"+suffix).c_str(),";nhits;I_{h} [MeV/cm]",20,0,20,nih,ihlow,ihup); ih_nhits->Sumw2();
 
@@ -211,7 +220,7 @@ void RegionMassPlot::initHisto(int& etabins,int& ihbins,int& pbins,int& massbins
     p_npv = new TH2F(("p_npv"+suffix).c_str(),";npv;p [GeV]",100,0,100,np,plow,pup); p_npv->Sumw2();
     ih_npv = new TH2F(("ih_npv"+suffix).c_str(),";npv;I_{h} [MeV/cm]",100,0,100,nih,ihlow,ihup); ih_npv->Sumw2();
     is_ias = new TH2F(("is_ias"+suffix).c_str(),";I_{S};I_{as}",100,0,1,nias,iaslow,iasup); is_ias->Sumw2();
-    is_ih = new TH2F(("is_ih"+suffix).c_str(),";I_{S};I_{h} [MeV/cm]",100,0,1,nih,ihlow,ihup); ih_ias->Sumw2();
+    is_ih = new TH2F(("is_ih"+suffix).c_str(),";I_{S};I_{h} [MeV/cm]",100,0,1,nih,ihlow,ihup); is_ih->Sumw2();
 
     mass = new TH1F(("mass"+suffix).c_str(),";Mass [GeV]",nmass,masslow,massup); mass->Sumw2();
 
@@ -246,13 +255,14 @@ void RegionMassPlot::initHisto(int& etabins,int& ihbins,int& pbins,int& massbins
 }
 
 // Function which fills histograms
-void RegionMassPlot::fill(float eta, float nhits, float p, float pt, float pterr, float ih, float ias, float is, float m, float tof, float npv, float w, float reW)
+void RegionMassPlot::fill(float eta, float nhits, float p, float pt, float pterr, float ih, float ias, float is, float m, float tof, float npv, float fpix, float w, float reW)
 {
    
    
    ih_pt->Fill(pt,ih,w);
    ias_pt->Fill(pt,ias,w);
    ih_ias->Fill(ias,ih,w);
+   ih_fpix->Fill(fpix,ih,w);
    ih_nhits->Fill(nhits,ih,w);
    ias_nhits->Fill(nhits,ias,w);
    eta_pt->Fill(pt,eta,w);
@@ -398,6 +408,7 @@ void RegionMassPlot::write()
     ih_pt->Write();
     ias_pt->Write();
     ih_ias->Write();
+    ih_fpix->Write();
     ih_nhits->Write();
     ias_nhits->Write();
     eta_pt->Write();
@@ -437,6 +448,7 @@ void RegionMassPlot::addToList(TList* list){
     list->Add(ih_pt);
     list->Add(ias_pt);
     list->Add(ih_ias);
+    list->Add(ih_fpix);
     list->Add(ih_nhits);
     list->Add(ias_nhits);
     list->Add(eta_pt);

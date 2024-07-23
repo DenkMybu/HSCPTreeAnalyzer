@@ -24,8 +24,16 @@ pathSigHSCPgmsbStau = "/opt/sbg/cms/ui3_data1/rhaeberl/HSCP_prod/V"+version+"/HS
 pathSigHSCPstopOnlyNeutral = "/opt/sbg/cms/ui3_data1/rhaeberl/HSCP_prod/V"+version+"/HSCPstopOnlyNeutral_V"+version+"/Merged_HSCPstopOnlyNeutral/"
 pathSigHSCPgluinoOnlyNeutral = "/opt/sbg/cms/ui3_data1/rhaeberl/HSCP_prod/V"+version+"/HSCPgluinoOnlyNeutral_V"+version+"/Merged_HSCPgluinoOnlyNeutral/"
 
-#print("Recaling signal histograms from production within {}".format(pathSig[-39:]))
+pathSigHSCPZPrime_tauM200 = "/opt/sbg/cms/ui3_data1/rhaeberl/HSCP_prod/V"+version+"/HSCPtauPrime2e-200_V"+version+"/Merged_HSCPtauPrime2e-200/"
+pathSigHSCPZPrime_tauM400 = "/opt/sbg/cms/ui3_data1/rhaeberl/HSCP_prod/V"+version+"/HSCPtauPrime2e-400_V"+version+"/Merged_HSCPtauPrime2e-400/"
+pathSigHSCPZPrime_tauM600 = "/opt/sbg/cms/ui3_data1/rhaeberl/HSCP_prod/V"+version+"/HSCPtauPrime2e-600_V"+version+"/Merged_HSCPtauPrime2e-600/"
+pathSigHSCPZPrime_tauM800 = "/opt/sbg/cms/ui3_data1/rhaeberl/HSCP_prod/V"+version+"/HSCPtauPrime2e-800_V"+version+"/Merged_HSCPtauPrime2e-800/"
+pathSigHSCPZPrime_tauM1000 = "/opt/sbg/cms/ui3_data1/rhaeberl/HSCP_prod/V"+version+"/HSCPtauPrime2e-1000_V"+version+"/Merged_HSCPtauPrime2e-1000/"
+pathSigHSCPZPrime_tauM1200 = "/opt/sbg/cms/ui3_data1/rhaeberl/HSCP_prod/V"+version+"/HSCPtauPrime2e-1200_V"+version+"/Merged_HSCPtauPrime2e-1200/"
+pathSigHSCPZPrime_tauM1400 = "/opt/sbg/cms/ui3_data1/rhaeberl/HSCP_prod/V"+version+"/HSCPtauPrime2e-1400_V"+version+"/Merged_HSCPtauPrime2e-1400/"
 
+#print("Recaling signal histograms from production within {}".format(pathSig[-39:]))
+'''
 BackgroundSamples = [
 pathSigStau + "HSCPpairStau_M-200_merged.root",
 pathSigStau + "HSCPpairStau_M-247_merged.root",
@@ -115,6 +123,150 @@ pathSigHSCPgluinoOnlyNeutral + "HSCPgluinoOnlyNeutral_M-2000_merged.root",
 pathSigHSCPgluinoOnlyNeutral + "HSCPgluinoOnlyNeutral_M_2200_merged.root",
 pathSigHSCPgluinoOnlyNeutral + "HSCPgluinoOnlyNeutral_M-2400_merged.root",
 pathSigHSCPgluinoOnlyNeutral + "HSCPgluinoOnlyNeutral_M-2600_merged.root",
+pathSigHSCPZPrime_tauM200 + "HSCPtauPrimeCharge2e_M-200_ZPrime_M-3000_merged.root",
+pathSigHSCPZPrime_tauM200 + "HSCPtauPrimeCharge2e_M-200_ZPrime_M-4000_merged.root",
+pathSigHSCPZPrime_tauM200 + "HSCPtauPrimeCharge2e_M-200_ZPrime_M-5000_merged.root",
+pathSigHSCPZPrime_tauM200 + "HSCPtauPrimeCharge2e_M-200_ZPrime_M-6000_merged.root",
+pathSigHSCPZPrime_tauM200 + "HSCPtauPrimeCharge2e_M-200_ZPrime_M-7000_merged.root",
+pathSigHSCPZPrime_tauM400 + "HSCPtauPrimeCharge2e_M-400_ZPrime_M-3000_merged.root",
+pathSigHSCPZPrime_tauM400 + "HSCPtauPrimeCharge2e_M-400_ZPrime_M-4000_merged.root",
+pathSigHSCPZPrime_tauM400 + "HSCPtauPrimeCharge2e_M-400_ZPrime_M-5000_merged.root",
+pathSigHSCPZPrime_tauM400 + "HSCPtauPrimeCharge2e_M-400_ZPrime_M-6000_merged.root",
+pathSigHSCPZPrime_tauM400 + "HSCPtauPrimeCharge2e_M-400_ZPrime_M-7000_merged.root",
+pathSigHSCPZPrime_tauM600 + "HSCPtauPrimeCharge2e_M-600_ZPrime_M-3000_merged.root",
+pathSigHSCPZPrime_tauM600 + "HSCPtauPrimeCharge2e_M-600_ZPrime_M-4000_merged.root",
+pathSigHSCPZPrime_tauM600 + "HSCPtauPrimeCharge2e_M-600_ZPrime_M-5000_merged.root",
+pathSigHSCPZPrime_tauM600 + "HSCPtauPrimeCharge2e_M-600_ZPrime_M-6000_merged.root",
+pathSigHSCPZPrime_tauM600 + "HSCPtauPrimeCharge2e_M-600_ZPrime_M-7000_merged.root",
+pathSigHSCPZPrime_tauM800 + "HSCPtauPrimeCharge2e_M-800_ZPrime_M-3000_merged.root",
+pathSigHSCPZPrime_tauM800 + "HSCPtauPrimeCharge2e_M-800_ZPrime_M-4000_merged.root",
+pathSigHSCPZPrime_tauM800 + "HSCPtauPrimeCharge2e_M-800_ZPrime_M-5000_merged.root",
+pathSigHSCPZPrime_tauM800 + "HSCPtauPrimeCharge2e_M-800_ZPrime_M-6000_merged.root",
+pathSigHSCPZPrime_tauM800 + "HSCPtauPrimeCharge2e_M-800_ZPrime_M-7000_merged.root",
+pathSigHSCPZPrime_tauM1000 + "HSCPtauPrimeCharge2e_M-1000_ZPrime_M-3000_merged.root",
+pathSigHSCPZPrime_tauM1000 + "HSCPtauPrimeCharge2e_M-1000_ZPrime_M-4000_merged.root",
+pathSigHSCPZPrime_tauM1000 + "HSCPtauPrimeCharge2e_M-1000_ZPrime_M-5000_merged.root",
+pathSigHSCPZPrime_tauM1000 + "HSCPtauPrimeCharge2e_M-1000_ZPrime_M-6000_merged.root",
+pathSigHSCPZPrime_tauM1000 + "HSCPtauPrimeCharge2e_M-1000_ZPrime_M-7000_merged.root",
+pathSigHSCPZPrime_tauM1200 + "HSCPtauPrimeCharge2e_M-1200_ZPrime_M-3000_merged.root",
+pathSigHSCPZPrime_tauM1200 + "HSCPtauPrimeCharge2e_M-1200_ZPrime_M-4000_merged.root",
+pathSigHSCPZPrime_tauM1200 + "HSCPtauPrimeCharge2e_M-1200_ZPrime_M-5000_merged.root",
+pathSigHSCPZPrime_tauM1200 + "HSCPtauPrimeCharge2e_M-1200_ZPrime_M-6000_merged.root",
+pathSigHSCPZPrime_tauM1200 + "HSCPtauPrimeCharge2e_M-1200_ZPrime_M-7000_merged.root",
+pathSigHSCPZPrime_tauM1400 + "HSCPtauPrimeCharge2e_M-1400_ZPrime_M-3000_merged.root",
+pathSigHSCPZPrime_tauM1400 + "HSCPtauPrimeCharge2e_M-1400_ZPrime_M-4000_merged.root",
+pathSigHSCPZPrime_tauM1400 + "HSCPtauPrimeCharge2e_M-1400_ZPrime_M-5000_merged.root",
+pathSigHSCPZPrime_tauM1400 + "HSCPtauPrimeCharge2e_M-1400_ZPrime_M-6000_merged.root",
+pathSigHSCPZPrime_tauM1400 + "HSCPtauPrimeCharge2e_M-1400_ZPrime_M-7000_merged.root",
+pathSigHSCPZPrime_tauM200 + "HSCPtauPrimeCharge2e_M-200_ZPrimeSSM_M-3000_merged.root",
+pathSigHSCPZPrime_tauM200 + "HSCPtauPrimeCharge2e_M-200_ZPrimeSSM_M-4000_merged.root",
+pathSigHSCPZPrime_tauM200 + "HSCPtauPrimeCharge2e_M-200_ZPrimeSSM_M-5000_merged.root",
+pathSigHSCPZPrime_tauM200 + "HSCPtauPrimeCharge2e_M-200_ZPrimeSSM_M-6000_merged.root",
+pathSigHSCPZPrime_tauM200 + "HSCPtauPrimeCharge2e_M-200_ZPrimeSSM_M-7000_merged.root",
+pathSigHSCPZPrime_tauM400 + "HSCPtauPrimeCharge2e_M-400_ZPrimeSSM_M-3000_merged.root",
+pathSigHSCPZPrime_tauM400 + "HSCPtauPrimeCharge2e_M-400_ZPrimeSSM_M-4000_merged.root",
+pathSigHSCPZPrime_tauM400 + "HSCPtauPrimeCharge2e_M-400_ZPrimeSSM_M-5000_merged.root",
+pathSigHSCPZPrime_tauM400 + "HSCPtauPrimeCharge2e_M-400_ZPrimeSSM_M-6000_merged.root",
+pathSigHSCPZPrime_tauM400 + "HSCPtauPrimeCharge2e_M-400_ZPrimeSSM_M-7000_merged.root",
+pathSigHSCPZPrime_tauM600 + "HSCPtauPrimeCharge2e_M-600_ZPrimeSSM_M-3000_merged.root",
+pathSigHSCPZPrime_tauM600 + "HSCPtauPrimeCharge2e_M-600_ZPrimeSSM_M-4000_merged.root",
+pathSigHSCPZPrime_tauM600 + "HSCPtauPrimeCharge2e_M-600_ZPrimeSSM_M-5000_merged.root",
+pathSigHSCPZPrime_tauM600 + "HSCPtauPrimeCharge2e_M-600_ZPrimeSSM_M-6000_merged.root",
+pathSigHSCPZPrime_tauM600 + "HSCPtauPrimeCharge2e_M-600_ZPrimeSSM_M-7000_merged.root",
+pathSigHSCPZPrime_tauM800 + "HSCPtauPrimeCharge2e_M-800_ZPrimeSSM_M-3000_merged.root",
+pathSigHSCPZPrime_tauM800 + "HSCPtauPrimeCharge2e_M-800_ZPrimeSSM_M-4000_merged.root",
+pathSigHSCPZPrime_tauM800 + "HSCPtauPrimeCharge2e_M-800_ZPrimeSSM_M-5000_merged.root",
+pathSigHSCPZPrime_tauM800 + "HSCPtauPrimeCharge2e_M-800_ZPrimeSSM_M-6000_merged.root",
+pathSigHSCPZPrime_tauM800 + "HSCPtauPrimeCharge2e_M-800_ZPrimeSSM_M-7000_merged.root",
+pathSigHSCPZPrime_tauM1000 + "HSCPtauPrimeCharge2e_M-1000_ZPrimeSSM_M-3000_merged.root",
+pathSigHSCPZPrime_tauM1000 + "HSCPtauPrimeCharge2e_M-1000_ZPrimeSSM_M-4000_merged.root",
+pathSigHSCPZPrime_tauM1000 + "HSCPtauPrimeCharge2e_M-1000_ZPrimeSSM_M-5000_merged.root",
+pathSigHSCPZPrime_tauM1000 + "HSCPtauPrimeCharge2e_M-1000_ZPrimeSSM_M-6000_merged.root",
+pathSigHSCPZPrime_tauM1000 + "HSCPtauPrimeCharge2e_M-1000_ZPrimeSSM_M-7000_merged.root",
+pathSigHSCPZPrime_tauM1200 + "HSCPtauPrimeCharge2e_M-1200_ZPrimeSSM_M-3000_merged.root",
+pathSigHSCPZPrime_tauM1200 + "HSCPtauPrimeCharge2e_M-1200_ZPrimeSSM_M-4000_merged.root",
+pathSigHSCPZPrime_tauM1200 + "HSCPtauPrimeCharge2e_M-1200_ZPrimeSSM_M-5000_merged.root",
+pathSigHSCPZPrime_tauM1200 + "HSCPtauPrimeCharge2e_M-1200_ZPrimeSSM_M-6000_merged.root",
+pathSigHSCPZPrime_tauM1200 + "HSCPtauPrimeCharge2e_M-1200_ZPrimeSSM_M-7000_merged.root",
+pathSigHSCPZPrime_tauM1400 + "HSCPtauPrimeCharge2e_M-1400_ZPrimeSSM_M-3000_merged.root",
+pathSigHSCPZPrime_tauM1400 + "HSCPtauPrimeCharge2e_M-1400_ZPrimeSSM_M-4000_merged.root",
+pathSigHSCPZPrime_tauM1400 + "HSCPtauPrimeCharge2e_M-1400_ZPrimeSSM_M-5000_merged.root",
+pathSigHSCPZPrime_tauM1400 + "HSCPtauPrimeCharge2e_M-1400_ZPrimeSSM_M-6000_merged.root",
+pathSigHSCPZPrime_tauM1400 + "HSCPtauPrimeCharge2e_M-1400_ZPrimeSSM_M-7000_merged.root",
+]
+'''
+
+BackgroundSamples = [
+pathSigHSCPZPrime_tauM200 + "HSCPtauPrimeCharge2e_M-200_ZPrime_M-3000_merged.root",
+pathSigHSCPZPrime_tauM200 + "HSCPtauPrimeCharge2e_M-200_ZPrime_M-4000_merged.root",
+pathSigHSCPZPrime_tauM200 + "HSCPtauPrimeCharge2e_M-200_ZPrime_M-5000_merged.root",
+pathSigHSCPZPrime_tauM200 + "HSCPtauPrimeCharge2e_M-200_ZPrime_M-6000_merged.root",
+pathSigHSCPZPrime_tauM200 + "HSCPtauPrimeCharge2e_M-200_ZPrime_M-7000_merged.root",
+pathSigHSCPZPrime_tauM400 + "HSCPtauPrimeCharge2e_M-400_ZPrime_M-3000_merged.root",
+pathSigHSCPZPrime_tauM400 + "HSCPtauPrimeCharge2e_M-400_ZPrime_M-4000_merged.root",
+pathSigHSCPZPrime_tauM400 + "HSCPtauPrimeCharge2e_M-400_ZPrime_M-5000_merged.root",
+pathSigHSCPZPrime_tauM400 + "HSCPtauPrimeCharge2e_M-400_ZPrime_M-6000_merged.root",
+pathSigHSCPZPrime_tauM400 + "HSCPtauPrimeCharge2e_M-400_ZPrime_M-7000_merged.root",
+pathSigHSCPZPrime_tauM600 + "HSCPtauPrimeCharge2e_M-600_ZPrime_M-3000_merged.root",
+pathSigHSCPZPrime_tauM600 + "HSCPtauPrimeCharge2e_M-600_ZPrime_M-4000_merged.root",
+pathSigHSCPZPrime_tauM600 + "HSCPtauPrimeCharge2e_M-600_ZPrime_M-5000_merged.root",
+pathSigHSCPZPrime_tauM600 + "HSCPtauPrimeCharge2e_M-600_ZPrime_M-6000_merged.root",
+pathSigHSCPZPrime_tauM600 + "HSCPtauPrimeCharge2e_M-600_ZPrime_M-7000_merged.root",
+pathSigHSCPZPrime_tauM800 + "HSCPtauPrimeCharge2e_M-800_ZPrime_M-3000_merged.root",
+pathSigHSCPZPrime_tauM800 + "HSCPtauPrimeCharge2e_M-800_ZPrime_M-4000_merged.root",
+pathSigHSCPZPrime_tauM800 + "HSCPtauPrimeCharge2e_M-800_ZPrime_M-5000_merged.root",
+pathSigHSCPZPrime_tauM800 + "HSCPtauPrimeCharge2e_M-800_ZPrime_M-6000_merged.root",
+pathSigHSCPZPrime_tauM800 + "HSCPtauPrimeCharge2e_M-800_ZPrime_M-7000_merged.root",
+pathSigHSCPZPrime_tauM1000 + "HSCPtauPrimeCharge2e_M-1000_ZPrime_M-3000_merged.root",
+pathSigHSCPZPrime_tauM1000 + "HSCPtauPrimeCharge2e_M-1000_ZPrime_M-4000_merged.root",
+pathSigHSCPZPrime_tauM1000 + "HSCPtauPrimeCharge2e_M-1000_ZPrime_M-5000_merged.root",
+pathSigHSCPZPrime_tauM1000 + "HSCPtauPrimeCharge2e_M-1000_ZPrime_M-6000_merged.root",
+pathSigHSCPZPrime_tauM1000 + "HSCPtauPrimeCharge2e_M-1000_ZPrime_M-7000_merged.root",
+pathSigHSCPZPrime_tauM1200 + "HSCPtauPrimeCharge2e_M-1200_ZPrime_M-3000_merged.root",
+pathSigHSCPZPrime_tauM1200 + "HSCPtauPrimeCharge2e_M-1200_ZPrime_M-4000_merged.root",
+pathSigHSCPZPrime_tauM1200 + "HSCPtauPrimeCharge2e_M-1200_ZPrime_M-5000_merged.root",
+pathSigHSCPZPrime_tauM1200 + "HSCPtauPrimeCharge2e_M-1200_ZPrime_M-6000_merged.root",
+pathSigHSCPZPrime_tauM1200 + "HSCPtauPrimeCharge2e_M-1200_ZPrime_M-7000_merged.root",
+pathSigHSCPZPrime_tauM1400 + "HSCPtauPrimeCharge2e_M-1400_ZPrime_M-3000_merged.root",
+pathSigHSCPZPrime_tauM1400 + "HSCPtauPrimeCharge2e_M-1400_ZPrime_M-4000_merged.root",
+pathSigHSCPZPrime_tauM1400 + "HSCPtauPrimeCharge2e_M-1400_ZPrime_M-5000_merged.root",
+pathSigHSCPZPrime_tauM1400 + "HSCPtauPrimeCharge2e_M-1400_ZPrime_M-6000_merged.root",
+pathSigHSCPZPrime_tauM1400 + "HSCPtauPrimeCharge2e_M-1400_ZPrime_M-7000_merged.root",
+pathSigHSCPZPrime_tauM200 + "HSCPtauPrimeCharge2e_M-200_ZPrimeSSM_M-3000_merged.root",
+pathSigHSCPZPrime_tauM200 + "HSCPtauPrimeCharge2e_M-200_ZPrimeSSM_M-4000_merged.root",
+pathSigHSCPZPrime_tauM200 + "HSCPtauPrimeCharge2e_M-200_ZPrimeSSM_M-5000_merged.root",
+pathSigHSCPZPrime_tauM200 + "HSCPtauPrimeCharge2e_M-200_ZPrimeSSM_M-6000_merged.root",
+pathSigHSCPZPrime_tauM200 + "HSCPtauPrimeCharge2e_M-200_ZPrimeSSM_M-7000_merged.root",
+pathSigHSCPZPrime_tauM400 + "HSCPtauPrimeCharge2e_M-400_ZPrimeSSM_M-3000_merged.root",
+pathSigHSCPZPrime_tauM400 + "HSCPtauPrimeCharge2e_M-400_ZPrimeSSM_M-4000_merged.root",
+pathSigHSCPZPrime_tauM400 + "HSCPtauPrimeCharge2e_M-400_ZPrimeSSM_M-5000_merged.root",
+pathSigHSCPZPrime_tauM400 + "HSCPtauPrimeCharge2e_M-400_ZPrimeSSM_M-6000_merged.root",
+pathSigHSCPZPrime_tauM400 + "HSCPtauPrimeCharge2e_M-400_ZPrimeSSM_M-7000_merged.root",
+pathSigHSCPZPrime_tauM600 + "HSCPtauPrimeCharge2e_M-600_ZPrimeSSM_M-3000_merged.root",
+pathSigHSCPZPrime_tauM600 + "HSCPtauPrimeCharge2e_M-600_ZPrimeSSM_M-4000_merged.root",
+pathSigHSCPZPrime_tauM600 + "HSCPtauPrimeCharge2e_M-600_ZPrimeSSM_M-5000_merged.root",
+pathSigHSCPZPrime_tauM600 + "HSCPtauPrimeCharge2e_M-600_ZPrimeSSM_M-6000_merged.root",
+pathSigHSCPZPrime_tauM600 + "HSCPtauPrimeCharge2e_M-600_ZPrimeSSM_M-7000_merged.root",
+pathSigHSCPZPrime_tauM800 + "HSCPtauPrimeCharge2e_M-800_ZPrimeSSM_M-3000_merged.root",
+pathSigHSCPZPrime_tauM800 + "HSCPtauPrimeCharge2e_M-800_ZPrimeSSM_M-4000_merged.root",
+pathSigHSCPZPrime_tauM800 + "HSCPtauPrimeCharge2e_M-800_ZPrimeSSM_M-5000_merged.root",
+pathSigHSCPZPrime_tauM800 + "HSCPtauPrimeCharge2e_M-800_ZPrimeSSM_M-6000_merged.root",
+pathSigHSCPZPrime_tauM800 + "HSCPtauPrimeCharge2e_M-800_ZPrimeSSM_M-7000_merged.root",
+pathSigHSCPZPrime_tauM1000 + "HSCPtauPrimeCharge2e_M-1000_ZPrimeSSM_M-3000_merged.root",
+pathSigHSCPZPrime_tauM1000 + "HSCPtauPrimeCharge2e_M-1000_ZPrimeSSM_M-4000_merged.root",
+pathSigHSCPZPrime_tauM1000 + "HSCPtauPrimeCharge2e_M-1000_ZPrimeSSM_M-5000_merged.root",
+pathSigHSCPZPrime_tauM1000 + "HSCPtauPrimeCharge2e_M-1000_ZPrimeSSM_M-6000_merged.root",
+pathSigHSCPZPrime_tauM1000 + "HSCPtauPrimeCharge2e_M-1000_ZPrimeSSM_M-7000_merged.root",
+pathSigHSCPZPrime_tauM1200 + "HSCPtauPrimeCharge2e_M-1200_ZPrimeSSM_M-3000_merged.root",
+pathSigHSCPZPrime_tauM1200 + "HSCPtauPrimeCharge2e_M-1200_ZPrimeSSM_M-4000_merged.root",
+pathSigHSCPZPrime_tauM1200 + "HSCPtauPrimeCharge2e_M-1200_ZPrimeSSM_M-5000_merged.root",
+pathSigHSCPZPrime_tauM1200 + "HSCPtauPrimeCharge2e_M-1200_ZPrimeSSM_M-6000_merged.root",
+pathSigHSCPZPrime_tauM1200 + "HSCPtauPrimeCharge2e_M-1200_ZPrimeSSM_M-7000_merged.root",
+pathSigHSCPZPrime_tauM1400 + "HSCPtauPrimeCharge2e_M-1400_ZPrimeSSM_M-3000_merged.root",
+pathSigHSCPZPrime_tauM1400 + "HSCPtauPrimeCharge2e_M-1400_ZPrimeSSM_M-4000_merged.root",
+pathSigHSCPZPrime_tauM1400 + "HSCPtauPrimeCharge2e_M-1400_ZPrimeSSM_M-5000_merged.root",
+pathSigHSCPZPrime_tauM1400 + "HSCPtauPrimeCharge2e_M-1400_ZPrimeSSM_M-6000_merged.root",
+pathSigHSCPZPrime_tauM1400 + "HSCPtauPrimeCharge2e_M-1400_ZPrimeSSM_M-7000_merged.root",
 ]
 #intLumi = 4598.37 #10.0 #
 intLumi = 101000.0 #101/fb
@@ -134,8 +286,8 @@ pathSigStau+ 'HSCPpairStau_M-1029_merged.root' : 1.1684554271190975e-5,
 pathSigStau+ 'HSCPpairStau_M-1218_merged.root' : 0.00057/1000., #fake
 pathSigStau+ 'HSCPpairStau_M-1409_merged.root' : 0.00057/1000., #fake
 pathSigStau+ 'HSCPpairStau_M-1599_merged.root' : 0.00057/1000.  ,#fake
-pathSigStau+ 'HSCPgmsbStau_M-557_merged.root' : 1.9E-03,
-pathSigStau+ 'HSCPgmsbStau_M-871_merged.root' : 6.9E-05,
+
+
 pathSigGluino + "HSCPgluino_M-500_merged.root" : 33.800,
 pathSigGluino + "HSCPgluino_M-800_merged.root" : 1.810,
 pathSigGluino + "HSCPgluino_M-1000_merged.root" : 0.385,
@@ -154,6 +306,7 @@ pathSigHSCPtauPrimeCharge2e + "HSCPtauPrimeCharge2e_M-1400_merged.root" : 7.477e
 pathSigHSCPtauPrimeCharge2e + "HSCPtauPrimeCharge2e_M-1800_merged.root" : 1.056e-05,
 pathSigHSCPtauPrimeCharge2e + "HSCPtauPrimeCharge2e_M-2200_merged.root" : 1.670e-06,
 pathSigHSCPtauPrimeCharge2e + "HSCPtauPrimeCharge2e_M-2600_merged.root" : 2.913e-07,
+
 pathSigHSCPtauPrimeCharge1e + "HSCPtauPrimeCharge1e_M-200_merged.root" : 1.833e-01,
 pathSigHSCPtauPrimeCharge1e + "HSCPtauPrimeCharge1e_M-400_merged.root" : 1.361e-02,
 pathSigHSCPtauPrimeCharge1e + "HSCPtauPrimeCharge1e_M-500_merged.root" : 6.0e-03,
@@ -163,6 +316,7 @@ pathSigHSCPtauPrimeCharge1e + "HSCPtauPrimeCharge1e_M-1400_merged.root" : 1.869e
 pathSigHSCPtauPrimeCharge1e + "HSCPtauPrimeCharge1e_M-1800_merged.root" : 2.641e-06,
 pathSigHSCPtauPrimeCharge1e + "HSCPtauPrimeCharge1e_M-2200_merged.root" : 4.175e-07,
 pathSigHSCPtauPrimeCharge1e + "HSCPtauPrimeCharge1e_M-2600_merged.root" : 7.282e-08,
+
 pathSigHSCPstop + "HSCPstop_M-500_merged.root" : 0.000257,
 pathSigHSCPstop + "HSCPstop_M-800_merged.root" : 0.0326,
 pathSigHSCPstop + "HSCPstop_M-1000_merged.root" : 0.00683,
@@ -209,6 +363,91 @@ pathSigHSCPgluinoOnlyNeutral + "HSCPgluinoOnlyNeutral_M_2200_merged.root" : 0.00
 pathSigHSCPgluinoOnlyNeutral + "HSCPgluinoOnlyNeutral_M-2400_merged.root" : 0.000128,
 pathSigHSCPgluinoOnlyNeutral + "HSCPgluinoOnlyNeutral_M-2600_merged.root" : 4.62e-5,
 
+pathSigHSCPZPrime_tauM200 + "HSCPtauPrimeCharge2e_M-200_ZPrime_M-3000_merged.root" : 0.000451036,
+pathSigHSCPZPrime_tauM200 + "HSCPtauPrimeCharge2e_M-200_ZPrime_M-4000_merged.root" : 4.7749E-5,
+pathSigHSCPZPrime_tauM200 + "HSCPtauPrimeCharge2e_M-200_ZPrime_M-5000_merged.root" : 5.34376E-6,
+pathSigHSCPZPrime_tauM200 + "HSCPtauPrimeCharge2e_M-200_ZPrime_M-6000_merged.root" : 5.45292E-7,
+pathSigHSCPZPrime_tauM200 + "HSCPtauPrimeCharge2e_M-200_ZPrime_M-7000_merged.root" : 5.2E-8,
+
+pathSigHSCPZPrime_tauM400 + "HSCPtauPrimeCharge2e_M-400_ZPrime_M-3000_merged.root" : 0.000451036,
+pathSigHSCPZPrime_tauM400 + "HSCPtauPrimeCharge2e_M-400_ZPrime_M-4000_merged.root" : 4.7749E-5,
+pathSigHSCPZPrime_tauM400 + "HSCPtauPrimeCharge2e_M-400_ZPrime_M-5000_merged.root" : 5.34376E-6,
+pathSigHSCPZPrime_tauM400 + "HSCPtauPrimeCharge2e_M-400_ZPrime_M-6000_merged.root" : 5.45292E-7,
+pathSigHSCPZPrime_tauM400 + "HSCPtauPrimeCharge2e_M-400_ZPrime_M-7000_merged.root" : 5.2E-8,
+
+pathSigHSCPZPrime_tauM600 + "HSCPtauPrimeCharge2e_M-600_ZPrime_M-3000_merged.root" : 0.000451036,
+pathSigHSCPZPrime_tauM600 + "HSCPtauPrimeCharge2e_M-600_ZPrime_M-4000_merged.root" : 4.7749E-5,
+pathSigHSCPZPrime_tauM600 + "HSCPtauPrimeCharge2e_M-600_ZPrime_M-5000_merged.root" : 5.34376E-6,
+pathSigHSCPZPrime_tauM600 + "HSCPtauPrimeCharge2e_M-600_ZPrime_M-6000_merged.root" : 5.45292E-7,
+pathSigHSCPZPrime_tauM600 + "HSCPtauPrimeCharge2e_M-600_ZPrime_M-7000_merged.root" : 5.2E-8,
+
+pathSigHSCPZPrime_tauM800 + "HSCPtauPrimeCharge2e_M-800_ZPrime_M-3000_merged.root" : 0.000451036,
+pathSigHSCPZPrime_tauM800 + "HSCPtauPrimeCharge2e_M-800_ZPrime_M-4000_merged.root" : 4.7749E-5,
+pathSigHSCPZPrime_tauM800 + "HSCPtauPrimeCharge2e_M-800_ZPrime_M-5000_merged.root" : 5.34376E-6,
+pathSigHSCPZPrime_tauM800 + "HSCPtauPrimeCharge2e_M-800_ZPrime_M-6000_merged.root" : 5.45292E-7,
+pathSigHSCPZPrime_tauM800 + "HSCPtauPrimeCharge2e_M-800_ZPrime_M-7000_merged.root" : 5.2E-8,
+
+pathSigHSCPZPrime_tauM1000 + "HSCPtauPrimeCharge2e_M-1000_ZPrime_M-3000_merged.root" : 0.000451036,
+pathSigHSCPZPrime_tauM1000 + "HSCPtauPrimeCharge2e_M-1000_ZPrime_M-4000_merged.root" : 4.7749E-5,
+pathSigHSCPZPrime_tauM1000 + "HSCPtauPrimeCharge2e_M-1000_ZPrime_M-5000_merged.root" : 5.34376E-6,
+pathSigHSCPZPrime_tauM1000 + "HSCPtauPrimeCharge2e_M-1000_ZPrime_M-6000_merged.root" : 5.45292E-7,
+pathSigHSCPZPrime_tauM1000 + "HSCPtauPrimeCharge2e_M-1000_ZPrime_M-7000_merged.root" : 5.2E-8,
+
+pathSigHSCPZPrime_tauM1200 + "HSCPtauPrimeCharge2e_M-1200_ZPrime_M-3000_merged.root" : 0.000451036,
+pathSigHSCPZPrime_tauM1200 + "HSCPtauPrimeCharge2e_M-1200_ZPrime_M-4000_merged.root" : 4.7749E-5,
+pathSigHSCPZPrime_tauM1200 + "HSCPtauPrimeCharge2e_M-1200_ZPrime_M-5000_merged.root" : 5.34376E-6,
+pathSigHSCPZPrime_tauM1200 + "HSCPtauPrimeCharge2e_M-1200_ZPrime_M-6000_merged.root" : 5.45292E-7,
+pathSigHSCPZPrime_tauM1200 + "HSCPtauPrimeCharge2e_M-1200_ZPrime_M-7000_merged.root" : 5.2E-8,
+
+pathSigHSCPZPrime_tauM1400 + "HSCPtauPrimeCharge2e_M-1400_ZPrime_M-3000_merged.root" : 0.000451036,
+pathSigHSCPZPrime_tauM1400 + "HSCPtauPrimeCharge2e_M-1400_ZPrime_M-4000_merged.root" : 4.7749E-5,
+pathSigHSCPZPrime_tauM1400 + "HSCPtauPrimeCharge2e_M-1400_ZPrime_M-5000_merged.root" : 5.34376E-6,
+pathSigHSCPZPrime_tauM1400 + "HSCPtauPrimeCharge2e_M-1400_ZPrime_M-6000_merged.root" : 5.45292E-7,
+pathSigHSCPZPrime_tauM1400 + "HSCPtauPrimeCharge2e_M-1400_ZPrime_M-7000_merged.root" : 5.2E-8,
+
+
+pathSigHSCPZPrime_tauM200 + "HSCPtauPrimeCharge2e_M-200_ZPrimeSSM_M-3000_merged.root" : 0.00147992,
+pathSigHSCPZPrime_tauM200 + "HSCPtauPrimeCharge2e_M-200_ZPrimeSSM_M-4000_merged.root" : 0.000159354,
+pathSigHSCPZPrime_tauM200 + "HSCPtauPrimeCharge2e_M-200_ZPrimeSSM_M-5000_merged.root" : 1.76729E-5,
+pathSigHSCPZPrime_tauM200 + "HSCPtauPrimeCharge2e_M-200_ZPrimeSSM_M-6000_merged.root" : 1.80017E-6,
+pathSigHSCPZPrime_tauM200 + "HSCPtauPrimeCharge2e_M-200_ZPrimeSSM_M-7000_merged.root" : 1.9E-7,
+
+pathSigHSCPZPrime_tauM400 + "HSCPtauPrimeCharge2e_M-400_ZPrimeSSM_M-3000_merged.root" : 0.00147992,
+pathSigHSCPZPrime_tauM400 + "HSCPtauPrimeCharge2e_M-400_ZPrimeSSM_M-4000_merged.root" : 0.000159354,
+pathSigHSCPZPrime_tauM400 + "HSCPtauPrimeCharge2e_M-400_ZPrimeSSM_M-5000_merged.root" : 1.76729E-5,
+pathSigHSCPZPrime_tauM400 + "HSCPtauPrimeCharge2e_M-400_ZPrimeSSM_M-6000_merged.root" : 1.80017E-6,
+pathSigHSCPZPrime_tauM400 + "HSCPtauPrimeCharge2e_M-400_ZPrimeSSM_M-7000_merged.root" : 1.9E-7,
+
+pathSigHSCPZPrime_tauM600 + "HSCPtauPrimeCharge2e_M-600_ZPrimeSSM_M-3000_merged.root" : 0.00147992,
+pathSigHSCPZPrime_tauM600 + "HSCPtauPrimeCharge2e_M-600_ZPrimeSSM_M-4000_merged.root" : 0.000159354,
+pathSigHSCPZPrime_tauM600 + "HSCPtauPrimeCharge2e_M-600_ZPrimeSSM_M-5000_merged.root" : 1.76729E-5,
+pathSigHSCPZPrime_tauM600 + "HSCPtauPrimeCharge2e_M-600_ZPrimeSSM_M-6000_merged.root" : 1.80017E-6,
+pathSigHSCPZPrime_tauM600 + "HSCPtauPrimeCharge2e_M-600_ZPrimeSSM_M-7000_merged.root" : 1.9E-7,
+
+pathSigHSCPZPrime_tauM800 + "HSCPtauPrimeCharge2e_M-800_ZPrimeSSM_M-3000_merged.root" : 0.00147992,
+pathSigHSCPZPrime_tauM800 + "HSCPtauPrimeCharge2e_M-800_ZPrimeSSM_M-4000_merged.root" : 0.000159354,
+pathSigHSCPZPrime_tauM800 + "HSCPtauPrimeCharge2e_M-800_ZPrimeSSM_M-5000_merged.root" : 1.76729E-5,
+pathSigHSCPZPrime_tauM800 + "HSCPtauPrimeCharge2e_M-800_ZPrimeSSM_M-6000_merged.root" : 1.80017E-6,
+pathSigHSCPZPrime_tauM800 + "HSCPtauPrimeCharge2e_M-800_ZPrimeSSM_M-7000_merged.root" : 1.9E-7,
+
+pathSigHSCPZPrime_tauM1000 + "HSCPtauPrimeCharge2e_M-1000_ZPrimeSSM_M-3000_merged.root" : 0.00147992,
+pathSigHSCPZPrime_tauM1000 + "HSCPtauPrimeCharge2e_M-1000_ZPrimeSSM_M-4000_merged.root" : 0.000159354,
+pathSigHSCPZPrime_tauM1000 + "HSCPtauPrimeCharge2e_M-1000_ZPrimeSSM_M-5000_merged.root" : 1.76729E-5,
+pathSigHSCPZPrime_tauM1000 + "HSCPtauPrimeCharge2e_M-1000_ZPrimeSSM_M-6000_merged.root" : 1.80017E-6,
+pathSigHSCPZPrime_tauM1000 + "HSCPtauPrimeCharge2e_M-1000_ZPrimeSSM_M-7000_merged.root" : 1.9E-7,
+
+pathSigHSCPZPrime_tauM1200 + "HSCPtauPrimeCharge2e_M-1200_ZPrimeSSM_M-3000_merged.root" : 0.00147992,
+pathSigHSCPZPrime_tauM1200 + "HSCPtauPrimeCharge2e_M-1200_ZPrimeSSM_M-4000_merged.root" : 0.000159354,
+pathSigHSCPZPrime_tauM1200 + "HSCPtauPrimeCharge2e_M-1200_ZPrimeSSM_M-5000_merged.root" : 1.76729E-5,
+pathSigHSCPZPrime_tauM1200 + "HSCPtauPrimeCharge2e_M-1200_ZPrimeSSM_M-6000_merged.root" : 1.80017E-6,
+pathSigHSCPZPrime_tauM1200 + "HSCPtauPrimeCharge2e_M-1200_ZPrimeSSM_M-7000_merged.root" : 1.9E-7,
+
+pathSigHSCPZPrime_tauM1400 + "HSCPtauPrimeCharge2e_M-1400_ZPrimeSSM_M-3000_merged.root" : 0.00147992,
+pathSigHSCPZPrime_tauM1400 + "HSCPtauPrimeCharge2e_M-1400_ZPrimeSSM_M-4000_merged.root" : 0.000159354,
+pathSigHSCPZPrime_tauM1400 + "HSCPtauPrimeCharge2e_M-1400_ZPrimeSSM_M-5000_merged.root" : 1.76729E-5,
+pathSigHSCPZPrime_tauM1400 + "HSCPtauPrimeCharge2e_M-1400_ZPrimeSSM_M-6000_merged.root" : 1.80017E-6,
+pathSigHSCPZPrime_tauM1400 + "HSCPtauPrimeCharge2e_M-1400_ZPrimeSSM_M-7000_merged.root" : 1.9E-7,
+
 }
 
 ## TTBar is 832 pb (NNLO)
@@ -217,8 +456,12 @@ pathSigHSCPgluinoOnlyNeutral + "HSCPgluinoOnlyNeutral_M-2600_merged.root" : 4.62
 
 fileInArray = []
 for sample in BackgroundSamples:
+  print(sample)
   if not os.path.exists(sample): continue
   fileInArray.append(ROOT.TFile.Open(sample,"UPDATE"))
+
+print("Files in array : \n",fileInArray)
+
 
 with open("stau_weights.txt", "w") as file:
     for fileIn in fileInArray:

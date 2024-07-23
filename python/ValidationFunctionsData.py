@@ -794,7 +794,7 @@ def SetFrameColor(frame,ndiv,xndiv,yndiv,stats,title,xtitle,ytitle,minf,maxf,yla
     tmpFrame.GetYaxis().SetTitleFont(ytitlefont) 
     tmpFrame.GetYaxis().SetTitleSize(ytitlesize)
     tmpFrame.GetYaxis().SetTitleOffset(yoffset)
-    tmpFrame.GetYaxis().SetNdivisions(ndiv)
+    tmpFrame.GetYaxis().SetNdivisions(yndiv)
     #X axis
     tmpFrame.GetXaxis().SetTitle(xtitle)
     tmpFrame.GetXaxis().SetNdivisions(ndiv)

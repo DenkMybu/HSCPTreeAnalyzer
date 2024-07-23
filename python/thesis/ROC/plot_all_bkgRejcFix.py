@@ -38,7 +38,7 @@ def return_sigeff_givenbkg(hist_signal, hist_background, variable_name,massPoint
         signal_efficiency_points.append(signal_efficiency)
         background_rejection_points.append(background_rejection)
          
-        #print("For {} = {}, Signal eff = {} | Bkg rejection = {}".format(variable_name,hist_signal.GetXaxis().GetBinCenter(bin),signal_efficiency,background_rejection))
+        print("For {} = {}, Signal eff = {} | Bkg rejection = {}".format(variable_name,hist_signal.GetXaxis().GetBinCenter(bin),signal_efficiency,background_rejection))
         #if bin % 5 == 0:
             #print("For {} = {}, Signal eff = {} | Bkg rejection = {}".format(variable_name,hist_signal.GetXaxis().GetBinCenter(bin),signal_efficiency,background_rejection))
         

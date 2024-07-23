@@ -12,46 +12,35 @@
    std::string label;
    std::string dataset;
    std::string version;
-   int etabins,ihbins,pbins,massbins,tofbins;
+   int etabins,ihbins,pbins,massbins,tofbins,fpixbins;
    double ptcut;
+   double tofcut;
    int masscut;
    while(std::getline(ifile,line))// line per line
    {
        if(strncmp(line.c_str(),"#",1)==0) continue;
        std::cout << line << std::endl;
        std::stringstream ss(line);
-       ss >> ptcut >> etabins >> ihbins >> pbins >> massbins >> masscut >> tofbins >> dataset >> version;
+       ss >> tofcut >> ptcut >> etabins >> ihbins >> pbins >> massbins >> masscut >> tofbins >> fpixbins >> dataset >> version;
    }
    ifile.close();
 
    std::cout << "Successfully closed config file "  << std::endl;
 
    TChain* chain;
-   std::string pathPy = "/opt/sbg/cms/ui4_data1/rhaeberl/CMSSW_10_6_30/src/HSCPTreeAnalyzer/python/dpmDataPaths/";
 
-   //std::string pathHigh = "/opt/sbg/cms/ui2_data1/rhaeberl/CMSSW_10_6_30/src/TEST/python/";
    std::string pathHigh = "/opt/sbg/cms/ui3_data1/rhaeberl/HSCP_prod/SingleMuon/";
+   std::string pathMC = "/opt/sbg/cms/ui3_data1/rhaeberl/HSCP_prod/MC/";
+   std::string pathSignal = "/opt/sbg/cms/ui3_data1/rhaeberl/HSCP_prod/V80p3/";
 
-   //THIS IS WHEN WE RUN ON SKIMMED TREES (CopyOnlyTree) : muon 2017 or 2018, since we remove all useless branches
-   /*
-   if(dataset == "Mu2017" || dataset == "Mu2018"){
-       chain = new TChain("HscpCandidates");
-   }
 
-   //THIS IS WHEN WE RUN ON FRAMEWORK PRODUCED FILEs
-   else{
-       chain = new TChain("HSCParticleAnalyzer/BaseName/HscpCandidates");
-   }*/
+   std::string pathTestMC = "/opt/sbg/cms/ui3_data1/rhaeberl/HSCP_prod/V80p5/";
+   std::string pathData = "/opt/sbg/cms/ui3_data1/rhaeberl/HSCP_prod/V80p6/";
+   std::string pathTest = "/opt/sbg/cms/ui3_data1/rhaeberl/HSCP_prod/V80p9/";
+   std::string pathLast2017F = "/opt/sbg/cms/ui3_data1/rhaeberl/HSCP_prod/V80p8/";
+
+   //Change the TChain if needed
    chain = new TChain("HSCParticleAnalyzer/BaseName/HscpCandidates");
-   //chain = new TChain("HscpCandidates");
-
-   //RUNNING ON 2017 SINGLE ELECTRON WITH ABSOLUTE FIX CONE TK ISO
-   if(dataset == "Ele2017"){
-       chain->AddFile("/opt/sbg/cms/ui2_data1/rhaeberl/CMSSW_10_6_30/src/crab_projects/crab_Analysis_SingleElectron_Run2017B_CodeV3e_v1/results/all_2017B_ele_tree.root");  
-       chain->AddFile("/opt/sbg/cms/ui2_data1/rhaeberl/CMSSW_10_6_30/src/crab_projects/crab_Analysis_SingleElectron_Run2017C_CodeV3e_v1/results/all_2017C_ele_tree.root");  
-       chain->AddFile("/opt/sbg/cms/ui2_data1/rhaeberl/CMSSW_10_6_30/src/crab_projects/crab_Analysis_SingleElectron_Run2017D_CodeV3e_v1/results/all_2017D_ele_tree.root");  
-       chain->AddFile("/opt/sbg/cms/ui2_data1/rhaeberl/CMSSW_10_6_30/src/crab_projects/crab_Analysis_SingleElectron_Run2017E_CodeV3e_v1/results/all_2017E_ele_tree.root");  
-   }
 
 
    //RUNNING ON 2017 SINGLE MUON WITH ABSOLUTE FIX CONE TK ISO
@@ -78,9 +67,9 @@
 
    if(dataset == "Mu2017"){
        //Below is the addition on the TChain for files located on DPM (if no transfer is made)
-       
-       //std::string fileNamesMu2017[] = { (pathPy+"Mu2017Bachain.txt").c_str(),(pathPy+"Mu2017Cachain.txt").c_str(),(pathPy+"Mu2017Cbchain.txt").c_str(),(pathPy+"Mu2017Dachain.txt").c_str(),(pathPy+"Mu2017Eachain.txt").c_str(),(pathPy+"Mu2017Fachain.txt").c_str(),(pathPy+"Mu2017Fbchain.txt").c_str()};
-       std::string fileNamesMu2017[] = { (pathHigh+"SingleMuon_Run2017B_"+version+".txt").c_str(),(pathHigh+"SingleMuon_Run2017C_"+version+".txt").c_str(),(pathHigh+"SingleMuon_Run2017D_"+version+".txt").c_str(),(pathHigh+"SingleMuon_Run2017E_"+version+".txt").c_str(),(pathHigh+"SingleMuon_Run2017F_"+version+".txt").c_str()};
+              
+       std::string fileNamesMu2017[] = { (pathData+"SingleMuon2017_all.txt").c_str(),(pathLast2017F+"SingleMuon2017_all.txt").c_str()};
+       //std::string fileNamesMu2017[] = { (pathData+"SingleMuon2017_1file.txt").c_str()};
 
        for (const std::string& fileName : fileNamesMu2017) {
            std::ifstream file(fileName);
@@ -103,10 +92,16 @@
    //RUNNING ON 2018 SINGLE MUON WITH ABSOLUTE FIX CONE TK ISO
 
    if(dataset == "Mu2018"){
-       //std::string fileNamesMu2017[] = { (pathPy+"Mu2018Aachain.txt").c_str(),(pathPy+"Mu2018Abchain.txt").c_str(),(pathPy+"Mu2018Bachain.txt").c_str(),(pathPy+"Mu2018Cachain.txt").c_str(),(pathPy+"Mu2018Dachain.txt").c_str(),(pathPy+"Mu2018Dbchain.txt").c_str(),(pathPy+"Mu2018Dcchain.txt").c_str()};
-       std::string fileNamesMu2017[] = { (pathHigh+"SingleMuon_Run2018A_"+version+".txt").c_str(),(pathHigh+"SingleMuon_Run2018B_"+version+".txt").c_str(),(pathHigh+"SingleMuon_Run2018C_"+version+".txt").c_str(),(pathHigh+"SingleMuon_Run2018D_"+version+".txt").c_str()};
+       //ALL FILES 
 
-       for (const std::string& fileName : fileNamesMu2017) {
+       //std::string fileNamesMu2018[] = { (pathData+"singleMu2018B.txt").c_str()};
+
+       std::string fileNamesMu2018[] = { (pathData+"SingleMuon2018_all.txt").c_str()};
+
+       //std::string fileNamesMu2018[] = { (pathData+"singleMu2018B_1file.txt").c_str()};
+       //std::string fileNamesMu2018[] = { (pathData+"singleMu2018B_50file.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesMu2018) {
            std::ifstream file(fileName);
            if (!file.is_open()) {
                std::cerr << "Failed to open file: " << fileName << std::endl;
@@ -127,52 +122,940 @@
 
    
    //RUNNING ON MC background QCD Pt 170 to 300 MuEnrichedPt5
-   if(dataset == "qcd170_300"){
-       chain->AddFile("/opt/sbg/cms/ui2_data1/rhaeberl/CMSSW_10_6_30/src/crab_projects/crab_Analysis_2017_QCD_Pt-170To300_MuEnrichedPt5_CodeV5_v1/results/2017_QCD_Pt-170To300_MuEnriched_all.root");
+   if(dataset == "qcd50_80"){
+       std::string fileNamesQCD[] = {(pathMC+"QCDPt-50To80.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
    }
+   if(dataset == "qcd80_120"){
+       std::string fileNamesQCD[] = {(pathMC+"QCDPt-80To120.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
+   }
+ 
+ 
+   if(dataset == "qcd120_170"){
+       std::string fileNamesQCD[] = {(pathMC+"QCDPt-120To170.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
+   }
+ 
+   if(dataset == "qcd170_300"){
+       std::string fileNamesQCD[] = {(pathMC+"QCDPt-170To300.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
+   }
+   if(dataset == "qcd300_470"){
+       std::string fileNamesQCD[] = {(pathMC+"QCDPt-300To470.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
+   }
+ 
+   if(dataset == "qcd470_600"){
+       std::string fileNamesQCD[] = {(pathMC+"QCDPt-470To600.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
+   }
+ 
+   if(dataset == "qcd600_800"){
+       std::string fileNamesQCD[] = {(pathMC+"QCDPt-600To800.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
+   }
+   if(dataset == "qcd1000"){
+       std::string fileNamesQCD[] = {(pathMC+"QCDPt-1000.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
+   }
+ 
+ 
  
    //RUNNING ON MC background WjetsToLNu 0jets
    if(dataset == "wjets_0j"){
-       chain->AddFile("/opt/sbg/cms/ui2_data1/rhaeberl/CMSSW_10_6_30/src/crab_projects/crab_Analysis_2017_WJetsToLNu_0J_CodeV5_v1/results/2017_WJetsToLNu_0J_all_skimmed.root");
+       std::string fileNamesQCD[] = {(pathMC+"WJetsToLNu0J.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
+   }
+   if(dataset == "wjets_1j"){
+       std::string fileNamesQCD[] = {(pathMC+"WJetsToLNu1J.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
+   }
+   if(dataset == "wjets_2j"){
+       std::string fileNamesQCD[] = {(pathMC+"WJetsToLNu2J.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
+   }
+   if(dataset == "zmumu50_120"){
+       //std::string fileNamesQCD[] = {(pathMC+"ZToMuMuM-50To120.txt").c_str()};
+       std::string fileNamesQCD[] = {(pathTestMC+"ZtoMuMu_50to120.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
+   }
+   if(dataset == "zmumu200_400"){
+       std::string fileNamesQCD[] = {(pathTestMC+"ZtoMuMu_200to400.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
+   }
+   if(dataset == "zmumu400_800"){
+       std::string fileNamesQCD[] = {(pathTestMC+"ZtoMuMu_400to800.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
+   }
+   if(dataset == "zmumu800_1400"){
+       std::string fileNamesQCD[] = {(pathTestMC+"ZtoMuMu_800to1400.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
+   }
+
+   if(dataset == "zmumu120_200"){
+       std::string fileNamesQCD[] = {(pathTestMC+"ZToMuMu_120To200.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
+   }
+
+
+   if(dataset == "zmumu3500_4500"){
+       std::string fileNamesQCD[] = {(pathTestMC+"ZtoMuMu_3500to4500.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
+   }
+   if(dataset == "zmumu4500_6000"){
+       std::string fileNamesQCD[] = {(pathMC+"ZToMuMuM-4500To6000.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
    }
    //RUNNING ON pairStau 557    
+   
+   if(dataset == "tauprime2e100"){
+       std::string fileNamesQCD[] = {(pathTest+"HSCPtauPrimeCharge2e_M-100.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
+   }
+   if(dataset == "tauprime2e200"){
+       std::string fileNamesQCD[] = {(pathTest+"HSCPtauPrimeCharge2e_M-200.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
+   }
+   if(dataset == "tauprime2e400"){
+       std::string fileNamesQCD[] = {(pathTest+"HSCPtauPrimeCharge2e_M-400.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
+   }
+
+   if(dataset == "tauprime2e500"){
+       std::string fileNamesQCD[] = {(pathTest+"HSCPtauPrimeCharge2e_M-500.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
+   }
+   if(dataset == "tauprime2e800"){
+       std::string fileNamesQCD[] = {(pathTest+"HSCPtauPrimeCharge2e_M-800.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
+   }
+   if(dataset == "tauprime2e1400"){
+       std::string fileNamesQCD[] = {(pathTest+"HSCPtauPrimeCharge2e_M-1400.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
+   }
+   if(dataset == "tauprime2e1800"){
+       std::string fileNamesQCD[] = {(pathTest+"HSCPtauPrimeCharge2e_M-1800.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
+   }
+   if(dataset == "tauprime2e2200"){
+       std::string fileNamesQCD[] = {(pathTest+"HSCPtauPrimeCharge2e_M-2200.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
+   }
+
+   if(dataset == "tauprime2e2600"){
+       std::string fileNamesQCD[] = {(pathTest+"HSCPtauPrimeCharge2e_M-2600.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
+   }
+
+
+   if(dataset == "tauprime1e100"){
+       std::string fileNamesQCD[] = {(pathTest+"HSCPtauPrimeCharge1e_M-100.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
+   }
+   if(dataset == "tauprime1e200"){
+       std::string fileNamesQCD[] = {(pathTest+"HSCPtauPrimeCharge1e_M-200.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
+   }
+   if(dataset == "tauprime1e400"){
+       std::string fileNamesQCD[] = {(pathTest+"HSCPtauPrimeCharge1e_M-400.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
+   }
+   if(dataset == "tauprime1e500"){
+       std::string fileNamesQCD[] = {(pathTest+"HSCPtauPrimeCharge1e_M-500.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
+   }
+   if(dataset == "tauprime1e800"){
+       std::string fileNamesQCD[] = {(pathTest+"HSCPtauPrimeCharge1e_M-800.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
+   }
+   if(dataset == "tauprime1e1000"){
+       std::string fileNamesQCD[] = {(pathTest+"HSCPtauPrimeCharge1e_M-1000.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
+   }
+   if(dataset == "tauprime1e1800"){
+       std::string fileNamesQCD[] = {(pathTest+"HSCPtauPrimeCharge1e_M-1800.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
+   }
+
+   if(dataset == "tauprime1e2200"){
+       std::string fileNamesQCD[] = {(pathTest+"HSCPtauPrimeCharge1e_M-2200.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
+   }
+   if(dataset == "tauprime1e2600"){
+       std::string fileNamesQCD[] = {(pathTest+"HSCPtauPrimeCharge1e_M-2600.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
+   }
+
+
+
+
+
 
    if(dataset == "pStau200"){
-       std::string p200 = "/opt/sbg/cms/ui3_data1/rhaeberl/HSCP_prod/"+version+"/HSCPpairStau_"+version+"/Merged_HSCPpairStau/HSCPpairStau_M-200_merged.root";
-       chain->AddFile(p200.c_str());
+       std::string fileNamesQCD[] = {(pathTest+"HSCPpairStau_M-200.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
    }
    if(dataset == "pStau247"){
-       std::string p247 = "/opt/sbg/cms/ui3_data1/rhaeberl/HSCP_prod/"+version+"/HSCPpairStau_"+version+"/Merged_HSCPpairStau/HSCPpairStau_M-247_merged.root";
-       chain->AddFile(p247.c_str());
+       std::string fileNamesQCD[] = {(pathTest+"HSCPpairStau_M-247.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
    }
 
    if(dataset == "pStau308"){
-       std::string p308 = "/opt/sbg/cms/ui3_data1/rhaeberl/HSCP_prod/"+version+"/HSCPpairStau_"+version+"/Merged_HSCPpairStau/HSCPpairStau_M-308_merged.root";
-       chain->AddFile(p308.c_str());
+       std::string fileNamesQCD[] = {(pathTest+"HSCPpairStau_M-308.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
    }
+
    if(dataset == "pStau432"){
-       std::string p432 = "/opt/sbg/cms/ui3_data1/rhaeberl/HSCP_prod/"+version+"/HSCPpairStau_"+version+"/Merged_HSCPpairStau/HSCPpairStau_M-432_merged.root";
-       chain->AddFile(p432.c_str());
+       std::string fileNamesQCD[] = {(pathTest+"HSCPpairStau_M-432.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
+       //std::string p432 = "/opt/sbg/cms/ui3_data1/rhaeberl/HSCP_prod/"+version+"/HSCPpairStau_"+version+"/Merged_HSCPpairStau/HSCPpairStau_M-432_merged.root";
+       //chain->AddFile(p432.c_str());
    }
+
    if(dataset == "pStau557"){
-       std::string p557 = "/opt/sbg/cms/ui3_data1/rhaeberl/HSCP_prod/"+version+"/HSCPpairStau_"+version+"/Merged_HSCPpairStau/HSCPpairStau_M-557_merged.root";
-       chain->AddFile(p557.c_str());
+       std::string fileNamesQCD[] = {(pathTest+"HSCPpairStau_M-557.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
    }
+
    if(dataset == "pStau651"){
-       std::string p651 = "/opt/sbg/cms/ui3_data1/rhaeberl/HSCP_prod/"+version+"/HSCPpairStau_"+version+"/Merged_HSCPpairStau/HSCPpairStau_M-651_merged.root";
-       chain->AddFile(p651.c_str());
+       std::string fileNamesQCD[] = {(pathTest+"HSCPpairStau_M-651.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
    }
+
    if(dataset == "pStau745"){
-       std::string p745 = "/opt/sbg/cms/ui3_data1/rhaeberl/HSCP_prod/"+version+"/HSCPpairStau_"+version+"/Merged_HSCPpairStau/HSCPpairStau_M-745_merged.root";
-       chain->AddFile(p745.c_str());
+       std::string fileNamesQCD[] = {(pathTest+"HSCPpairStau_M-745.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
    }
    if(dataset == "pStau871"){
-       std::string p871 = "/opt/sbg/cms/ui3_data1/rhaeberl/HSCP_prod/"+version+"/HSCPpairStau_"+version+"/Merged_HSCPpairStau/HSCPpairStau_M-871_merged.root";
-       chain->AddFile(p871.c_str());
+       std::string fileNamesQCD[] = {(pathTest+"HSCPpairStau_M-871.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
+       //std::string p871 = "/opt/sbg/cms/ui3_data1/rhaeberl/HSCP_prod/"+version+"/HSCPpairStau_"+version+"/Merged_HSCPpairStau/HSCPpairStau_M-871_merged.root";
+       //chain->AddFile(p871.c_str());
    }
    if(dataset == "pStau1029"){
-       std::string p1029 = "/opt/sbg/cms/ui3_data1/rhaeberl/HSCP_prod/"+version+"/HSCPpairStau_"+version+"/Merged_HSCPpairStau/HSCPpairStau_M-1029_merged.root";
-       chain->AddFile(p1029.c_str());
+       std::string fileNamesQCD[] = {(pathTest+"HSCPpairStau_M-1029.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
    }
 
 
@@ -180,7 +1063,25 @@
        chain->AddFile("/opt/sbg/cms/ui2_data1/rhaeberl/CMSSW_10_6_30/src/crab_projects/crab_Analysis_2018_HSCPgluino_M-800_CodeV7fn_v1/results/Gluino800_CodeV7fn.root");
    }
    if(dataset == "Glu1000"){
-       chain->AddFile("/opt/sbg/cms/ui2_data1/rhaeberl/CMSSW_10_6_30/src/crab_projects/crab_Analysis_2018_HSCPgluino_M-1000_CodeV7fn_v1/results/Gluino1000_CodeV7fn.root");
+       std::string fileNamesQCD[] = {(pathSignal+"gluino1000.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
+       //chain->AddFile("/opt/sbg/cms/ui2_data1/rhaeberl/CMSSW_10_6_30/src/crab_projects/crab_Analysis_2018_HSCPgluino_M-1000_CodeV7fn_v1/results/Gluino1000_CodeV7fn.root");
    }
    if(dataset == "Glu1400"){
        chain->AddFile("/opt/sbg/cms/ui2_data1/rhaeberl/CMSSW_10_6_30/src/crab_projects/crab_Analysis_2018_HSCPgluino_M-1400_CodeV7fn_v1/results/Gluino1400_CodeV7fn.root");
@@ -194,7 +1095,25 @@
    }
 
    if(dataset == "Glu2000"){
-       chain->AddFile("/opt/sbg/cms/ui2_data1/rhaeberl/CMSSW_10_6_30/src/crab_projects/crab_Analysis_2018_HSCPgluino_M-2000_CodeV7fn_v1/results/Gluino2000_CodeV7fn.root");
+       std::string fileNamesQCD[] = {(pathSignal+"gluino2000.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
+       //chain->AddFile("/opt/sbg/cms/ui2_data1/rhaeberl/CMSSW_10_6_30/src/crab_projects/crab_Analysis_2018_HSCPgluino_M-2000_CodeV7fn_v1/results/Gluino2000_CodeV7fn.root");
    }
    if(dataset == "Glu2200"){
        chain->AddFile("/opt/sbg/cms/ui2_data1/rhaeberl/CMSSW_10_6_30/src/crab_projects/crab_Analysis_2018_HSCPgluino_M-2200_CodeV7fn_v1/results/Gluino2200_CodeV7fn.root");
@@ -206,13 +1125,56 @@
        chain->AddFile("/opt/sbg/cms/ui2_data1/rhaeberl/CMSSW_10_6_30/src/crab_projects/crab_Analysis_2018_HSCPgluino_M-2600_CodeV7fn_v1/results/Gluino2600_CodeV7fn.root");
    }
 
+   if(dataset == "Stop1000"){
+       std::string fileNamesQCD[] = {(pathSignal+"stop1000.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
+       //chain->AddFile("/opt/sbg/cms/ui2_data1/rhaeberl/CMSSW_10_6_30/src/crab_projects/crab_Analysis_2018_HSCPgluino_M-2600_CodeV7fn_v1/results/Gluino2600_CodeV7fn.root");
+   }
+
+   if(dataset == "Stop2000"){
+       std::string fileNamesQCD[] = {(pathSignal+"stop2000.txt").c_str()};
+
+       for (const std::string& fileName : fileNamesQCD) {
+           std::ifstream file(fileName);
+           if (!file.is_open()) {
+               std::cerr << "Failed to open file: " << fileName << std::endl;
+               continue;
+           }
+           std::string line;
+           while (std::getline(file, line)) {
+               if (!line.empty() && line.back() == '\n') {
+                   line.pop_back();
+               }
+               chain->AddFile(line.c_str());
+           }
+
+           file.close();
+       }
+       //chain->AddFile("/opt/sbg/cms/ui2_data1/rhaeberl/CMSSW_10_6_30/src/crab_projects/crab_Analysis_2018_HSCPgluino_M-2600_CodeV7fn_v1/results/Gluino2600_CodeV7fn.root");
+   }
 
 
-   std::string binning = std::to_string(ptcut) + "," + std::to_string(etabins) + "," + std::to_string(ihbins) + "," + std::to_string(pbins) + "," + std::to_string(massbins) + "," + std::to_string(masscut)  + "," +std::to_string(tofbins) + "," + dataset + "," + version;
+   std::string binning = std::to_string(tofcut) + "," + std::to_string(ptcut) + "," + std::to_string(etabins) + "," + std::to_string(ihbins) + "," + std::to_string(pbins) + "," + std::to_string(massbins) + "," + std::to_string(masscut)  + "," +std::to_string(tofbins) + ","+std::to_string(fpixbins) + "," + dataset + "," + version;
  
    std::cout << "Running over dataset : " << dataset << " with code version : " << version << std::endl; 
-   std::cout << "Defining regions A,B,C,D with pT cut = " << ptcut << std::endl;
-   std::cout << "Eta #bin : "<< etabins << ", Ih #bins" << ihbins << " , P #bins " << pbins << " , mass #bins " << massbins <<  " and mass cut = " << masscut << std::endl;
+   std::cout << "Defining regions A,B,C,D with pT cut = " << ptcut << " or tof cut = " << tofcut << std::endl;
+   std::cout << "Eta #bin : "<< etabins << ", Ih #bins" << ihbins << " , P #bins " << pbins << " , mass #bins " << massbins << " ,  tof #bins " << tofbins << " , Fpix #bins " << fpixbins << " and mass cut = " << masscut << std::endl;
      
 
    //chain->StopCacheLearningPhase();  
