@@ -1,4 +1,4 @@
 preselection, passPreselection[i]
 preselectionSept8, passPreselectionSept8[i]
-testCalibration, (abs(eta[i]) < 2.1) && (NOPH[i] >= 2) && (FOVH[i] > 0.5) && (((*isHighPurity.Get())[i]==true)) && ((Chi2[i]/Ndof[i]) < 5.0) && (abs(dZ[i]) < 0.5) && (abs(dXY[i]) <0.05)
+allInclusive, Pt[i] > 0
 testIhPt, (  ((Pt[i] > 55) && (abs(eta[i]) < 1) && (NOPH[i] >= 2) && (FOVH[i] > 0.8) && (NOM[i] >= 10) && (((*isHighPurity.Get())[i]==true)) && ((Chi2[i]/Ndof[i]) < 5.0) && (abs(dZ[i]) < 0.1) && (abs(dXY[i]) <0.02) && (Ih_StripOnly[i]>3.89) && ((*HLT_Mu50.Get())==true) && (ProbQ_noL1[i] < 0.7) && (EoverP[i] < 0.3) && (PFMiniIso_relative[i] < 0.02) && (TOF[i] > 1.13) && (TOFErr[i] <= 0.07) && (TOF_ndof[i] >= 9) ) )

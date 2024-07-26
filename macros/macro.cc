@@ -6,7 +6,7 @@
    //proof->SetParallel(1);
    
    ifstream ifile;
-   ifile.open("/opt/sbg/cms/ui4_data1/rhaeberl/CMSSW_10_6_30/src/HSCPTreeAnalyzer/cfg/configFile.txt");
+   ifile.open("/opt/sbg/cms/ui14_data1/rhaeberl/CMSSW_10_6_30/src/HSCPTreeAnalyzer/cfg/configFile.txt");
    if(!ifile) std::cout << "Error when opening config file " <<  std::endl;
    std::string line;
    std::string label;

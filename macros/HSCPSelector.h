@@ -39,20 +39,19 @@ public :
    //ADD-HSCP-SELECTION
 bool PassHSCPpresel_preselectionSept8(int hscpIndex);
 
-bool PassHSCPpresel_testCalibration(int hscpIndex);
+bool PassHSCPpresel_allInclusive(int hscpIndex);
 
 bool PassHSCPpresel_testIhPt(int hscpIndex);
 
    bool PassPreselection(int hscpIndex);
    bool PassPreselectionSept8(int hscpIndex);
 
-   bool only1Dplots;
-   bool only2Dplots;
-   bool onlyPreselPlots;
+   bool do1Dplots;
+   bool do2Dplots;
+   bool doPreselPlots;
 
    bool UseFpixel;
    bool UseGstrip;
-   bool UseBetaVersion;
    bool makeOnlyCRBeta;
    bool CalibrationZmumu;
    bool FillTree;
@@ -106,13 +105,11 @@ bool PassHSCPpresel_testIhPt(int hscpIndex);
    float TreeMuonMassCombined;
 
    float TreePt;
-   float TreeFpix;
-   
+   float TreeFpix; 
    float TreeChi2;
    
 
    std::string version_;
-
 
    int filltofErrUp =0;
    int toferrUpEqualsZero = 0;
@@ -120,54 +117,6 @@ bool PassHSCPpresel_testIhPt(int hscpIndex);
 
    int befPreSel=0;
    int preselTestIh = 0;
-   int sizeP;
-   const int NBINSP = 319;
-   float edgesP[320];
-
-   int sizeIH;
-   const int NBINSIH = 400;
-   float edgesIH[401];
-
-   int sizeEta;
-   const int NBINSETA = 40;
-   float edgesEta[41];
-
-   int sizeEtaRebin;
-   const int NBINSETAREBIN = 20;
-   float edgesEtaRebin[21];
-
-   //vector< float > edges;
-   int sizePraw;
-   const int NBINSPRAW = 1000;
-   float edgesPraw[1001];
-
-   float pMax;
-   float ihMax;
-   bool flagP;
-   bool flagIH;
-
-   int reweightChoice;
-
-   double mwGlu800[2] = {607.199793949,1077.24940923};
-   double mwGlu1000[2] = {757.670608492,1358.89396958};
-   double mwGlu1400[2] = {1024.99735697,1985.80106367};
-   double mwGlu1600[2] = {1162.10069235,2298.34282775};
-   double mwGlu1800[2] = {1271.92236432,2640.58487303};
-   double mwGlu2000[2] = {1407.11296357,2893.80572114};
-   double mwGlu2200[2] = {1537.98972818,3156.46026568};
-   double mwGlu2400[2] = {1656.75618975,3411.80886352};
-   double mwGlu2600[2] = {1757.77524037,3539.47520337};
-
-   double mwStau308[2] = {240.083474288,360.01427282};
-   double mwStau432[2] = {354.608382698,520.473884815};
-   double mwStau557[2] = {451.685511417,664.384791755};
-   double mwStau651[2] = {522.955876537,786.980652156};
-   double mwStau745[2] = {596.583650463,899.670465345};
-   double mwStau871[2] = {691.781893213,1088.46539719};
-   double mwStau1029[2] = {812.801875736,1318.71800314};
-
- 
-   string namesSig[16] = {"Glu800","Glu1000","Glu1400","Glu1600","Glu1800","Glu2000","Glu2200","Glu2400","Glu2600","Stau308","Stau432","Stau557","Stau651","Stau745","Stau871","Stau1029"};
 
    vector< vector <float> > ratioPandEta;
 
@@ -207,71 +156,13 @@ bool PassHSCPpresel_testIhPt(int hscpIndex);
    std::map<std::pair<double, double>, std::string> cut_hist_map_comb_SR;
    std::map<std::pair<double, double>, std::string> cut_hist_map_atlas_SR;
 
-
-   /*
-   struct HistogramInfo {
-       std::string histName_betaCR;
-       std::string histName_dedxCR;
-       std::string histName_combCR;
-       std::string histName_betaSR;
-       std::string histName_dedxSR;
-       std::string histName_combSR;
-   };
-
-   inline std::map<std::pair<double, double>, HistogramInfo> cut_hist_map = []() {
-       std::map<std::pair<double, double>, HistogramInfo> map;
-       vector<double> Ih_cut_values = {3.3,3.35,3.4,3.45,3.5,3.55,3.6,3.65,3.7,3.75,3.8,3.85,3.9,3.95};
-       vector<double> beta_cut_values = {1.01,1.02,1.03,1.04,1.05,1.06,1.07,1.08,1.09,1.1};
-       for (double Ih_cut : Ih_cut_values) {
-           std::stringstream Ih_cut_ss;
-           Ih_cut_ss << Ih_cut;
-           std::string Ih_cut_str = Ih_cut_ss.str();
-           for (char &c : Ih_cut_str) {
-               if (c == '.') {
-                   c = 'p';
-                   break;
-               }
-           }
-
-           for (double beta_cut : beta_cut_values) {
-               std::stringstream beta_cut_ss;
-               beta_cut_ss << beta_cut;
-               std::string beta_cut_str = beta_cut_ss.str();
-               for (char &c : beta_cut_str) {
-                   if (c == '.') {
-                       c = 'p';
-                       break;
-                   }
-               }
-               HistogramInfo info;
-               info.histName_betaCR="_hMassBeta_C_3fp8_ih" + Ih_cut_str + "_beta" + beta_cut_str;
-               info.histName_dedxCR="_hMassdEdx_C_3fp8_ih" + Ih_cut_str + "_beta" + beta_cut_str;
-               info.histName_combCR="_hMassCombined_C_3fp8_ih" + Ih_cut_str + "_beta" + beta_cut_str;
-               info.histName_betaSR="_hMassBeta_SR1_9fp10_ih" + Ih_cut_str + "_beta" + beta_cut_str;
-               info.histName_dedxSR="_hMassdEdx_SR1_9fp10_ih" + Ih_cut_str + "_beta" + beta_cut_str;
-               info.histName_combSR="_hMassCombined_SR1_9fp10_ih" + Ih_cut_str + "_beta" + beta_cut_str;
-               
-               map[std::make_pair(Ih_cut, beta_cut)] = info;
-           
-           }
-       }
-       return map;
-   }();
-   */
-   //std::map<std::pair<double, double>, std::string> cut_hist_map_comb_SR;
-   //float what_weight; 
-
- 
    float quan50= 0.017987774;
    float quan60= 0.022399569;
    float quan70= 0.028518069;
    float quan80= 0.038047370;
    float quan90= 0.056746799;
    float quan99= 0.13331622;
-   //float quan999= 0.3;
-   //float quan999= 0.22018057;
-   float quan999 = 0.24875;
-
+   float quan999= 0.22018057;
 
    float fpix0 = 0.0;
    float fpix3 = 0.3;
@@ -283,7 +174,6 @@ bool PassHSCPpresel_testIhPt(int hscpIndex);
    float fpix9 = 0.9;
    float fpix99 = 0.99;
    float fpix999 = 0.999;
-  
    float fpix10 = 1.0;
 
    std::string regFpixAll = "_regionAll";

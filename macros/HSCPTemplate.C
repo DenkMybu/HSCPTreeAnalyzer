@@ -68,20 +68,13 @@ void HSCPSelector::Begin(TTree * /*tree*/)
    TString option = GetOption();
 
    TObjArray *tx = option.Tokenize(",");
-   //std::string ext = "_Fpix_pt_ih0_beta0_ALLCUTS_nocutChi2_correctedErrorsMass_newchi2_CARO.root";
-   //std::string ext = "_testOutputTree.root";
-
-   //std::string ext = "_nothinOnlyTriggerAndControlRegion_chap5_test_PFMuon_ATLASFINAL_testHybridTrackMuon.root";
-   //std::string ext = "_final_atlas_ih3p89_beta1p13_allTests_notcorrected.root";
-   //std::string ext = "_final_atlas_ih0_beta0_allTests_corrected.root";
-   std::string ext = "_final_atlas_ih0_beta0_showFpix.root";
-   //std::string ext = "_nothinOnlyTriggerAndControlRegion_chap4.root";
-
+   //Extension name for the .root file
+   std::string ext = "_TestGael.root";
 
    std::string ptname( ((TObjString *)(tx->At(1)))->String().Data());
    int ptInt = std::stoi(ptname);
 
-   
+   //oFile will be the name of the output root file 
    oFile_ = ((TObjString *)(tx->At(9)))->String().Data();
    oFile_ += "_massCut_";
    oFile_ += ((TObjString *)(tx->At(6)))->String().Data();
@@ -91,8 +84,6 @@ void HSCPSelector::Begin(TTree * /*tree*/)
    oFile_ += ((TObjString *)(tx->At(10)))->String().Data();
    oFile_ += ext;
    
-
-   //oFile_ = "SingleMu2017B_highmass_preselDylan.root";
    //Add selections into a vector - to be updated
    //FILL-SELECTION-VECTOR
    selections_.push_back(&HSCPSelector::PassPreselection);
@@ -127,10 +118,11 @@ void HSCPSelector::SlaveBegin(TTree * /*tree*/)
    //EXAMPLE : TString m = "14,8,3,17" | m.Tokenize(",") |  tx->Print() will display 14
    //								                     8
    //								                     3
+   //								                     17
 
-   //treeTest = new TFile("testOutput.root","RECREATE");
-   //treeTest->cd();
-   
+
+   //OutputTree is a new tree that is produced when reading the TTree from HSCP analyzer, which is a skimmed version to study the different mass recontructions for instance (for quick validation in FPix regions)
+
    outputTree = new TTree("outputTree", "OutputTree");
    outputTree->Branch("TreeInverseBeta", &TreeInverseBeta, "TreeInverseBeta/F");
    outputTree->Branch("TreeIh", &TreeIh, "TreeIh/F");
@@ -170,16 +162,11 @@ void HSCPSelector::SlaveBegin(TTree * /*tree*/)
    std::string dataset( ((TObjString *)(tx->At(9)))->String().Data());
    std::string version( ((TObjString *)(tx->At(10)))->String().Data());
 
-   only1Dplots = true;
-   only2Dplots = true;
-   onlyPreselPlots = true;
+   do1Dplots = true;
+   do2Dplots = true;
+   doPreselPlots = true;
 
    //old TRUE
-
-   UseBetaVersion = false;
-   makeOnlyCRBeta = false;
-
-   UseGstrip = false;
 
    CalibrationZmumu = true;
    correctEstimators = true;
@@ -189,8 +176,7 @@ void HSCPSelector::SlaveBegin(TTree * /*tree*/)
    //Finally, transform strings into int for cuts/binning, and make them correspond to header defined variables (binning and pt cut)
    tofcut_ = std::stod(tofTmp);
    ptcut_ = std::stod(ptTmp);
-   
-                          etabins_ = std::stoi(etaTmp);
+   etabins_ = std::stoi(etaTmp);
    ihbins_ = std::stoi(ihTmp); 
    pbins_ = std::stoi(pTmp);
    massbins_ = std::stoi(massTmp);
@@ -199,7 +185,11 @@ void HSCPSelector::SlaveBegin(TTree * /*tree*/)
    fpixbins_ = std::stoi(fpixCutTmp);
    dataset_ = dataset;
    version_ = version; 
+
+   //isSimulation will detect automatically if you run on data or not, and make histograms accordingly
    isSimulation = false;
+
+   //Change here to add debug informations in the log of each worker in /~.proof
    debug = false;
    debugSignal = false;
 
@@ -211,10 +201,11 @@ void HSCPSelector::SlaveBegin(TTree * /*tree*/)
        std::cout <<"This is DATA running" << std::endl;
    }
 
-   if(isSimulation) UseFpixel= false;
-   if(!isSimulation) UseFpixel= true;
-
+   //Do this to create region based on FPIXELS slices (0.3 - 0.4) (0.4 - 0.5) ectc.. (not needed anymore but for validation slices, it can be used)
    UseFpixel = false;
+   //This is for regions based on Gstrip (mass method)
+   UseGstrip = false;
+
 
    muBadReco = 0;
    muGoodReco = 0;
@@ -229,9 +220,11 @@ void HSCPSelector::SlaveBegin(TTree * /*tree*/)
            numbersMpoint_ += c;
        }
    }
+   //Find the mass of the signal studied if you run on simulation
    massPointSig_ = std::stoi(numbersMpoint_);
-   //create all objects that will be used by the methods Process
-    
+
+
+   //create all objects that will be used by the methods Process    
    std::string firstThreeChars = dataset_.substr(0, 3);
 
    if(dataset_ == "highmass2017B"){
@@ -261,11 +254,7 @@ void HSCPSelector::SlaveBegin(TTree * /*tree*/)
    std::cout << "Dataset is : " << dataset_ << " , mass point then is : " << massPointSig_ <<  " , C = "<< C << " and K = " << K << std::endl;
    std::cout << " Starting SLAVE ---------PT  cut for regions = " << ptcut_ << " tof cut for SR = " << tofcut_ << " , Eta #bin : "<< etabins_ << ", Ih #bins" << ihbins_ << " , P #bins " << pbins_ << " , mass #bins " << massbins_ << " TOF #bins " << tofbins_ <<" , Fpix #bins " << fpixbins_  <<  ", mass cut : " << masscut_ << " , sel labels size : " << selLabels_.size() << std::endl;
 
-   
-   flagP = true;
-   flagIH = true;
-   reweightChoice = 0;//0 no reweighting, 1 : 1/p reweighting, 2 : IH reweighting, 3 : Eta reweighting, 4 : 2D eta/p reweighting
-   
+
 
    //-------------------------------------
    //Add selections into a vector - to be updated
@@ -281,95 +270,9 @@ void HSCPSelector::SlaveBegin(TTree * /*tree*/)
    //create RegionMassPlot for all selection
    //-------------------------------------
    for(unsigned int i=0;i<selLabels_.size();i++){
-      //The binning has to be changed and to become configurable
-
-      if(UseBetaVersion){
-          std::string label_FpixLowBetaAll = regFpixLowBetaAll + "_" + selLabels_[i]; 
-
-          std::string label_FpixC_3fp8_BetaAll = regFpixC_3fp8BetaAll + "_" + selLabels_[i]; 
-          std::string label_FpixC_3fp6_BetaAll = regFpixC_3fp6BetaAll + "_" + selLabels_[i]; 
-          std::string label_FpixC_6fp9_BetaAll = regFpixC_6fp9BetaAll + "_" + selLabels_[i]; 
-          std::string label_FpixC_3fp4_BetaAll = regFpixC_3fp4BetaAll + "_" + selLabels_[i]; 
-          std::string label_FpixC_4fp5_BetaAll = regFpixC_4fp5BetaAll + "_" + selLabels_[i]; 
-          std::string label_FpixC_5fp6_BetaAll = regFpixC_5fp6BetaAll + "_" + selLabels_[i]; 
-          std::string label_FpixC_6fp7_BetaAll = regFpixC_6fp7BetaAll + "_" + selLabels_[i]; 
-          std::string label_FpixC_7fp8_BetaAll = regFpixC_7fp8BetaAll + "_" + selLabels_[i]; 
-          std::string label_FpixC_8fp9_BetaAll = regFpixC_8fp9BetaAll + "_" + selLabels_[i]; 
-          std::string label_FpixC_9fp10_BetaAll = regFpixC_9fp10BetaAll + "_" + selLabels_[i]; 
-
-
-          std::string label_FpixA_3fp8_BetaAll = regFpixA_3fp8BetaAll + "_" + selLabels_[i]; 
-          std::string label_FpixA_3fp6_BetaAll = regFpixA_3fp6BetaAll + "_" + selLabels_[i]; 
-          std::string label_FpixA_6fp9_BetaAll = regFpixA_6fp9BetaAll + "_" + selLabels_[i]; 
-          std::string label_FpixA_3fp4_BetaAll = regFpixA_3fp4BetaAll + "_" + selLabels_[i]; 
-          std::string label_FpixA_4fp5_BetaAll = regFpixA_4fp5BetaAll + "_" + selLabels_[i]; 
-          std::string label_FpixA_5fp6_BetaAll = regFpixA_5fp6BetaAll + "_" + selLabels_[i]; 
-          std::string label_FpixA_6fp7_BetaAll = regFpixA_6fp7BetaAll + "_" + selLabels_[i]; 
-          std::string label_FpixA_7fp8_BetaAll = regFpixA_7fp8BetaAll + "_" + selLabels_[i]; 
-          std::string label_FpixA_8fp9_BetaAll = regFpixA_8fp9BetaAll + "_" + selLabels_[i]; 
-          std::string label_FpixA_9fp10_BetaAll = regFpixA_9fp10BetaAll + "_" + selLabels_[i]; 
-
-          RegionMassPlot regBetaAll(label_FpixLowBetaAll.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_,fpixbins_); 
-
-
-
-          RegionMassPlot regC_3fp8_BetaAll(label_FpixC_3fp8_BetaAll.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_,fpixbins_); 
-          RegionMassPlot regC_3fp6_BetaAll(label_FpixC_3fp6_BetaAll.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_,fpixbins_); 
-          RegionMassPlot regC_6fp9_BetaAll(label_FpixC_6fp9_BetaAll.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_,fpixbins_); 
-          RegionMassPlot regC_3fp4_BetaAll(label_FpixC_3fp4_BetaAll.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_,fpixbins_); 
-          RegionMassPlot regC_4fp5_BetaAll(label_FpixC_4fp5_BetaAll.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_,fpixbins_); 
-          RegionMassPlot regC_5fp6_BetaAll(label_FpixC_5fp6_BetaAll.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_,fpixbins_); 
-          RegionMassPlot regC_6fp7_BetaAll(label_FpixC_6fp7_BetaAll.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_,fpixbins_); 
-          RegionMassPlot regC_7fp8_BetaAll(label_FpixC_7fp8_BetaAll.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_,fpixbins_); 
-          RegionMassPlot regC_8fp9_BetaAll(label_FpixC_8fp9_BetaAll.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_,fpixbins_); 
-          RegionMassPlot regC_9fp10_BetaAll(label_FpixC_9fp10_BetaAll.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_,fpixbins_); 
-
-
-          RegionMassPlot regA_3fp8_BetaAll(label_FpixA_3fp8_BetaAll.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_,fpixbins_); 
-          RegionMassPlot regA_3fp6_BetaAll(label_FpixA_3fp6_BetaAll.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_,fpixbins_); 
-          RegionMassPlot regA_6fp9_BetaAll(label_FpixA_6fp9_BetaAll.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_,fpixbins_); 
-          RegionMassPlot regA_3fp4_BetaAll(label_FpixA_3fp4_BetaAll.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_,fpixbins_); 
-          RegionMassPlot regA_4fp5_BetaAll(label_FpixA_4fp5_BetaAll.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_,fpixbins_); 
-          RegionMassPlot regA_5fp6_BetaAll(label_FpixA_5fp6_BetaAll.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_,fpixbins_); 
-          RegionMassPlot regA_6fp7_BetaAll(label_FpixA_6fp7_BetaAll.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_,fpixbins_); 
-          RegionMassPlot regA_7fp8_BetaAll(label_FpixA_7fp8_BetaAll.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_,fpixbins_); 
-          RegionMassPlot regA_8fp9_BetaAll(label_FpixA_8fp9_BetaAll.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_,fpixbins_); 
-          RegionMassPlot regA_9fp10_BetaAll(label_FpixA_9fp10_BetaAll.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_,fpixbins_); 
-
-          vmrp_regionFpixLow_BetaAll.push_back(std::move(regBetaAll));
-
-          vmrp_regionC_BetaAll_3fp8.push_back(std::move(regC_3fp8_BetaAll));
-          vmrp_regionC_BetaAll_3fp6.push_back(std::move(regC_3fp6_BetaAll));
-          vmrp_regionC_BetaAll_6fp9.push_back(std::move(regC_6fp9_BetaAll));
-          vmrp_regionC_BetaAll_3fp4.push_back(std::move(regC_3fp4_BetaAll));
-          vmrp_regionC_BetaAll_4fp5.push_back(std::move(regC_4fp5_BetaAll));
-          vmrp_regionC_BetaAll_5fp6.push_back(std::move(regC_5fp6_BetaAll));
-          vmrp_regionC_BetaAll_6fp7.push_back(std::move(regC_6fp7_BetaAll));
-          vmrp_regionC_BetaAll_7fp8.push_back(std::move(regC_7fp8_BetaAll));
-          vmrp_regionC_BetaAll_8fp9.push_back(std::move(regC_8fp9_BetaAll));
-          vmrp_regionC_BetaAll_9fp10.push_back(std::move(regC_9fp10_BetaAll));
-
-
-
-          vmrp_regionA_BetaAll_3fp8.push_back(std::move(regA_3fp8_BetaAll));
-          vmrp_regionA_BetaAll_3fp6.push_back(std::move(regA_3fp6_BetaAll));
-          vmrp_regionA_BetaAll_6fp9.push_back(std::move(regA_6fp9_BetaAll));
-          vmrp_regionA_BetaAll_3fp4.push_back(std::move(regA_3fp4_BetaAll));
-          vmrp_regionA_BetaAll_4fp5.push_back(std::move(regA_4fp5_BetaAll));
-          vmrp_regionA_BetaAll_5fp6.push_back(std::move(regA_5fp6_BetaAll));
-          vmrp_regionA_BetaAll_6fp7.push_back(std::move(regA_6fp7_BetaAll));
-          vmrp_regionA_BetaAll_7fp8.push_back(std::move(regA_7fp8_BetaAll));
-          vmrp_regionA_BetaAll_8fp9.push_back(std::move(regA_8fp9_BetaAll));
-          vmrp_regionA_BetaAll_9fp10.push_back(std::move(regA_9fp10_BetaAll));
-
-
-    
-
-
-      }
- 
+      //The binning has to be changed and to become configurable 
       if(UseFpixel){
-
+          //Create names for each plot in each regions (slices in Fpixels)
           std::string label_FpixAll = regFpixAll + "_" + selLabels_[i]; 
           std::string label_FpixA_3f6 = regFpixA_3f6 + "_" + selLabels_[i]; 
           std::string label_FpixA_6f9 = regFpixA_6f9 + "_" + selLabels_[i]; 
@@ -433,7 +336,7 @@ void HSCPSelector::SlaveBegin(TTree * /*tree*/)
           std::string label_FpixB_99f10 = regFpixB_99f10 + "_" + selLabels_[i];
           std::string label_FpixB_999f10 = regFpixB_999f10 + "_" + selLabels_[i];
     
-    
+          //Create objects RegionMassPlot using the names defined above 
           RegionMassPlot regAll(label_FpixAll.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_,fpixbins_); 
 
 
@@ -496,7 +399,8 @@ void HSCPSelector::SlaveBegin(TTree * /*tree*/)
           RegionMassPlot regB_9f10(label_FpixB_9f10.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_,fpixbins_); 
           RegionMassPlot regB_99f10(label_FpixB_99f10.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_,fpixbins_); 
           RegionMassPlot regB_999f10(label_FpixB_999f10.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_,fpixbins_); 
-    
+   
+          //push the RegionMassPlot objects created in vectors, because you have a set of different plot for each region, for each selection (defined in the configuration file) 
           vmrp_regionFpix_all.push_back(std::move(regAll));
           vmrp_regionA_3f6.push_back(std::move(regA_3f6));
           vmrp_regionA_6f9.push_back(std::move(regA_6f9));
@@ -561,14 +465,8 @@ void HSCPSelector::SlaveBegin(TTree * /*tree*/)
           vmrp_regionC_6f9.push_back(std::move(regC_6f9));
 
       }
-
-      /*
-      std::string label_all = rAll + "_" + selLabels_[i]; 
-      RegionMassPlot reg(label_all.c_str(),etabins_,ihbins_,pbins_,massbins_);
-      */
     
       //Definition of regions D with all quantiles and different names
-      //
       if(UseGstrip){
           std::string labelD_50ias60 = rD_50 + "_" + selLabels_[i];
           RegionMassPlot regD_50ias60(labelD_50ias60.c_str(),etabins_,ihbins_,pbins_,massbins_,tofbins_,fpixbins_);
@@ -688,19 +586,11 @@ void HSCPSelector::SlaveBegin(TTree * /*tree*/)
           vmrp_regionB_999ias100.push_back(std::move(regB_999ias100));
 
       }
-
-
-      //vmrp_region_all.push_back(std::move(reg));
-
-
          
       CPlots plots;
       plots.AddHisto1D(selLabels_[i]+"_PreTrigEvt",3,0,1);
 
-      //Ih_cut_values = {3.3,3.35,3.4,3.45,3.5,3.55,3.6,3.65,3.7,3.75,3.8,3.85,3.9,3.95};
-      //beta_cut_values = {1.01,1.02,1.03,1.04,1.05,1.06,1.07,1.08,1.09,1.1};
-      //
-       
+      //Not used, just a check for eta reweighting, do not take it in consideration
       std::ifstream fileEta("/opt/sbg/cms/ui4_data1/rhaeberl/CMSSW_10_6_30/src/HSCPTreeAnalyzer/python/thesis/chap5/EtaReweightingTofndof/eta_ratios.txt");
       std::string lineEta;
       if(selLabels_[i] == "testCalibration"){
@@ -734,7 +624,6 @@ void HSCPSelector::SlaveBegin(TTree * /*tree*/)
                   toferrMin.push_back(minToferr); 
                   toferrMax.push_back(maxToferr); 
                   toferrWeights.push_back(weightToferr); 
-                  //std::cout << "Adding tofferr Min = " << minToferr << " max = " << maxToferr << " with weight = " << weightToferr << std::endl;
               }
               else{
                   std::cout << "Error parsing a line from the Toferr weights ->" << std::endl;
@@ -744,11 +633,7 @@ void HSCPSelector::SlaveBegin(TTree * /*tree*/)
       }
       fileToferr.close();
 
-
-      
-
-      //std::ifstream file("/opt/sbg/cms/ui4_data1/rhaeberl/CMSSW_10_6_30/src/MassParametrisation/map_dedx_bg_atlasproton_parallel_factor10.txt");
-      //std::ifstream file("/opt/sbg/cms/ui4_data1/rhaeberl/CMSSW_10_6_30/src/MassParametrisation/map_dedx_bg_atlasproton_parallel_factor10_witherror.txt");
+      //Retrieve the (Ih, BetaGamma) couples from my new parametrization
       std::ifstream file("/opt/sbg/cms/ui4_data1/rhaeberl/CMSSW_10_6_30/src/PASSATION_POWER/MassParametrisationSignal/map_dedx_bg_atlas_parallel_factor10_witherror_SIMULATION.txt");
       std::string line;
       if(selLabels_[i] == "testIhPt"){
@@ -767,16 +652,7 @@ void HSCPSelector::SlaveBegin(TTree * /*tree*/)
           std::cout << "Map betagama vs Ih with ATLAS parametrisation has size = " << ih_betagamma_error.size() << std::endl;
       }
       file.close();
-
-
-      betaErrScaleFactors=readScaleFactors("/opt/sbg/cms/ui4_data1/rhaeberl/CMSSW_10_6_30/src/HSCPTreeAnalyzer/python/thesis/chap5/PullsForMasses/fit_results_betaPull.txt");
-      ptErrScaleFactors=readScaleFactors("/opt/sbg/cms/ui4_data1/rhaeberl/CMSSW_10_6_30/src/HSCPTreeAnalyzer/python/thesis/chap5/PullsForMasses/fit_results_MuonPtPull.txt");
-
-      
-
-
-
-
+      //If you add values in Ih_cut_values and beta_cut_values, it will make all possible pairs and create mass histograms for each pair cut, it was just a test      
       Ih_cut_values = {};
       beta_cut_values = {};
       //Ih_cut_values = {3.35,3.6,3.75,3.85,3.95};
@@ -785,8 +661,7 @@ void HSCPSelector::SlaveBegin(TTree * /*tree*/)
       //Need to add plots here
       //ADD-CPLOTS-HERE
 
-      if(only1Dplots){ 
-          
+      if(do1Dplots){ 
           plots.AddHisto1D(selLabels_[i]+"_hmass_regionA_3fp8_ih3p60_beta1p10",800,0,4000);
           plots.AddHisto1D(selLabels_[i]+"_hmass_regionC_3fp8_ih3p60_beta1p10",800,0,4000);
           plots.AddHisto1D(selLabels_[i]+"_hmass_regionB_8fp9_ih3p60_beta1p10",800,0,4000);
@@ -832,46 +707,33 @@ void HSCPSelector::SlaveBegin(TTree * /*tree*/)
           plots.AddHisto1D(selLabels_[i]+"_hmassnoP_regionD_8fp9_ih3p89_beta1p13",800,0,4000);
           plots.AddHisto1D(selLabels_[i]+"_hmassnoP_regionB_9fp10_ih3p89_beta1p13",800,0,4000);
           plots.AddHisto1D(selLabels_[i]+"_hmassnoP_regionD_9fp10_ih3p89_beta1p13",800,0,4000);
-
-
-
           plots.AddHisto1D(selLabels_[i]+"_hmass_regionA_3fp8_ih3p95_beta1p15",800,0,4000);
           plots.AddHisto1D(selLabels_[i]+"_hmass_regionC_3fp8_ih3p95_beta1p15",800,0,4000);
           plots.AddHisto1D(selLabels_[i]+"_hmass_regionB_8fp9_ih3p95_beta1p15",800,0,4000);
           plots.AddHisto1D(selLabels_[i]+"_hmass_regionD_8fp9_ih3p95_beta1p15",800,0,4000);
           plots.AddHisto1D(selLabels_[i]+"_hmass_regionB_9fp10_ih3p95_beta1p15",800,0,4000);
           plots.AddHisto1D(selLabels_[i]+"_hmass_regionD_9fp10_ih3p95_beta1p15",800,0,4000);
-
           plots.AddHisto1D(selLabels_[i]+"_hmassnoP_regionA_3fp8_ih3p95_beta1p15",800,0,4000);
           plots.AddHisto1D(selLabels_[i]+"_hmassnoP_regionC_3fp8_ih3p95_beta1p15",800,0,4000);
           plots.AddHisto1D(selLabels_[i]+"_hmassnoP_regionB_8fp9_ih3p95_beta1p15",800,0,4000);
           plots.AddHisto1D(selLabels_[i]+"_hmassnoP_regionD_8fp9_ih3p95_beta1p15",800,0,4000);
           plots.AddHisto1D(selLabels_[i]+"_hmassnoP_regionB_9fp10_ih3p95_beta1p15",800,0,4000);
           plots.AddHisto1D(selLabels_[i]+"_hmassnoP_regionD_9fp10_ih3p95_beta1p15",800,0,4000);
-
-
-
           plots.AddHisto1D(selLabels_[i]+"_hmass_regionA_3fp8_ih4p04_beta1p17",800,0,4000);
           plots.AddHisto1D(selLabels_[i]+"_hmass_regionC_3fp8_ih4p04_beta1p17",800,0,4000);
           plots.AddHisto1D(selLabels_[i]+"_hmass_regionB_8fp9_ih4p04_beta1p17",800,0,4000);
           plots.AddHisto1D(selLabels_[i]+"_hmass_regionD_8fp9_ih4p04_beta1p17",800,0,4000);
           plots.AddHisto1D(selLabels_[i]+"_hmass_regionB_9fp10_ih4p04_beta1p17",800,0,4000);
           plots.AddHisto1D(selLabels_[i]+"_hmass_regionD_9fp10_ih4p04_beta1p17",800,0,4000);
-
-
           plots.AddHisto1D(selLabels_[i]+"_hmassnoP_regionA_3fp8_ih4p04_beta1p17",800,0,4000);
           plots.AddHisto1D(selLabels_[i]+"_hmassnoP_regionC_3fp8_ih4p04_beta1p17",800,0,4000);
           plots.AddHisto1D(selLabels_[i]+"_hmassnoP_regionB_8fp9_ih4p04_beta1p17",800,0,4000);
           plots.AddHisto1D(selLabels_[i]+"_hmassnoP_regionD_8fp9_ih4p04_beta1p17",800,0,4000);
           plots.AddHisto1D(selLabels_[i]+"_hmassnoP_regionB_9fp10_ih4p04_beta1p17",800,0,4000);
           plots.AddHisto1D(selLabels_[i]+"_hmassnoP_regionD_9fp10_ih4p04_beta1p17",800,0,4000);
-
-
           plots.AddHisto1D(selLabels_[i]+"_hTOT",2,-0.5,1.5);
-
           plots.AddHisto1D(selLabels_[i]+"_hEta",200,-5,5);
           plots.AddHisto1D(selLabels_[i]+"_hEtaReweighted",200,-5,5);
-
           plots.AddHisto1D(selLabels_[i]+"_hPhi",200,-5,5);
           plots.AddHisto1D(selLabels_[i]+"_hNOMH",20,-0.5,19.5);
           plots.AddHisto1D(selLabels_[i]+"_hNOM",40,-0.5,39.5);
@@ -885,11 +747,8 @@ void HSCPSelector::SlaveBegin(TTree * /*tree*/)
           plots.AddHisto1D(selLabels_[i]+"_hChi2PerNdof",300,0,30);
           plots.AddHisto1D(selLabels_[i]+"_hpt",800,0,4000);
           plots.AddHisto1D(selLabels_[i]+"_hTOF",200,0,5);
-
-
           plots.AddHisto1D(selLabels_[i]+"_hBetaError",200,0,0.5);
           plots.AddHisto1D(selLabels_[i]+"_hBetaErrorCorrected",200,0,0.5);
-
           plots.AddHisto1D(selLabels_[i]+"_hinvTOF",200,0,5);
           plots.AddHisto1D(selLabels_[i]+"_hIh",600,0,30);
           plots.AddHisto1D(selLabels_[i]+"_hPtErr",400,0,4000);
@@ -903,11 +762,8 @@ void HSCPSelector::SlaveBegin(TTree * /*tree*/)
           plots.AddHisto1D(selLabels_[i]+"_hDiMuMass_Calib",800,0,200);
           plots.AddHisto1D(selLabels_[i]+"_hDiMuMass_CalibWide",6000,0,6000);
           plots.AddHisto1D(selLabels_[i]+"_hmuPtErr_over_muPt",400,0,4);
-
           plots.AddHisto1D(selLabels_[i]+"_hTrackPtErr_over_TrackPt",400,0,4);
- 
           plots.AddHisto1D(selLabels_[i]+"_hmuMatchedHSCP_dr0p15",3,0,2);
-
           plots.AddHisto1D(selLabels_[i]+"_hTrack_MiniIsoSumPtFixCone",200,0,50);
           plots.AddHisto1D(selLabels_[i]+"_hTrack_MiniIsoSumPtVarCone",200,0,50);
           plots.AddHisto1D(selLabels_[i]+"_hPFMiniIso_relative",300,0,1.5);
@@ -915,84 +771,50 @@ void HSCPSelector::SlaveBegin(TTree * /*tree*/)
           plots.AddHisto1D(selLabels_[i]+"_hTrackPt_minus_MatchedMuonPt_dr03",100,-5,5);
           plots.AddHisto1D(selLabels_[i]+"_hHLTMu50",2,0,2);
           plots.AddHisto1D(selLabels_[i]+"_hisPFMuon",2,0,2);
-
-
-
           plots.AddHisto1D(selLabels_[i]+"_hDedxError",200,0,2);
           plots.AddHisto1D(selLabels_[i]+"_hBetaError",100,0,1);
-
-
           plots.AddHisto1D(selLabels_[i]+"_hMassDedxError",1000,0,100);
           plots.AddHisto1D(selLabels_[i]+"_hMassBetaError",1000,0,100);
           plots.AddHisto1D(selLabels_[i]+"_hMassCombinedError",1000,0,100);
- 
-
           plots.AddHisto1D(selLabels_[i]+"_hMass_VR_3fp8_etabin1",800,0,4000);
           plots.AddHisto1D(selLabels_[i]+"_hMassAtlas_VR_3fp8_etabin1",800,0,4000);
           plots.AddHisto1D(selLabels_[i]+"_hMassBeta_VR_3fp8_etabin1",800,0,4000);
           plots.AddHisto1D(selLabels_[i]+"_hMassCombined_VR_3fp8_etabin1",800,0,4000);
-
-
           plots.AddHisto1D(selLabels_[i]+"_hMassMuon_VR_3fp8_etabin1",800,0,4000);
           plots.AddHisto1D(selLabels_[i]+"_hMassMuonBeta_VR_3fp8_etabin1",800,0,4000);
           plots.AddHisto1D(selLabels_[i]+"_hMassMuonCombined_VR_3fp8_etabin1",800,0,4000);
-
-
           plots.AddHisto1D(selLabels_[i]+"_hMass_VR_3fp8_etabin2",800,0,4000);
           plots.AddHisto1D(selLabels_[i]+"_hMassBeta_VR_3fp8_etabin2",800,0,4000);
           plots.AddHisto1D(selLabels_[i]+"_hMassCombined_VR_3fp8_etabin2",800,0,4000);
-
-
           plots.AddHisto1D(selLabels_[i]+"_hMassDedxPow2_CR_3fp8",800,0,4000);
           plots.AddHisto1D(selLabels_[i]+"_hMassDedxPow5third_CR_3fp8",800,0,4000);
-
-
-
           plots.AddHisto1D(selLabels_[i]+"_hpoverm_VR_3fp8",100,0,5);
-
           plots.AddHisto1D(selLabels_[i]+"_hpoverm_SR_9fp10",100,0,5);
-
           plots.AddHisto1D(selLabels_[i]+"_hBeta_VR_3fp8",100,0,5);
-
           plots.AddHisto1D(selLabels_[i]+"_hpoverm",100,0,5);
-
-
           plots.AddHisto1D(selLabels_[i]+"_hMass_SR1_9fp10",800,0,4000);
           plots.AddHisto1D(selLabels_[i]+"_hMassMuon_SR1_9fp10",800,0,4000);
-
           plots.AddHisto1D(selLabels_[i]+"_hMassAtlas_SR1_9fp10",800,0,4000);
-
           plots.AddHisto1D(selLabels_[i]+"_hMassBeta_SR1_9fp10",800,0,4000);
           plots.AddHisto1D(selLabels_[i]+"_hMassMuonBeta_SR1_9fp10",800,0,4000);
-
           plots.AddHisto1D(selLabels_[i]+"_hMassCombined_SR1_9fp10",800,0,4000);
           plots.AddHisto1D(selLabels_[i]+"_hMassMuonCombined_SR1_9fp10",800,0,4000);
-
           //Signal systematics 
-
           if(isSimulation){
               plots.AddHisto1D(selLabels_[i]+"_hMassMuonCombined_SR1_9fp10_fpixUp",800,0,4000);
               plots.AddHisto1D(selLabels_[i]+"_hMassMuonCombined_SR1_9fp10_fpixDown",800,0,4000);
-
-
               plots.AddHisto1D(selLabels_[i]+"_hMassMuonCombined_SR1_9fp10_toferrUp",800,0,4000);
               plots.AddHisto1D(selLabels_[i]+"_hMassMuonCombined_SR1_9fp10_toferrDown",800,0,4000);
-    
               plots.AddHisto1D(selLabels_[i]+"_hMassMuonCombined_SR1_9fp10_puUp",800,0,4000);
               plots.AddHisto1D(selLabels_[i]+"_hMassMuonCombined_SR1_9fp10_puDown",800,0,4000);
-    
               plots.AddHisto1D(selLabels_[i]+"_hMassMuonCombined_SR1_9fp10_pTUp",800,0,4000);
               plots.AddHisto1D(selLabels_[i]+"_hMassMuonCombined_SR1_9fp10_pTDown",800,0,4000);
-              
               plots.AddHisto1D(selLabels_[i]+"_hMassMuonCombined_SR1_9fp10_triggerUp",800,0,4000);
               plots.AddHisto1D(selLabels_[i]+"_hMassMuonCombined_SR1_9fp10_triggerDown",800,0,4000);
-    
               plots.AddHisto1D(selLabels_[i]+"_hMassMuonCombined_SR1_9fp10_muTriggerUp",800,0,4000);
               plots.AddHisto1D(selLabels_[i]+"_hMassMuonCombined_SR1_9fp10_muTriggerDown",800,0,4000);
-    
               plots.AddHisto1D(selLabels_[i]+"_hMassMuonCombined_SR1_9fp10_muRecoUp",800,0,4000);
               plots.AddHisto1D(selLabels_[i]+"_hMassMuonCombined_SR1_9fp10_muRecoDown",800,0,4000);
-    
               plots.AddHisto1D(selLabels_[i]+"_hMassMuonCombined_SR1_9fp10_muIdUp",800,0,4000);
               plots.AddHisto1D(selLabels_[i]+"_hMassMuonCombined_SR1_9fp10_muIdDown",800,0,4000);
           } 
@@ -1000,7 +822,6 @@ void HSCPSelector::SlaveBegin(TTree * /*tree*/)
           plots.AddHisto1D(selLabels_[i]+"_hMassBetaMinusTheo_div_MassBeta_SR1_9fp10",200,-100,100);
           plots.AddHisto1D(selLabels_[i]+"_hMassdEdxMinusTheo_div_MassdEdx_SR1_9fp10",200,-100,100);
           plots.AddHisto1D(selLabels_[i]+"_hMassCombMinusTheo_div_MassComb_SR1_9fp10",200,-100,100);
-
           plots.AddHisto1D(selLabels_[i]+"_hMassATLAS",200,0,4);
           plots.AddHisto1D(selLabels_[i]+"_hMassIH",200,0,4);
           plots.AddHisto1D(selLabels_[i]+"_hMassBETA",200,0,4);
@@ -1009,7 +830,6 @@ void HSCPSelector::SlaveBegin(TTree * /*tree*/)
 
           if(isSimulation){
               plots.AddHisto1D(selLabels_[i]+"_hpullBeta",160,-20,20);
-
               plots.AddHisto1D(selLabels_[i]+"_hpullBeta_bin1",160,-20,20);
               plots.AddHisto1D(selLabels_[i]+"_hpullBeta_bin2",160,-20,20);
               plots.AddHisto1D(selLabels_[i]+"_hpullBeta_bin3",160,-20,20);
@@ -1025,8 +845,6 @@ void HSCPSelector::SlaveBegin(TTree * /*tree*/)
               plots.AddHisto1D(selLabels_[i]+"_hpullBeta_bin13",160,-20,20);
               plots.AddHisto1D(selLabels_[i]+"_hpullBeta_bin14",160,-20,20);
               plots.AddHisto1D(selLabels_[i]+"_hpullBeta_bin15",160,-20,20);
-
-
               plots.AddHisto1D(selLabels_[i]+"_hpullBeta_bin1_gen",160,-20,20);
               plots.AddHisto1D(selLabels_[i]+"_hpullBeta_bin2_gen",160,-20,20);
               plots.AddHisto1D(selLabels_[i]+"_hpullBeta_bin3_gen",160,-20,20);
@@ -1042,16 +860,9 @@ void HSCPSelector::SlaveBegin(TTree * /*tree*/)
               plots.AddHisto1D(selLabels_[i]+"_hpullBeta_bin13_gen",160,-20,20);
               plots.AddHisto1D(selLabels_[i]+"_hpullBeta_bin14_gen",160,-20,20);
               plots.AddHisto1D(selLabels_[i]+"_hpullBeta_bin15_gen",160,-20,20);
-
-
-
-
-
               plots.AddHisto1D(selLabels_[i]+"_hpullBetaZmumu",160,-20,20);
               plots.AddHisto1D(selLabels_[i]+"_hpullinvBetaZmumu",160,-20,20);
-              //plots.AddHisto1D(selLabels_[i]+"_hpullIh",160,-20,20);
               plots.AddHisto1D(selLabels_[i]+"_hpullMuonPt",160,-20,20);
-
               plots.AddHisto1D(selLabels_[i]+"_hpullMuonPt_bin1",160,-20,20);
               plots.AddHisto1D(selLabels_[i]+"_hpullMuonPt_bin2",160,-20,20);
               plots.AddHisto1D(selLabels_[i]+"_hpullMuonPt_bin3",160,-20,20);
@@ -1067,7 +878,6 @@ void HSCPSelector::SlaveBegin(TTree * /*tree*/)
               plots.AddHisto1D(selLabels_[i]+"_hpullMuonPt_bin13",160,-20,20);
               plots.AddHisto1D(selLabels_[i]+"_hpullMuonPt_bin14",160,-20,20);
               plots.AddHisto1D(selLabels_[i]+"_hpullMuonPt_bin15",160,-20,20);
-
               plots.AddHisto1D(selLabels_[i]+"_hpullMuonPt_bin1_gen",160,-20,20);
               plots.AddHisto1D(selLabels_[i]+"_hpullMuonPt_bin2_gen",160,-20,20);
               plots.AddHisto1D(selLabels_[i]+"_hpullMuonPt_bin3_gen",160,-20,20);
@@ -1083,47 +893,29 @@ void HSCPSelector::SlaveBegin(TTree * /*tree*/)
               plots.AddHisto1D(selLabels_[i]+"_hpullMuonPt_bin13_gen",160,-20,20);
               plots.AddHisto1D(selLabels_[i]+"_hpullMuonPt_bin14_gen",160,-20,20);
               plots.AddHisto1D(selLabels_[i]+"_hpullMuonPt_bin15_gen",160,-20,20);
-
-
-
-
-
-
-
               plots.AddHisto1D(selLabels_[i]+"_hpullMuonP",160,-20,20);
               plots.AddHisto1D(selLabels_[i]+"_hpullMuonPtZmumu",160,-20,20);
               plots.AddHisto1D(selLabels_[i]+"_hpullMuonPZmumu",160,-20,20);
-              
-
               plots.AddHisto1D(selLabels_[i]+"_hinvBetaZmumu_MC",200,0,2);
               plots.AddHisto1D(selLabels_[i]+"_hBetaZmumu_MC",200,0,2);
               plots.AddHisto1D(selLabels_[i]+"_hTOFerrZmumu_MC",200,0,0.2);
               plots.AddHisto1D(selLabels_[i]+"_hTOFndofZmumu_MC",120,0,120);
-
               plots.AddHisto1D(selLabels_[i]+"_hTOFerr",200,0,0.2);
               plots.AddHisto1D(selLabels_[i]+"_hTOFndof",1200,0,120);
-
-
               plots.AddHisto2D(selLabels_[i]+"_hEta_vs_TOFerr_Zmumu_MC",40,-2.6,2.6,40,0.,1.);
-
               plots.AddHisto1D(selLabels_[i]+"_hinvBetaHSCP_MC",200,0,2);
               plots.AddHisto1D(selLabels_[i]+"_hTOFerrHSCP_MC",200,0,0.2);
               plots.AddHisto1D(selLabels_[i]+"_hTOFndofHSCP_MC",120,0,120);
-
               plots.AddHisto1D(selLabels_[i]+"_hpullMassBeta_CR_3fp8",160,-20,20);
               plots.AddHisto1D(selLabels_[i]+"_hpullMassDedx_CR_3fp8",160,-20,20);
               plots.AddHisto1D(selLabels_[i]+"_hpullMassAtlas_CR_3fp8",160,-20,20);
               plots.AddHisto1D(selLabels_[i]+"_hpullMassComb_CR_3fp8",160,-20,20);
               plots.AddHisto1D(selLabels_[i]+"_hpullMassCombTest_CR_3fp8",160,-20,20);
- 
-
-
               plots.AddHisto1D(selLabels_[i]+"_hpullMassBeta_SR1_9fp10",160,-20,20);
               plots.AddHisto1D(selLabels_[i]+"_hpullMassDedx_SR1_9fp10",160,-20,20);
               plots.AddHisto1D(selLabels_[i]+"_hpullMassAtlas_SR1_9fp10",160,-20,20);
               plots.AddHisto1D(selLabels_[i]+"_hpullMassComb_SR1_9fp10",160,-20,20);
               plots.AddHisto1D(selLabels_[i]+"_hpullMassCombTest_SR1_9fp10",160,-20,20);
-
           }
           if(!isSimulation){
               plots.AddHisto1D(selLabels_[i]+"_hinvBetaZmumu_Data",200,0,2);
@@ -1288,7 +1080,7 @@ void HSCPSelector::SlaveBegin(TTree * /*tree*/)
 
       }
       
-      if(only2Dplots){ 
+      if(do2Dplots){ 
 
           plots.AddHisto2D(selLabels_[i]+"_hmuonPt_vs_trackPt",2000,0,4000,2000,0,4000);
           plots.AddHisto2D(selLabels_[i]+"_hHSCPmuEta_vs_HSCPTrackEta",80,-2,2,80,-2,2);
@@ -1443,7 +1235,7 @@ void HSCPSelector::SlaveBegin(TTree * /*tree*/)
       }
 
 
-      if(onlyPreselPlots && selLabels_[i] =="allInclusive"){
+      if(doPreselPlots && selLabels_[i] =="allInclusive"){
 
           plots.AddHisto1D(selLabels_[i]+"_hEff_Trigger",2,0,2);
           plots.AddHisto1D(selLabels_[i]+"_hEff_PFMuon",2,0,2);
@@ -1490,7 +1282,7 @@ void HSCPSelector::SlaveBegin(TTree * /*tree*/)
           plots.AddHisto1D(selLabels_[i]+"_hN1_TOFinf1",2,0,2);
            
 
-          plots.AddHisto1D(selLabels_[i]+"_hN1_CutFlow",8,-0.5,7.5);
+          plots.AddHisto1D(selLabels_[i]+"_hN1_CutFlow",3,-0.5,2.5);
 
       }
       //std::cout << "After plots.Addhisto1D" << std::endl;
@@ -1545,7 +1337,7 @@ Bool_t HSCPSelector::Process(Long64_t entry)
    for(unsigned int i=0;i<Pt.GetSize();i++){
       //std::cout<<"HSCP #" << i << " has PF muon = " << ((*isMuon.Get())[i])  << " and global muon = " << ((*isGlobalMuon.Get())[i]) << std::endl;
       //TAKE MOST IONIZING CANDIDATE
-      /*
+
       for(int s=0;s<selections_.size();s++){
          bool (HSCPSelector::*ptr)(int);
 	 ptr = selections_[s];
@@ -1556,9 +1348,8 @@ Bool_t HSCPSelector::Process(Long64_t entry)
             }
          }
       } 
-      */
-
       //TAKE MOST IONIZING PF AND GLOBAL MUON CANDIDATE
+      /*
       for(int s=0;s<selections_.size();s++){
          bool (HSCPSelector::*ptr)(int);
 	 ptr = selections_[s];
@@ -1569,15 +1360,13 @@ Bool_t HSCPSelector::Process(Long64_t entry)
             if(hscpGlobalMuon) foundOneGlobal[s] = true;
             passedThisSel[s] = true;
 	    vcp[s].FillHisto1D(selLabels_[s]+"_hIh",Ih_StripOnly[i]);
-            
-	    //search the most ionizing AND PFmuon candidate
-	    //if(Ih_StripOnly[i]>maxIh[s] && ((*isMuon.Get())[i])){
 	    if(Ih_StripOnly[i]>maxIh[s] && ((*isMuon.Get())[i]) && ((*isGlobalMuon.Get())[i])){
                 maxIh[s]=Ih_StripOnly[i];
                 iCand[s]=i;
             }
          }
       }
+      */
    }
 
    tot+=1;
@@ -1606,13 +1395,15 @@ Bool_t HSCPSelector::Process(Long64_t entry)
         float BetaErr = (((invBetaErr)/(pow(TOF[i],2))));
 	vcp[s].FillHisto1D(selLabels_[s]+"_hBetaError",BetaErr);
 
+
         double betaErrSF = SF_betaError((1/TOF[i]));
+
         if(betaErrSF != -1 && correctEstimators) BetaErr*=betaErrSF; 
 	vcp[s].FillHisto1D(selLabels_[s]+"_hBetaErrorCorrected",BetaErr);
 
         
         float dedxErr = 0.27;
-        //if(correctEstimators) dedxErr = 0.55; 
+        if(correctEstimators) dedxErr = 0.55; 
 
 	vcp[s].FillHisto1D(selLabels_[s]+"_hTOT",1);
 
@@ -1646,12 +1437,11 @@ Bool_t HSCPSelector::Process(Long64_t entry)
             if ( (*muonIsLoose.Get())[idMuonHSCP]) isLooseMuon = true;
 
             if(debug) std::cout << "Global track muon pt > 200 GeV" << std::endl;
-            //hscpMuonP = muonPt[idMuonHSCP]*cosh(muonEta[idMuonHSCP]);
-            //hscpMuonPt = muonPt[idMuonHSCP];
+            hscpMuonP = muonPt[idMuonHSCP]*cosh(muonEta[idMuonHSCP]);
+            hscpMuonPt = muonPt[idMuonHSCP];
 
-
-            hscpMuonP = globalTrackMuonPt[idMuonHSCP]*cosh(muonEta[idMuonHSCP]);
-            hscpMuonPt = globalTrackMuonPt[idMuonHSCP];
+            //hscpMuonP = globalTrackMuonPt[idMuonHSCP]*cosh(muonEta[idMuonHSCP]);
+            //hscpMuonPt = globalTrackMuonPt[idMuonHSCP];
 
             if(debug) std::cout << "Pt = " << hscpMuonPt << std::endl;
 
@@ -1680,8 +1470,6 @@ Bool_t HSCPSelector::Process(Long64_t entry)
             vcp[s].FillHisto1D(selLabels_[s]+"_hTOFndofHSCP_Data",TOF_ndof[i]);
 
         }
-        if(!isLooseMuon) continue;
-
         if(selLabels_[s] == "testIhPt" && muonMatched){
             muGoodReco +=1;
             if(hscpMuonPtErr / hscpMuonPt < 0.125){
@@ -1695,11 +1483,6 @@ Bool_t HSCPSelector::Process(Long64_t entry)
             muBadReco +=1;
             continue;
         }
-
-        //double pTSF = findScaleFactor(hscpMuonPt,ptBinRanges,ptErrScaleFactors);
-        //if(pTSF != -1 && correctEstimators) hscpMuonPtErr*=pTSF;
-
-
 
         double Ias = Ias_StripOnly[i];
         float P = 10000./(Pt[i]*cosh(eta[i]));
@@ -1879,7 +1662,7 @@ Bool_t HSCPSelector::Process(Long64_t entry)
         unsigned int LUMI = *Lumi;
         unsigned int nbMu = *nMuons;
         bool HLTmu = *HLT_Mu50.Get();
-        bool isPFmu = (*isMuon.Get())[i];
+        //bool isPFmu = (*isMuon.Get())[i];
 
         float massIhnoL1 = GetMass(pt*cosh(eta[i]),Ih_noL1[i],K,C);
 
@@ -2145,8 +1928,6 @@ Bool_t HSCPSelector::Process(Long64_t entry)
         }
 
         if(passCR){
-
-
             vcp[s].FillHisto1D(selLabels_[s]+"_hTOF_CR_3fp8",TOF[i]);
             vcp[s].FillHisto1D(selLabels_[s]+"_hIh_CR_3fp8",Ih_StripOnly[i]);
             vcp[s].FillHisto1D(selLabels_[s]+"_hmassAtlas_CR_3fp8",massAtlas);
@@ -2192,113 +1973,15 @@ Bool_t HSCPSelector::Process(Long64_t entry)
 
         float diffDivQuadraticErr = ( (massBeta - massDedxInit)*1.0) / sqrt( (sigmaMassBetaNoPMuon*sigmaMassBetaNoPMuon) + (sigmaMassDedxNoPMuon*sigmaMassDedxNoPMuon) );
 
-        //massDedx = massCombinedWeighted;
-
         //Number of tracks before any trigger or preselection, ann inclusive        
+        if(doPreselPlots && selLabels_[s] =="allInclusive") vcp[s].FillHisto1D(selLabels_[s]+"_hN1_CutFlow",0);
 
-        if(onlyPreselPlots && selLabels_[s] =="allInclusive") vcp[s].FillHisto1D(selLabels_[s]+"_hN1_CutFlow",0);
-        /*
-        if(onlyPreselPlots && selLabels_[s] == "testIhPt"){
-            bool passedCutsArray[4];
+        if(doPreselPlots && selLabels_[s] == "allInclusive"){
+            bool passedCutsArray[2];
             std::fill(std::begin(passedCutsArray), std::end(passedCutsArray),false);
             passedCutsArray[0]  = HLTmu;
-            //passedCutsArray[1] = isLooseMuon && (*isGlobalMuon.Get())[i];
-            passedCutsArray[2] = Ih_StripOnly[i] > 4.0;
-            passedCutsArray[3] = TOF[i] > 1.0;
+            passedCutsArray[1]  = (NOPH[i] >= 2) && (FOVH[i] > 0.8) && (NOM[i] >= 10) && ((*isHighPurity.Get())[i]) && ((Chi2[i]/Ndof[i]) < 5.0) && (abs(dZ[i]) < 0.1) && (abs(dXY[i]) < 0.02) && (PFMiniIso_relative[i] < 0.02) && (EoverP[i] < 0.3) && ((PtErr[i]/(Pt[i]*Pt[i]))<0.0008) && ((PtErr[i]/(Pt[i]))<1) && (track_genTrackAbsIsoSumPtFix[i] < 15.0) && (Ih_StripOnly[i]>3.14) && (abs(eta[i]) < 1) && Pt[i] > 55 && Ias > quan999 && (ProbQ_noL1[i] < 0.7);
 
-        }
-        */
-
-        if(onlyPreselPlots && selLabels_[s] == "allInclusive"){
-            bool passedCutsArray[7];
-            std::fill(std::begin(passedCutsArray), std::end(passedCutsArray),false);
-            passedCutsArray[0]  = HLTmu;
-            //passedCutsArray[1]  = isPFmu;
-            passedCutsArray[1]  = isPFmu;
-            passedCutsArray[2] = (abs(eta[i]) < 1); 
-            passedCutsArray[3] = (NOPH[i] >= 2) && (FOVH[i] > 0.8) && (NOM[i] >= 10) && ((*isHighPurity.Get())[i]) && ((Chi2[i]/Ndof[i]) < 5.0) && (abs(dZ[i]) < 0.1) && (abs(dXY[i]) < 0.02) && (PFMiniIso_relative[i] < 0.02) && (EoverP[i] < 0.3) && (TOFErr[i] <= 0.07) && (TOF_ndof[i] >= 9);
-            passedCutsArray[4]  = ( ProbQ_noL1[i] < 0.11);
-            passedCutsArray[5]  = ( (TOF[i]) >= 1.13 );
-            passedCutsArray[6]  = ( Ih_StripOnly[i] >= 3.89 );
-            /*
-            for (size_t k=0;k<sizeof(passedCutsArray);k++) {
-
-                bool allOtherCutsPassed = true;
-                for (size_t j=0;j<sizeof(passedCutsArray);j++) {
-                    if (k==j) continue;
-                    if (!passedCutsArray[j]) {
-                        allOtherCutsPassed = false;
-                        break;
-                    }
-                }
-                if (allOtherCutsPassed) {
-                    if(k==0){
-                        if(passedCutsArray[k]) vcp[s].FillHisto1D(selLabels_[s]+"_hN1_Trigger",1);
-                        else vcp[s].FillHisto1D(selLabels_[s]+"_hN1_Trigger",0); 
-                    } 
-                    if(k==1){
-                        if(passedCutsArray[k]) vcp[s].FillHisto1D(selLabels_[s]+"_hN1_Pt",1);
-                        else vcp[s].FillHisto1D(selLabels_[s]+"_hN1_Pt",0); 
-                    } 
-                    if(k==2){
-                        if(passedCutsArray[k]) vcp[s].FillHisto1D(selLabels_[s]+"_hN1_Eta",1);
-                        else vcp[s].FillHisto1D(selLabels_[s]+"_hN1_Eta",0); 
-                    } 
-                    if(k==3){
-                        if(passedCutsArray[k]) vcp[s].FillHisto1D(selLabels_[s]+"_hN1_NOPH",1);
-                        else vcp[s].FillHisto1D(selLabels_[s]+"_hN1_NOPH",0); 
-                    } 
-                    if(k==4){
-                        if(passedCutsArray[k]) vcp[s].FillHisto1D(selLabels_[s]+"_hN1_FOVH",1);
-                        else vcp[s].FillHisto1D(selLabels_[s]+"_hN1_FOVH",0); 
-                    } 
-                    if(k==5){
-                        if(passedCutsArray[k]) vcp[s].FillHisto1D(selLabels_[s]+"_hN1_NOM",1);
-                        else vcp[s].FillHisto1D(selLabels_[s]+"_hN1_NOM",0); 
-                    } 
-                    if(k==6){
-                        if(passedCutsArray[k]) vcp[s].FillHisto1D(selLabels_[s]+"_hN1_HighPurity",1);
-                        else vcp[s].FillHisto1D(selLabels_[s]+"_hN1_HighPurity",0); 
-                    } 
-                    if(k==7){
-                        if(passedCutsArray[k]) vcp[s].FillHisto1D(selLabels_[s]+"_hN1_Chi2oNDF",1);
-                        else vcp[s].FillHisto1D(selLabels_[s]+"_hN1_Chi2oNDF",0); 
-                    } 
-                    if(k==8){
-                        if(passedCutsArray[k]) vcp[s].FillHisto1D(selLabels_[s]+"_hN1_dZ",1);
-                        else vcp[s].FillHisto1D(selLabels_[s]+"_hN1_dZ",0); 
-                    } 
-                    if(k==9){
-                        if(passedCutsArray[k]) vcp[s].FillHisto1D(selLabels_[s]+"_hN1_dXY",1);
-                        else vcp[s].FillHisto1D(selLabels_[s]+"_hN1_dXY",0); 
-                    } 
-                    if(k==10){
-                        if(passedCutsArray[k]) vcp[s].FillHisto1D(selLabels_[s]+"_hN1_MiniRelIso",1);
-                        else vcp[s].FillHisto1D(selLabels_[s]+"_hN1_MiniRelIso",0); 
-                    } 
-                    if(k==11){
-                        if(passedCutsArray[k]) vcp[s].FillHisto1D(selLabels_[s]+"_hN1_EoP",1);
-                        else vcp[s].FillHisto1D(selLabels_[s]+"_hN1_EoP",0); 
-                    } 
-                    if(k==12){
-                        if(passedCutsArray[k]) vcp[s].FillHisto1D(selLabels_[s]+"_hN1_ProbQ",1);
-                        else vcp[s].FillHisto1D(selLabels_[s]+"_hN1_ProbQ",0); 
-                    } 
-                    if(k==13){
-                        if(passedCutsArray[k]) vcp[s].FillHisto1D(selLabels_[s]+"_hN1_TOFerr",1);
-                        else vcp[s].FillHisto1D(selLabels_[s]+"_hN1_TOFerr",0); 
-                    } 
-                    if(k==14){
-                        if(passedCutsArray[k]) vcp[s].FillHisto1D(selLabels_[s]+"_hN1_TOFndof",1);
-                        else vcp[s].FillHisto1D(selLabels_[s]+"_hN1_TOFndof",0); 
-                    } 
-                    if(k==15){
-                        if(passedCutsArray[k]) vcp[s].FillHisto1D(selLabels_[s]+"_hN1_TOFinf1",1);
-                        else vcp[s].FillHisto1D(selLabels_[s]+"_hN1_TOFinf1",0); 
-                    } 
-                }
-            }
-            */
             for (size_t k=0;k<sizeof(passedCutsArray);k++) {
                 bool allCutsPassedSoFar = true;
                 for (size_t j=0;j<=k;j++) {
@@ -2315,16 +1998,9 @@ Bool_t HSCPSelector::Process(Long64_t entry)
 
         //bool isPFmuon =  (*isMuon.Get())[i];
 
-        //pt = muonPt[tmpIdx];
-
-
-
         double dimuMass = -1;
         double idMu1 = -1;
         double idMu2 = -1;
-
- 
- 
         if(CalibrationZmumu){
            double minZm;
            double maxZm;
@@ -2357,12 +2033,6 @@ Bool_t HSCPSelector::Process(Long64_t entry)
                       TLorentzVector dimuon = muon1 + muon2;
                       dimuMass = dimuon.M();
 
-                      /*
-                      std::cout << "Two muon back to back found :" << std::endl;
-                      std::cout << "    MUON 1 : pt = " << muonPt[nm1] << std::endl;
-                      std::cout << "    MUON 2 : pt = " << muonPt[nm2] << std::endl;
-                      std::cout << "    DiMuon system invariant mass = " << dimuMass << std::endl;
-                      */
                       if(!isSimulation){
                           if (dimuMass > 88 && dimuMass < 94){ 
                               idMu1 = nm1;
@@ -2388,8 +2058,6 @@ Bool_t HSCPSelector::Process(Long64_t entry)
         }
 
         //ID FOR BOTH GEN MUON MATCHED TO Z MUMU 
-
-
         int muon1GenIndex = -1;
         float mindrMu1 = 9999;
         int muon2GenIndex = -1;
@@ -2489,7 +2157,7 @@ Bool_t HSCPSelector::Process(Long64_t entry)
         }
 
 
-        if(only2Dplots){ 
+        if(do2Dplots){ 
 
             if (idMuonHSCP != -1){
                 vcp[s].FillHisto2D(selLabels_[s]+"_hmuonPt_vs_trackPt",muonPt[idMuonHSCP],Pt[i]);
@@ -2549,7 +2217,7 @@ Bool_t HSCPSelector::Process(Long64_t entry)
                 vcp[s].FillHisto2D(selLabels_[s]+"_hMassBetaClean_vs_Mass",massBeta,massDedxInit);
             }
         }
-        if(only1Dplots){ 
+        if(do1Dplots){ 
             vcp[s].FillHisto1D(selLabels_[s]+"_hpoverm",(Pt[i]*cosh(eta[i]))/massPointSig_);
             vcp[s].FillHisto1D(selLabels_[s]+"_hEta",eta[i]);
             vcp[s].FillHisto1D(selLabels_[s]+"_hPhi",phi[i]);
@@ -2654,36 +2322,9 @@ Bool_t HSCPSelector::Process(Long64_t entry)
 
         }
          
-
-        /*
-        if (massIhnoL1 > 4000 && selLabels_[s] == "testIhPt"){
-           
-           cout << "Event with mass(Ih_noL1) = " << massIhnoL1 << " , mass(Ih_StripOnly)  : " << mass << " found with sel label : " << selLabels_[s] << endl;
-           cout << "It was found in Event : " << EVENT << " from run #" << RUN << " , in LS : " << LUMI <<" with associated PU : " << PU << endl;
-           cout << "Matched muon : " << matchedmu << endl;
-           cout << "HLT_Mu50 : " << HLTmu << endl;
-           cout << "Pt = " << pt <<endl;
-           cout << "P = " << mom << endl;
-           cout << "Eta = " << Eta << endl; 
-           cout << "sigpt/pt = " << sigptopt << endl;
-           cout << "Ih strip only = " << Ih << endl;
-           cout << "Ih no L1 = " << Ihnol1 << endl;
-       
-           //cout << "Fixed Iso Tk : "<< fixIso << endl;
-           cout << "Var code size Iso Tk : "<< relTKiso << endl;
-           cout << "MiniRelIsoPF : "<< miniIso << endl;
-           cout << "Fpix : "<< Fpix << endl;
-           cout << "E/P : "<< eop << endl;
-           cout << "sigpt/pt^2 : "<< sigptopt2 << endl;
-           cout << "Ias strip only : " << Ias << endl;
-        }
-        */
-        
         newWeight = weight;
         
-        if(only1Dplots){
-
-
+        if(do1Dplots){
             if(passSR){
                 vcp[s].FillHisto1D(selLabels_[s]+"_hpoverm_SR_9fp10",(Pt[i]*cosh(eta[i]))/massPointSig_);
                 vcp[s].FillHisto1D(selLabels_[s]+"_hMass_SR1_9fp10",massDedxInit);
@@ -2854,7 +2495,7 @@ Bool_t HSCPSelector::Process(Long64_t entry)
             }
         }        
 
-        if(only2Dplots){ 
+        if(do2Dplots){ 
             if(passSR){
             
                 vcp[s].FillHisto2D(selLabels_[s]+"_hBetaGamma_vs_Ih_SR_9fp10",(Pt[i]*cosh(eta[i]))/massPointSig_,Ih_StripOnly[i]);
@@ -2961,152 +2602,6 @@ Bool_t HSCPSelector::Process(Long64_t entry)
            }
         }
      
-        if(UseBetaVersion){
-
-           if(pt > ptcut_){
-
-               if ( (Fpix > fpix3) && (Fpix <= fpix8) ){
-                   vmrp_regionFpixLow_BetaAll[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-                   vmrp_regionC_BetaAll_3fp8[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-
-                   if(only2Dplots){ 
-                       vcp[s].FillHisto2D(selLabels_[s]+"_hTOF_vs_MassDeDx_CRbeta_3fp8",TOF[i],massDedxInit);
-                       if(massDedxInit>400){
-                           vcp[s].FillHisto2D(selLabels_[s]+"_hTOF_vs_MassDeDxAbove400_CRbeta_3fp8",TOF[i],massDedxInit);
-                       }
-                   }
-               }
-
-               if ( (Fpix > fpix3) && (Fpix <= fpix6) ) vmrp_regionC_BetaAll_3fp6[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-               
-               if ( (Fpix > fpix6) && (Fpix <= fpix9) )vmrp_regionC_BetaAll_6fp9[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-    
-    
-               if ( (Fpix > fpix3) && (Fpix <= fpix4) ) vmrp_regionC_BetaAll_3fp4[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-    
-               if ( (Fpix > fpix4) && (Fpix <= fpix5) ) vmrp_regionC_BetaAll_4fp5[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-               if ( (Fpix > fpix5) && (Fpix <= fpix6) ) vmrp_regionC_BetaAll_5fp6[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-               if ( (Fpix > fpix6) && (Fpix <= fpix7) ) vmrp_regionC_BetaAll_6fp7[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-               if ( (Fpix > fpix7) && (Fpix <= fpix8) ) vmrp_regionC_BetaAll_7fp8[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-               if ( (Fpix > fpix8) && (Fpix <= fpix9) ) vmrp_regionC_BetaAll_8fp9[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-               if ( (Fpix > fpix9) && (Fpix <= fpix10) ) vmrp_regionC_BetaAll_9fp10[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-           }
-           else{
-
-               if ( (Fpix > fpix3) && (Fpix <= fpix8) ) vmrp_regionA_BetaAll_3fp8[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-               if ( (Fpix > fpix3) && (Fpix <= fpix6) ) vmrp_regionA_BetaAll_3fp6[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-               if ( (Fpix > fpix6) && (Fpix <= fpix9) )vmrp_regionA_BetaAll_6fp9[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-    
-    
-               if ( (Fpix > fpix3) && (Fpix <= fpix4) ) vmrp_regionA_BetaAll_3fp4[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-               if ( (Fpix > fpix4) && (Fpix <= fpix5) ) vmrp_regionA_BetaAll_4fp5[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-               if ( (Fpix > fpix5) && (Fpix <= fpix6) ) vmrp_regionA_BetaAll_5fp6[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-               if ( (Fpix > fpix6) && (Fpix <= fpix7) ) vmrp_regionA_BetaAll_6fp7[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-               if ( (Fpix > fpix7) && (Fpix <= fpix8) ) vmrp_regionA_BetaAll_7fp8[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-               if ( (Fpix > fpix8) && (Fpix <= fpix9) ) vmrp_regionA_BetaAll_8fp9[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-               if ( (Fpix > fpix9) && (Fpix <= fpix10) ) vmrp_regionA_BetaAll_9fp10[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-
-
-
-           }
-
-           if(!makeOnlyCRBeta){
-               
-               if(pt > ptcut_){
-                   if(TOF[i] <= tofcut_){
-                       
-                       if( (Fpix > fpix3) && (Fpix <= fpix4) ) vmrp_regionA_3f4[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-                       if( (Fpix > fpix4) && (Fpix <= fpix5) ) vmrp_regionA_4f5[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-                       if( (Fpix > fpix5) && (Fpix <= fpix6) ) vmrp_regionA_5f6[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-                       if( (Fpix > fpix6) && (Fpix <= fpix7) ) vmrp_regionA_6f7[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-                       if( (Fpix > fpix7) && (Fpix <= fpix8) ) vmrp_regionA_7f8[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-                       if( (Fpix > fpix8) && (Fpix <= fpix9) ) vmrp_regionA_8f9[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-        
-                       if( (Fpix > fpix9) && (Fpix <= fpix10) ) vmrp_regionA_9f10[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-                       if( (Fpix > fpix99) && (Fpix <= fpix10) ) vmrp_regionA_99f10[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-                       if( (Fpix > fpix999) && (Fpix <= fpix10) ) vmrp_regionA_999f10[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-        
-        
-        
-                       if( (Fpix > fpix3) && (Fpix <= fpix6) ) vmrp_regionA_3f6[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-                       if( (Fpix > fpix6) && (Fpix <= fpix9) ) vmrp_regionA_6f9[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-                       if( (Fpix > fpix3) && (Fpix <= fpix8) ) vmrp_regionA_3f8[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-                       if( (Fpix > fpix3) && (Fpix <= fpix9) ) vmrp_regionA_3f9[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-        
-        
-                       if( (Fpix > fpix3) && (Fpix <= fpix6) ) vmrp_regionB_3f6[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-                       if( (Fpix > fpix6) && (Fpix <= fpix9) ) vmrp_regionB_6f9[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-                       if( (Fpix > fpix3) && (Fpix <= fpix8) ) vmrp_regionB_3f8[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-                       if( (Fpix > fpix3) && (Fpix <= fpix9) ) vmrp_regionB_3f9[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-                       if( (Fpix > fpix3) && (Fpix <= fpix4) ) vmrp_regionB_3f4[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-                       if( (Fpix > fpix4) && (Fpix <= fpix5) ) vmrp_regionB_4f5[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-                       if( (Fpix > fpix5) && (Fpix <= fpix6) ) vmrp_regionB_5f6[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-                       if( (Fpix > fpix6) && (Fpix <= fpix7) ) vmrp_regionB_6f7[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-                       if( (Fpix > fpix7) && (Fpix <= fpix8) ) vmrp_regionB_7f8[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-                       if( (Fpix > fpix8) && (Fpix <= fpix9) ) vmrp_regionB_8f9[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-        
-                       if( (Fpix > fpix8) && (Fpix <= fpix10) ) vmrp_regionB_8f10[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-                       if( (Fpix > fpix9) && (Fpix <= fpix10) ) vmrp_regionB_9f10[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-                       if( (Fpix > fpix99) && (Fpix <= fpix10) ) vmrp_regionB_99f10[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-                       if( (Fpix > fpix999) && (Fpix <= fpix10) ) vmrp_regionB_999f10[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-                       
-                   }
-                   else{  
-        
-                       if( (Fpix > fpix6) && (Fpix <= fpix9) ) vmrp_regionD_6f9[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-        
-                       if( (Fpix > fpix3) && (Fpix <= fpix4) ) vmrp_regionD_3f4[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-                       if( (Fpix > fpix4) && (Fpix <= fpix5) ) vmrp_regionD_4f5[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-                       if( (Fpix > fpix5) && (Fpix <= fpix6) ) vmrp_regionD_5f6[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-                       if( (Fpix > fpix6) && (Fpix <= fpix7) ) vmrp_regionD_6f7[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-                       if( (Fpix > fpix7) && (Fpix <= fpix8) ) vmrp_regionD_7f8[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-                       if( (Fpix > fpix8) && (Fpix <= fpix9) ) vmrp_regionD_8f9[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-        
-        
-                       if( (Fpix > fpix8) && (Fpix <= fpix10) ) vmrp_regionD_8f10[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-        
-                       if( (Fpix > fpix9) && (Fpix <= fpix10) ){
-                           vmrp_regionD_9f10[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-                            
-                           if(only1Dplots){ 
-                               vcp[s].FillHisto1D(selLabels_[s]+"_hMass_SR1_9fp10",massDedxInit);
-                               vcp[s].FillHisto1D(selLabels_[s]+"_hMassBeta_SR1_9fp10",massBeta);
-                               vcp[s].FillHisto1D(selLabels_[s]+"_hMassCombined_SR1_9fp10",massCombinedWeighted);
-                           }
-                       }
-                       if( (Fpix > fpix99) && (Fpix <= fpix10) ) vmrp_regionD_99f10[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-                       if( (Fpix > fpix999) && (Fpix <= fpix10) ) vmrp_regionD_999f10[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-        
-                       if( (Fpix > fpix3) && (Fpix <= fpix8) ){
-                           vmrp_regionC_3f8[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-                            
-                           if(only1Dplots){ 
-                               vcp[s].FillHisto1D(selLabels_[s]+"_hMass_VR_3fp8",massDedxInit);
-                               vcp[s].FillHisto1D(selLabels_[s]+"_hMassBeta_VR_3fp8",massBeta);
-                               vcp[s].FillHisto1D(selLabels_[s]+"_hMassCombined_VR_3fp8",massCombinedWeighted);
-        
-                               vcp[s].FillHisto1D(selLabels_[s]+"_hpoverm_VR_3fp8",(pt*cosh(eta[i])/308.));
-                               vcp[s].FillHisto1D(selLabels_[s]+"_hBeta_VR_3fp8",(1./TOF[i]));
-                           }
-                       }
-                       if( (Fpix > fpix3) && (Fpix <= fpix9) ) vmrp_regionC_3f9[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-        
-                       if( (Fpix > fpix3) && (Fpix <= fpix4) ) vmrp_regionC_3f4[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-                       if( (Fpix > fpix4) && (Fpix <= fpix5) ) vmrp_regionC_4f5[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-                       if( (Fpix > fpix5) && (Fpix <= fpix6) ) vmrp_regionC_5f6[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-                       if( (Fpix > fpix6) && (Fpix <= fpix7) ) vmrp_regionC_6f7[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-                       if( (Fpix > fpix7) && (Fpix <= fpix8) ) vmrp_regionC_7f8[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-                       if( (Fpix > fpix8) && (Fpix <= fpix9) ) vmrp_regionC_8f9[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-                       
-                       if( (Fpix > fpix3) && (Fpix <= fpix6) ) vmrp_regionC_3f6[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-                       if( (Fpix > fpix6) && (Fpix <= fpix9) ) vmrp_regionC_6f9[s].fill(eta[i],NOM[i],P,pt,PtErr[i],Ih_StripOnly[i],Ias_StripOnly[i],-1,massDedx,TOF[i],*nofVtx.Get(),Fpix,newWeight,1);
-                       
-                   }
-               }
-            }
-        }
-
-
         if(UseGstrip){
 
             if(Pt[i] <= ptcut_){               
@@ -3206,36 +2701,6 @@ void HSCPSelector::SlaveTerminate()
    //delete treeTest;
 
    for(auto obj: vcp) obj.AddToList(fOutput);
-   if(UseBetaVersion){
-       for(auto obj: vmrp_regionFpixLow_BetaAll) obj.addToList(fOutput);
-
-       for(auto obj: vmrp_regionC_BetaAll_3fp8) obj.addToList(fOutput);
-       for(auto obj: vmrp_regionC_BetaAll_3fp6) obj.addToList(fOutput);
-       for(auto obj: vmrp_regionC_BetaAll_6fp9) obj.addToList(fOutput);
-
-       for(auto obj: vmrp_regionC_BetaAll_3fp4) obj.addToList(fOutput);
-       for(auto obj: vmrp_regionC_BetaAll_4fp5) obj.addToList(fOutput);
-       for(auto obj: vmrp_regionC_BetaAll_5fp6) obj.addToList(fOutput);
-       for(auto obj: vmrp_regionC_BetaAll_6fp7) obj.addToList(fOutput);
-       for(auto obj: vmrp_regionC_BetaAll_7fp8) obj.addToList(fOutput);
-       for(auto obj: vmrp_regionC_BetaAll_8fp9) obj.addToList(fOutput);
-       for(auto obj: vmrp_regionC_BetaAll_9fp10) obj.addToList(fOutput);
-
-
-
-       for(auto obj: vmrp_regionA_BetaAll_3fp8) obj.addToList(fOutput);
-       for(auto obj: vmrp_regionA_BetaAll_3fp6) obj.addToList(fOutput);
-       for(auto obj: vmrp_regionA_BetaAll_6fp9) obj.addToList(fOutput);
-
-       for(auto obj: vmrp_regionA_BetaAll_3fp4) obj.addToList(fOutput);
-       for(auto obj: vmrp_regionA_BetaAll_4fp5) obj.addToList(fOutput);
-       for(auto obj: vmrp_regionA_BetaAll_5fp6) obj.addToList(fOutput);
-       for(auto obj: vmrp_regionA_BetaAll_6fp7) obj.addToList(fOutput);
-       for(auto obj: vmrp_regionA_BetaAll_7fp8) obj.addToList(fOutput);
-       for(auto obj: vmrp_regionA_BetaAll_8fp9) obj.addToList(fOutput);
-       for(auto obj: vmrp_regionA_BetaAll_9fp10) obj.addToList(fOutput);
-
-   }
    if(UseFpixel){
        std::cout<<"We use Fpix for the cut on ionization (based on pixels, uncorellated with Ih_strip)" << std::endl;
 
